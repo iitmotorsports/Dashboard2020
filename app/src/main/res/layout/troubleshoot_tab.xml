@@ -1,0 +1,259 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:orientation="horizontal"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+  >
+
+    <TextView
+        android:id="@+id/textView4"
+        android:layout_width="233dp"
+        android:layout_height="73dp"
+        android:layout_marginStart="1028dp"
+        android:layout_marginTop="52dp"
+        android:layout_marginEnd="19dp"
+        android:text="SAE@IIT MOTORSPORTS"
+        android:textColor="#FFFFFF"
+        android:textSize="30sp"
+        android:textStyle="bold"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="1.0"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+
+    <ImageView
+        android:id="@+id/imageView"
+        android:layout_width="603dp"
+        android:layout_height="238dp"
+        android:layout_marginStart="18dp"
+        android:layout_marginTop="122dp"
+        android:layout_marginEnd="32dp"
+        android:layout_marginBottom="82dp"
+        android:visibility="visible"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintHorizontal_bias="0.65"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+        app:layout_constraintVertical_bias="0.241"
+        app:srcCompat="@drawable/car22redohigh" />
+
+    <Button
+        android:id="@+id/TSPostRunHardwareGate"
+        android:layout_width="80dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="188dp"
+        android:layout_marginTop="236dp"
+        android:background="#00FF03"
+        android:fontFamily="@font/anton"
+        android:text="MOTORCON2"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/TSPostRunCurrentSensor"
+        android:layout_width="71dp"
+        android:layout_height="41dp"
+        android:layout_marginStart="264dp"
+        android:layout_marginTop="372dp"
+        android:background="#00FF03"
+        android:fontFamily="@font/anton"
+        android:text="Current Sensor"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/TSPostRunAccelerator"
+        android:layout_width="80dp"
+        android:layout_height="38dp"
+        android:layout_marginStart="392dp"
+        android:layout_marginTop="324dp"
+        android:background="#00FF03"
+        android:fontFamily="@font/anton"
+        android:text="Accelerator"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/TSPostRunTemperature"
+        android:layout_width="195dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="404dp"
+        android:layout_marginTop="604dp"
+        android:background="#00FF03"
+        android:fontFamily="@font/anton"
+        android:text="Temperature"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/TSPostRunPreCharge"
+        android:layout_width="88dp"
+        android:layout_height="54dp"
+        android:layout_marginStart="172dp"
+        android:layout_marginTop="520dp"
+        android:background="#00FF03"
+        android:fontFamily="@font/anton"
+        android:text="PreCharge"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/TSPostRunVoltageSensor"
+        android:layout_width="69dp"
+        android:layout_height="40dp"
+        android:layout_marginStart="264dp"
+        android:layout_marginTop="284dp"
+        android:background="#00FF03"
+        android:fontFamily="@font/anton"
+        android:text="Voltage Sensor"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/TSPostRunEEPROM"
+        android:layout_width="78dp"
+        android:layout_height="43dp"
+        android:layout_marginStart="188dp"
+        android:layout_marginTop="412dp"
+        android:background="#00FF03"
+        android:fontFamily="@font/anton"
+        android:text="MOTORCON1"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/TSPostRunBrake"
+        android:layout_width="95dp"
+        android:layout_height="50dp"
+        android:layout_marginStart="576dp"
+        android:layout_marginTop="372dp"
+        android:background="#00FF03"
+        android:fontFamily="@font/anton"
+        android:text="Brake POSTRUN Fault"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/TSRunDisCharge"
+        android:layout_width="82dp"
+        android:layout_height="51dp"
+        android:layout_marginStart="588dp"
+        android:layout_marginTop="272dp"
+        android:background="#00FF03"
+        android:fontFamily="@font/anton"
+        android:text="DisCharge"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/TSRunBrake"
+        android:layout_width="69dp"
+        android:layout_height="29dp"
+        android:layout_marginStart="268dp"
+        android:layout_marginTop="332dp"
+        android:background="#00FF03"
+        android:fontFamily="@font/anton"
+        android:text="BMS"
+        android:textAlignment="center"
+        android:textColor="@color/black"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/TSRunCan"
+        android:layout_width="94dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="116dp"
+        android:layout_marginTop="324dp"
+        android:background="#00FF03"
+        android:fontFamily="@font/anton"
+        android:text="Run CAN"
+        android:textColor="@color/black"
+        android:textSize="14sp"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/CloseButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Close"
+        app:layout_constraintStart_toStartOf="@+id/StartButton"
+        app:layout_constraintTop_toBottomOf="@+id/StartButton"
+        android:onClick="onClickStop"
+        android:enabled="false"
+        />
+
+    <Button
+        android:id="@+id/StartButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginStart="28dp"
+        android:layout_marginTop="52dp"
+        android:text="Start"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        android:onClick="onClickStart"
+        />
+
+    <Button
+        android:id="@+id/ClearButton"
+        android:layout_width="157dp"
+        android:layout_height="69dp"
+        android:layout_marginTop="20dp"
+        android:layout_marginEnd="60dp"
+        android:alpha=".5"
+        android:text="Clear Faults"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/textView4"
+
+        />
+
+    <TextView
+        android:id="@+id/sconsole"
+        android:layout_width="855dp"
+        android:layout_height="159dp"
+        android:layout_marginStart="32dp"
+        android:layout_marginTop="52dp"
+        android:background="@color/black"
+        android:isScrollContainer="true"
+        android:textColor="@color/white"
+        app:layout_constraintStart_toEndOf="@+id/CloseButton"
+        app:layout_constraintTop_toTopOf="parent" />
+
+    <Button
+        android:id="@+id/clearButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Clear"
+        android:onClick="onClickClear"
+        android:enabled="false"
+        app:layout_constraintStart_toStartOf="@+id/CloseButton"
+        app:layout_constraintTop_toBottomOf="@+id/CloseButton" />
+
+</androidx.constraintlayout.widget.ConstraintLayout>

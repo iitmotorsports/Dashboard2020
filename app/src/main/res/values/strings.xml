@@ -1,0 +1,23 @@
+<resources>
+    <string name="app_name">SAE Dashboard</string>
+    <string name="title_activity_main2">Main2Activity</string>
+    <string name="tab_text_1">Tab 1</string>
+    <string name="tab_text_2">Tab 2</string>
+    <string name="mainTabName">Main</string>
+    <string name="secondaryTabName">Secondary</string>
+    <string name="troubleshootTabName">Troubleshooting</string>
+    <string name="amsID">amsDisplay</string>
+    <string name="imdID">imdDisplay</string>
+    <string name="lvbID">lvbDisplay</string>
+    <string name="bmsID">bmsDisplay</string>
+    <string name="speedometerID">speedometer</string>
+    <string name="powerUsagePerDisplay">0%</string>
+    <string name="powerUsageAmpDisplay">Power Usage:</string>
+    <string name="batteryTempDisplay">Battery Temp:</string>
+    <string name="motorTempDisplay">Motor Temp:</string>
+    <string name="batteryVoltageDisplay">Battery Voltage:</string>
+    <string name="DataLogging">DataLogging</string>
+    <string name="left_motor_data">LEFT MOTOR DATA</string>
+    <string name="right_motor_data">RIGHT MOTOR DATA</string>
+    <string name="battery_management_system_data">BATTERY MANAGEMENT SYSTEM DATA</string>
+</resources>

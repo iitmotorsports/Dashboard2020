@@ -1,0 +1,75 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <!-- Background -->
+    <ImageView
+        android:id="@+id/background"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:src="@drawable/gr011_white_oval" />
+
+    <!-- Main gauge -->
+    <com.sccomponents.gauges.gr011.ScGauges.ScArcGauge
+        android:id="@+id/mainGauge"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent" />
+
+    <!-- Texts -->
+    <LinearLayout
+        android:id="@+id/textContainer"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="vertical">
+
+        <com.sccomponents.gauges.gr011.Utils.AutoSizeTextView
+            android:id="@+id/textTop"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.2"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1" />
+
+        <com.sccomponents.gauges.gr011.Utils.AutoSizeTextView
+            android:id="@+id/valueText"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginTop="5dp"
+            android:layout_weight="0.6"
+            android:gravity="center"
+            android:includeFontPadding="false"
+            android:maxLines="1" />
+
+        <com.sccomponents.gauges.gr011.Utils.AutoSizeTextView
+            android:id="@+id/textBottom"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="0.2"
+            android:gravity="right"
+            android:includeFontPadding="false"
+            android:maxLines="1" />
+
+    </LinearLayout>
+
+    <!-- Contour -->
+    <ImageView
+        android:id="@+id/shadow"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="fitCenter"
+        android:src="@drawable/gr011_shadow" />
+
+    <ImageView
+        android:id="@+id/contour"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:contentDescription="@null"
+        android:scaleType="fitCenter"
+        android:src="@drawable/gr011_border" />
+
+</FrameLayout>
