@@ -45,8 +45,7 @@ public class TroubleshootTab extends Fragment implements View.OnClickListener {
 			fault.setBackgroundColor(0xAE00FF03);//change to green if fault
 		}
 	}
-
-
+	
 
 //=================================================================================================
 //Ignore this method....
