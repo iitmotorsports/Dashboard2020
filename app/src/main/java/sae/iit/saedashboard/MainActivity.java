@@ -108,18 +108,18 @@ public class MainActivity extends AppCompatActivity {
 			@Override
 			public void run(){
 				try{
-					for(int i =0;i<4;i++){
+					for(int i =0;i<10;i++){
 						values[i] = line.split(" ")[i];
 					}
 					s = values[1];
 					pg = values[2];
 					bl = values[3];
-					//lmt = values[4];
-					//rmt = values[5];
-					//lmct = values[6];
-					//rmct = values[7];
-					//aap = values[8];
-					//DCbc = values[9];
+					lmt = values[4];
+					rmt = values[5];
+					lmct = values[6];
+					rmct = values[7];
+					aap = values[8];
+					DCbc = values[9];
 					//soc = values[10];
 					//f = values[11];
 					//ttt = values[12];
@@ -133,12 +133,12 @@ public class MainActivity extends AppCompatActivity {
 							MainTab.setPowerGauge(pg);
 							MainTab.setBatteryLife(bl);
 							MainTab.setBatImage(bl);
-							//SecondaryTab.setLeftMotorTemp(lmt);
-							//SecondaryTab.setRightMotorTemp(rmt);
-							//SecondaryTab.setLeftMotorContTemp(lmct);
-							//SecondaryTab.setRightMotorContTemp(rmct);
-							//SecondaryTab.setActiveAeroPos(aap);
-							//SecondaryTab.setDCBusCurrent(DCbc);
+							SecondaryTab.setLeftMotorTemp(lmt);
+							SecondaryTab.setRightMotorTemp(rmt);
+							SecondaryTab.setLeftMotorContTemp(lmct);
+							SecondaryTab.setRightMotorContTemp(rmct);
+							SecondaryTab.setActiveAeroPos(aap);
+							SecondaryTab.setDCBusCurrent(DCbc);
 
 						}catch(NullPointerException e){}
 					}
@@ -256,9 +256,8 @@ public class MainActivity extends AppCompatActivity {
 
 	//Updates display on tablet
 	//Will receive an array
-	static public void update() {
+	static public void update() { }
 
-	}
 	@Override
 	public void onDestroy(){
 		unregisterReceiver(broadcastReceiver);
