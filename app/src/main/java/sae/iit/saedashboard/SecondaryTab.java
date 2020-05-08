@@ -1,17 +1,27 @@
 package sae.iit.saedashboard;
+import android.content.*;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import java.util.List;
-import java.util.ArrayList;
-import android.widget.ListView;
-import android.widget.ArrayAdapter;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+
+import androidx.core.content.FileProvider;
 import androidx.fragment.app.Fragment;
-import android.widget.ImageView;
+
 import android.widget.TextView;
-import android.widget.ListView;
-import android.widget.LinearLayout;
+import android.net.Uri;
+import java.io.DataOutputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+
+
 
 public class SecondaryTab extends Fragment {
 	private static TextView rightMotorTemp, leftMotorTemp, rightMotorContTemp, leftMotorContTemp, activeAeroPos, DCBusCurrent;
@@ -22,6 +32,7 @@ public class SecondaryTab extends Fragment {
 							 Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(
 				R.layout.secondary_tab, container, false);
+
 
 		//Initializing Fields
 		rightMotorTemp = rootView.findViewById(R.id.rightMotorTemp);
@@ -39,5 +50,7 @@ public class SecondaryTab extends Fragment {
 	public static void setRightMotorContTemp(String RMCT){ rightMotorContTemp.setText((CharSequence)RMCT); }
 	public static void setActiveAeroPos(String AAP){ activeAeroPos.setText((CharSequence)AAP); }
 	public static void setDCBusCurrent(String DCBC){ DCBusCurrent.setText((CharSequence)DCBC); }
+
+
 
 }
