@@ -12,9 +12,7 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
-/*Designer: Deep Trapasia
-SAE Electrical Team Member(Software Team) 2019-2020
- */
+
 //implements View.OnClickListener
 public class TroubleshootTab extends Fragment  {
 

@@ -47,6 +47,7 @@ public class MainTab extends Fragment {
 		bat50 = rootView.findViewById(R.id.bat50);
 		bat75 = rootView.findViewById(R.id.bat75);
 		bat100 = rootView.findViewById(R.id.bat100);
+		
 
 		//checkEngine = rootView.findViewById(R.id.checkEngine);
 		//Power Gauge
@@ -83,13 +84,18 @@ public class MainTab extends Fragment {
 				int value = (int) ScGauge.percentageToValue(highValue, 0, 13000);
 				powerDisplay.setText(Integer.toString(value));
 			}
+
+
+
 		});
 		//End value needs to be changed to reflect max output in watts
 
 		return rootView;
 	}
 	//Updates field info
-	public static void setPowerGauge(String batt) { powerGauge.setHighValue((float)Integer.parseInt(batt)); }
+	public static void setPowerGauge(String batt) {
+		powerGauge.setHighValue((float)Integer.parseInt(batt)); }
+
 
 	public static void setSpeedometer(String speed) {
 		speedometer.setText((CharSequence) speed);

@@ -8,4 +8,5 @@
     <item name="leftMotorContTemp" type="id" />
     <item name="DCBusCurrent" type="id" />
     <item name="activeAeroPos" type="id" />
+    <item name="videoView" type="id" />
 </resources>

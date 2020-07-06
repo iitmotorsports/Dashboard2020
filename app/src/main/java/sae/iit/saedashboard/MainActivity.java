@@ -8,6 +8,7 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.pm.ActivityInfo;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
@@ -17,6 +18,7 @@ import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.MediaController;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
 import com.felhr.usbserial.UsbSerialDevice;
@@ -39,6 +41,13 @@ import android.os.Looper;
 import android.view.View;
 import android.widget.ArrayAdapter;
 import android.widget.ListView;
+import android.widget.VideoView;
+import android.net.Uri;
+import android.os.Bundle;
+import android.view.View;
+import android.widget.MediaController;
+import android.widget.VideoView;
+
 import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity {
@@ -67,6 +76,7 @@ public class MainActivity extends AppCompatActivity {
 	private ViewPager viewPager;
 	private MyPagerAdapter pagerAdapter;
 	private TabLayout tabLayout;
+	VideoView vid;
 
 	private MainTab mainTab = (MainTab) getSupportFragmentManager().findFragmentById(R.id.mainTab);
 	private SecondaryTab secondaryTab = (SecondaryTab) getSupportFragmentManager().findFragmentById(R.id.secondaryTab);
@@ -87,11 +97,13 @@ public class MainActivity extends AppCompatActivity {
 		data.append(" Time(sec),Speed(mph),Power(watts),Battery Percentage,Right Motor Temp(F),Right Motor Controller Temp(F),Left Motor Temp(F),Left Motor Controller Temp(F),Active Aero Position(Degrees),DC Bus Current(A) ");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
+		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		//Hides the status bar.
 		View decorView = getWindow().getDecorView();
 		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
 		decorView.setSystemUiVisibility(uiOptions);
 		//Setting up ViewPager, Adapter, and TabLayout
+
 		viewPager = findViewById(R.id.viewPager);
 		pagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
 		tabLayout = findViewById(R.id.tabLayout);
@@ -176,6 +188,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 		}, 0, 1000);
 	}
+
 
 	public void onClickStart(View view) {
 		HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
@@ -324,7 +337,6 @@ public class MainActivity extends AppCompatActivity {
 				e.printStackTrace();
 			}
 	}
-
 }
 
 
