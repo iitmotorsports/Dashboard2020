@@ -4,6 +4,7 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.ViewPager;
 
+import android.annotation.SuppressLint;
 import android.app.ActionBar;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
@@ -14,12 +15,14 @@ import android.content.pm.ActivityInfo;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
+import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.ImageButton;
 import android.widget.MediaController;
 import android.widget.TextView;
 import androidx.appcompat.app.AppCompatActivity;
@@ -85,7 +88,9 @@ public class MainActivity extends AppCompatActivity {
 	private TroubleshootTab troubleshootTab = (TroubleshootTab) getSupportFragmentManager().findFragmentById(R.id.troubleshootTab);
 	private ListView lv;
 	private String line;
-	Button startButton, closeButton, clearButton;
+	Button startButton, closeButton, clearButton, clearTButton;
+	ImageButton SHbutton;
+	private boolean shown = false;
 	TextView sconsole;
 	UsbManager usbManager;
 	UsbDevice device;
@@ -94,6 +99,7 @@ public class MainActivity extends AppCompatActivity {
 	StringBuilder data = new StringBuilder();
 	int j = 0;
 
+	@SuppressLint("WrongViewCast")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
@@ -116,14 +122,17 @@ public class MainActivity extends AppCompatActivity {
 		tabLayout.setTabTextColors(getResources().getColor(R.color.white), getResources().getColor(R.color.white));
 		startButton = findViewById(R.id.Start);
 		closeButton = findViewById(R.id.Close);
-		clearButton = findViewById(R.id.clearButton);
+		clearButton = findViewById(R.id.ClearF);
+		clearTButton = findViewById(R.id.Clear);
+		SHbutton = findViewById(R.id.Show);
 		//Makes corner Buttons invisible
 		startButton.setVisibility(View.INVISIBLE);
 		closeButton.setVisibility(View.INVISIBLE);
-		//clearButton.setVisibility(View.INVISIBLE);
-
+		clearButton.setVisibility(View.INVISIBLE);
+		clearTButton.setVisibility(View.INVISIBLE);
 		sconsole = findViewById(R.id.textView7);
-		//setUiEnabled(false);
+		sconsole.setVisibility(View.INVISIBLE);
+		setUiEnabled(false);
 		usbManager = (UsbManager) getSystemService(USB_SERVICE);
 		IntentFilter filter = new IntentFilter();
 		filter.addAction(ACTION_USB_PERMISSION);
@@ -186,9 +195,7 @@ public class MainActivity extends AppCompatActivity {
 			public void run() {
 				j++;
 				//generate data
-				data.append("\n" + j + "," + Integer.parseInt(s) + "," + Integer.parseInt(pg) + "," + Integer.parseInt(bl)
-						+ "," + Integer.parseInt(rmt) + "," + Integer.parseInt(rmct) + "," + Integer.parseInt(lmt) + "," + Integer.parseInt(lmct)
-						+ "," + Integer.parseInt(aap) + "," + Integer.parseInt(DCbc));
+				data.append("\n"+j+","+Integer.parseInt(s)+","+Integer.parseInt(pg)+"," + Integer.parseInt(bl)+","+Integer.parseInt(rmt)+","+Integer.parseInt(rmct)+","+Integer.parseInt(lmt)+","+Integer.parseInt(lmct)+","+Integer.parseInt(aap)+","+Integer.parseInt(DCbc));
 			}
 		}, 0, 1000);
 	}
@@ -244,6 +251,7 @@ public class MainActivity extends AppCompatActivity {
 							serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
 							serialPort.read(mCallback);
 							tvAppend(sconsole, "Serial Connection Opened!\n");
+							setUiEnabled(true);
 						} else {
 							tvAppend(sconsole, "Not good PORT");
 						}
@@ -277,11 +285,27 @@ public class MainActivity extends AppCompatActivity {
 		startButton.setEnabled(!bool);
 		closeButton.setEnabled(bool);
 	}
-
 	public void onClickFault() {
 		serialPort.write("0000".getBytes());
 	}
 
+	public void onClickSH(View view){
+		if(!shown){
+			startButton.setVisibility(View.VISIBLE);
+			closeButton.setVisibility(View.VISIBLE);
+			clearButton.setVisibility(View.VISIBLE);
+			clearTButton.setVisibility(View.VISIBLE);
+			sconsole.setVisibility(View.VISIBLE);
+			shown = true;
+		} else {
+			startButton.setVisibility(View.INVISIBLE);
+			closeButton.setVisibility(View.INVISIBLE);
+			clearButton.setVisibility(View.INVISIBLE);
+			clearTButton.setVisibility(View.INVISIBLE);
+			sconsole.setVisibility(View.INVISIBLE);
+			shown = false;
+		}
+	}
 	public void onClickClear(View view) {
 		sconsole.setText(" ");
 	}
@@ -326,7 +350,6 @@ public class MainActivity extends AppCompatActivity {
 				FileOutputStream out = openFileOutput("data.csv", Context.MODE_PRIVATE);
 				out.write((data.toString()).getBytes());
 				out.close();
-
 				//exporting
 				Context context = getApplicationContext();
 				File filelocation = new File(getFilesDir(), "data.csv");

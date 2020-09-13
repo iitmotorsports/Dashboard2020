@@ -22,7 +22,10 @@
         android:id="@+id/dismiss"
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:text="Dismiss" />
+        android:text="Dismiss"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="@+id/gray" />
 
     <TextView
         android:id="@+id/textView4"
@@ -283,62 +286,5 @@ done on code of the the back Teensy unit."
         android:textSize="14sp"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/CloseButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Close"
-        app:layout_constraintStart_toStartOf="@+id/StartButton"
-        app:layout_constraintTop_toBottomOf="@+id/StartButton"
-        android:onClick="onClickStop"
-        android:enabled="false"
-        />
-
-    <Button
-        android:id="@+id/StartButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginStart="28dp"
-        android:layout_marginTop="52dp"
-        android:text="Start"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        android:onClick="onClickStart"
-        />
-
-    <Button
-        android:id="@+id/ClearButton"
-        android:layout_width="157dp"
-        android:layout_height="69dp"
-        android:layout_marginEnd="4dp"
-        android:alpha=".5"
-        android:text="Clear Faults"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toBottomOf="@+id/textView4"
-
-        />
-
-    <TextView
-        android:id="@+id/sconsole"
-        android:layout_width="481dp"
-        android:layout_height="111dp"
-        android:layout_marginStart="36dp"
-        android:layout_marginTop="52dp"
-        android:background="@color/black"
-        android:isScrollContainer="true"
-        android:textColor="@color/white"
-        app:layout_constraintStart_toEndOf="@+id/CloseButton"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <Button
-        android:id="@+id/clearButton"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Clear"
-        android:onClick="onClickClear"
-        android:enabled="false"
-        app:layout_constraintStart_toStartOf="@+id/CloseButton"
-        app:layout_constraintTop_toBottomOf="@+id/CloseButton" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>
