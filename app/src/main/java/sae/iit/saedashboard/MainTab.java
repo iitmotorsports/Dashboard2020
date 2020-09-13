@@ -30,7 +30,7 @@ import pl.pawelkleczkowski.customgauge.CustomGauge;
 
 public class MainTab extends Fragment {
 	private static TextView speedometer, batteryLife, powerDisplay;
-	private static ImageView bat25, bat50, bat75, bat100;
+	private static ImageView bat0, bat25, bat50, bat75, bat100;
 	private ImageView checkEngine;
 	private static ScArcGauge powerGauge;
 	private Timer timer;
@@ -43,6 +43,7 @@ public class MainTab extends Fragment {
 		//Initializing Fields
 		speedometer = rootView.findViewById(R.id.speedometer);
 		batteryLife = rootView.findViewById(R.id.batteryLife);
+		bat0 = rootView.findViewById(R.id.bat0);
 		bat25 = rootView.findViewById(R.id.bat25);
 		bat50 = rootView.findViewById(R.id.bat50);
 		bat75 = rootView.findViewById(R.id.bat75);
@@ -115,29 +116,41 @@ public class MainTab extends Fragment {
 	public static void setBatImage(String battery){
 		int level = Integer.parseInt(battery);
 		if(level <= 100 && level > 75){
+			bat0.setVisibility(View.INVISIBLE);
 			bat25.setVisibility(View.INVISIBLE);
 			bat50.setVisibility(View.INVISIBLE);
 			bat75.setVisibility(View.INVISIBLE);
 			bat100.setVisibility(View.VISIBLE);
 		}
 		if(level <= 75 && level > 50){
+			bat0.setVisibility(View.INVISIBLE);
 			bat25.setVisibility(View.INVISIBLE);
 			bat50.setVisibility(View.INVISIBLE);
 			bat75.setVisibility(View.VISIBLE);
 			bat100.setVisibility(View.INVISIBLE);
 		}
 		if(level <= 50 && level > 25){
+			bat0.setVisibility(View.INVISIBLE);
 			bat25.setVisibility(View.INVISIBLE);
 			bat50.setVisibility(View.VISIBLE);
 			bat75.setVisibility(View.INVISIBLE);
 			bat100.setVisibility(View.INVISIBLE);
 		}
 		if(level <= 25 && level > 0){
+			bat0.setVisibility(View.INVISIBLE);
 			bat25.setVisibility(View.VISIBLE);
 			bat50.setVisibility(View.INVISIBLE);
 			bat75.setVisibility(View.INVISIBLE);
 			bat100.setVisibility(View.INVISIBLE);
 		}
+		if(level <=0){
+			bat0.setVisibility(View.VISIBLE);
+			bat25.setVisibility(View.INVISIBLE);
+			bat50.setVisibility(View.INVISIBLE);
+			bat75.setVisibility(View.INVISIBLE);
+			bat100.setVisibility(View.INVISIBLE);
+		}
+
 	}
 
 	private static int convertBatteryLife(double battery) {
