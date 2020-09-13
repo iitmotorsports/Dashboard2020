@@ -3,6 +3,8 @@ package sae.iit.saedashboard;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.ViewPager;
+
+import android.app.ActionBar;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -94,12 +96,14 @@ public class MainActivity extends AppCompatActivity {
 
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
+
 		data.append(" Time(sec),Speed(mph),Power(watts),Battery Percentage,Right Motor Temp(F),Right Motor Controller Temp(F),Left Motor Temp(F),Left Motor Controller Temp(F),Active Aero Position(Degrees),DC Bus Current(A) ");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 		//Hides the status bar.
 		View decorView = getWindow().getDecorView();
+
 		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
 		decorView.setSystemUiVisibility(uiOptions);
 		//Setting up ViewPager, Adapter, and TabLayout
