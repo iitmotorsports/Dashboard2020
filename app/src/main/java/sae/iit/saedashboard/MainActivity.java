@@ -38,6 +38,7 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
+import java.nio.ByteBuffer;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -310,10 +311,16 @@ public class MainActivity extends AppCompatActivity {
 		sconsole.setText(" ");
 	}
 
+    static HashMap<Long, Byte[]> Teensy_Data = new HashMap<Long, Byte[]>();
+
 	UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
 		@Override
 		public void onReceivedData(byte[] arg0) {
-			String data;
+            String data;
+
+            ByteBuffer bb_data = ByteBuffer.wrap(arg0, 4, 8);
+            bb.order(ByteOrder.LITTLE_ENDIAN); // I think?
+            Teensy_Data.put(address, msg_bytes);
 
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 				data = new String(arg0, StandardCharsets.UTF_8);
@@ -325,6 +332,7 @@ public class MainActivity extends AppCompatActivity {
 			tvAppend(sconsole, line + "/n");
 		}
 	};
+
 	/*protected void onResume(Bundle savedInstanceState) {
 		//Hides the status bar.
 		View decorView = getWindow().getDecorView();
