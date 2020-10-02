@@ -318,15 +318,16 @@ public class MainActivity extends AppCompatActivity {
 		public void onReceivedData(byte[] arg0) {
             String data;
 
-            ByteBuffer bb_data = ByteBuffer.wrap(arg0, 4, 8);
-            bb.order(ByteOrder.LITTLE_ENDIAN); // I think?
+            ByteBuffer bb_add = ByteBuffer.wrap(arg0, 0, 4);
+            // bb_add.order(ByteOrder.LITTLE_ENDIAN); // I think?
+
             Teensy_Data.put(address, msg_bytes);
 
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 				data = new String(arg0, StandardCharsets.UTF_8);
 			} else {
 				data = new String(arg0, Charset.defaultCharset());
-			}
+            }
 			line = data;
 			data.concat("/n");
 			tvAppend(sconsole, line + "/n");
