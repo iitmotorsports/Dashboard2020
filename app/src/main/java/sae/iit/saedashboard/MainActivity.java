@@ -38,7 +38,6 @@ import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
 import java.util.concurrent.TimeUnit;
-import java.nio.ByteBuffer;
 
 import android.app.Activity;
 import android.os.Bundle;
@@ -98,7 +97,9 @@ public class MainActivity extends AppCompatActivity {
 	UsbSerialDevice serialPort;
 	UsbDeviceConnection connection;
 	StringBuilder data = new StringBuilder();
-	int j = 0;
+    int j = 0;
+    
+    static HashMap<Long, Byte[]> Teensy_Data = new HashMap<Long, Byte[]>();
 
 	@SuppressLint("WrongViewCast")
 	@Override
@@ -311,17 +312,13 @@ public class MainActivity extends AppCompatActivity {
 		sconsole.setText(" ");
 	}
 
-    static HashMap<Long, Byte[]> Teensy_Data = new HashMap<Long, Byte[]>();
-
 	UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
 		@Override
 		public void onReceivedData(byte[] arg0) {
+
+            TeensyMsg.setData(arg0);
+
             String data;
-
-            ByteBuffer bb_add = ByteBuffer.wrap(arg0, 0, 4);
-            // bb_add.order(ByteOrder.LITTLE_ENDIAN); // I think?
-
-            Teensy_Data.put(address, msg_bytes);
 
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 				data = new String(arg0, StandardCharsets.UTF_8);
@@ -332,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
 			data.concat("/n");
 			tvAppend(sconsole, line + "/n");
 		}
-	};
+    };
 
 	/*protected void onResume(Bundle savedInstanceState) {
 		//Hides the status bar.
