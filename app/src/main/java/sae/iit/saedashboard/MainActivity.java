@@ -97,7 +97,9 @@ public class MainActivity extends AppCompatActivity {
 	UsbSerialDevice serialPort;
 	UsbDeviceConnection connection;
 	StringBuilder data = new StringBuilder();
-	int j = 0;
+    int j = 0;
+    
+    static HashMap<Long, Byte[]> Teensy_Data = new HashMap<Long, Byte[]>();
 
 	@SuppressLint("WrongViewCast")
 	@Override
@@ -313,18 +315,22 @@ public class MainActivity extends AppCompatActivity {
 	UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
 		@Override
 		public void onReceivedData(byte[] arg0) {
-			String data;
+
+            TeensyMsg.setData(arg0);
+
+            String data;
 
 			if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.KITKAT) {
 				data = new String(arg0, StandardCharsets.UTF_8);
 			} else {
 				data = new String(arg0, Charset.defaultCharset());
-			}
+            }
 			line = data;
 			data.concat("/n");
 			tvAppend(sconsole, line + "/n");
 		}
-	};
+    };
+
 	/*protected void onResume(Bundle savedInstanceState) {
 		//Hides the status bar.
 		View decorView = getWindow().getDecorView();
