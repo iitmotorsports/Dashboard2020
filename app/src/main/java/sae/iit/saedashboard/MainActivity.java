@@ -67,9 +67,6 @@ public class MainActivity extends AppCompatActivity {
 	public String aap = "0";
 	public String soc = "0";
 	public String DCbc = "0";
-	public String f = "0";
-	public String ttt = "0";
-	public int speed = 0;
 	public String v = "50";
 	public int volt = 50;
 	public String b = "blank";
