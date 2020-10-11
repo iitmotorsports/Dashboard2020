@@ -14,7 +14,7 @@ public class SplashActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_splash);
-		videoView = (VideoView) findViewById(R.id.videoView);
+		videoView = findViewById(R.id.videoView);
 
 		Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.startup);
 		videoView.setVideoURI(video);
