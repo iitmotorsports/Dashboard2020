@@ -1,5 +1,9 @@
 package sae.iit.saedashboard;
 
+import android.os.Build;
+
+import androidx.annotation.RequiresApi;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -8,20 +12,24 @@ import java.util.Map;
 
 public class TeensyMsg {
 
-    private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.US_ASCII);
+    private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.UTF_8); // Change API
     private static final int ID_SIZE = 2; // How big is the teensy message ID
     private static HashMap<Integer, byte[]> Teensy_Data = new HashMap<Integer, byte[]>();
 
-    /**
+    /*
      * Enumurate the teensy addresses and define functions for each one that needs
      * a value exposed
      * 
      */
+
+
     public enum ADD {
         SPEED(258) {
             public long getValue() {
                 return getUnsignedShort(address);
             }
+            //Convert RPM to MPH
+
         },
         ANOTHERVAL(258) {
             public long getValue() {
@@ -29,7 +37,7 @@ public class TeensyMsg {
             }
         };
 
-        public final int address;
+        public int address;
 
         abstract public long getValue(); // Changed to return 'Number' to return Integer or Long
 
@@ -38,12 +46,14 @@ public class TeensyMsg {
         }
     }
 
-    /**
+    /*
      * Returns the hex string representation of the given byte array
      * 
      * @param bytes
      * @return The hex string
      */
+
+    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static String hexStr(byte[] bytes) { // TODO: Ensure string Charset is correct
         byte[] hexChars = new byte[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
@@ -54,7 +64,7 @@ public class TeensyMsg {
         return new String(hexChars, StandardCharsets.UTF_8);
     }
 
-    /**
+    /*
      * Returns the hex string representation of the stored teensy byte array
      * 
      * @param bytes
@@ -67,7 +77,7 @@ public class TeensyMsg {
         return hexStr(bytes);
     }
 
-    /**
+    /*
      * Reads the first two bytes of a message's array, composing them into an
      * unsigned short value
      * 
@@ -77,11 +87,11 @@ public class TeensyMsg {
     public static int getUnsignedShort(int MsgID) {
         byte[] data = Teensy_Data.get(MsgID);
         if (data == null)
-            return -1;
+            return 0;
         return (ByteBuffer.wrap(data).getShort(ID_SIZE) & 0xffff); // offset to ignore ID bytes
     }
 
-    /**
+    /*
      * Reads two bytes at the message's index, composing them into an unsigned short
      * value.
      * 
@@ -92,11 +102,11 @@ public class TeensyMsg {
     public static int getUnsignedShort(int MsgID, int position) {
         byte[] data = Teensy_Data.get(MsgID);
         if (data == null)
-            return -1;
+            return 0;
         return (ByteBuffer.wrap(data).getShort(ID_SIZE + position) & 0xffff);
     }
 
-    /**
+    /*
      * Reads the first four bytes of a message's array, composing them into an
      * unsigned int value
      * 
@@ -106,11 +116,11 @@ public class TeensyMsg {
     public static long getUnsignedInt(int MsgID) {
         byte[] data = Teensy_Data.get(MsgID);
         if (data == null)
-            return -1;
+            return 0;
         return ((long) ByteBuffer.wrap(data).getInt(ID_SIZE) & 0xffffffffL);
     }
 
-    /**
+    /*
      * Reads four bytes at the message's index, composing them into an unsigned int
      * value.
      * 
@@ -121,11 +131,11 @@ public class TeensyMsg {
     public static long getUnsignedInt(int MsgID, int position) {
         byte[] data = Teensy_Data.get(MsgID);
         if (data == null)
-            return -1;
+            return 0;
         return ((long) ByteBuffer.wrap(data).getInt(ID_SIZE + position) & 0xffffffffL);
     }
 
-    /**
+    /*
      * Get the ID from the byte array received from the teensy
      * 
      * @param data
@@ -135,20 +145,21 @@ public class TeensyMsg {
         return ByteBuffer.wrap(raw_data).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xffff; // get TMsg ID
     }
 
-    /**
+    /*
      * Set teensy data in a HashMap given a raw byte array
      * 
      * @param raw_data
      */
     public static void setData(byte[] raw_data) {
-        if (raw_data.length == 10) // 2 for ID, 8 for data bytes
+       // if (raw_data.length == 10) // 2 for ID, 8 for data bytes
             // Instead of chopping the original array up, just store the whole thing
             Teensy_Data.put(getDataID(raw_data), raw_data); // IMPROVE: check that ID is within range
     }
 
-    /**
+    /*
      * @return The string representation of the stored teensy messages
      */
+
     public static String dataString() {
         StringBuilder str = new StringBuilder();
         for (Map.Entry<Integer, byte[]> e : Teensy_Data.entrySet()) {
