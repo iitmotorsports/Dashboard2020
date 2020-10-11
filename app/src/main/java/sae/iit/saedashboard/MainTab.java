@@ -29,133 +29,134 @@ import java.util.concurrent.TimeUnit;
 import pl.pawelkleczkowski.customgauge.CustomGauge;
 
 public class MainTab extends Fragment {
-	private static TextView speedometer, batteryLife, powerDisplay;
-	private static ImageView bat0, bat25, bat50, bat75, bat100;
-	private ImageView checkEngine;
-	private static ScArcGauge powerGauge;
-	private Timer timer;
-	//Creates a view that is compatible with ViewPager
-	@Override
-	public View onCreateView(LayoutInflater inflater, ViewGroup container,
-							 Bundle savedInstanceState) {
-		ViewGroup rootView = (ViewGroup) inflater.inflate(
-				R.layout.main_tab, container, false);
-		//Initializing Fields
-		speedometer = rootView.findViewById(R.id.speedometer);
-		batteryLife = rootView.findViewById(R.id.batteryLife);
-		bat0 = rootView.findViewById(R.id.bat0);
-		bat25 = rootView.findViewById(R.id.bat25);
-		bat50 = rootView.findViewById(R.id.bat50);
-		bat75 = rootView.findViewById(R.id.bat75);
-		bat100 = rootView.findViewById(R.id.bat100);
-		
+    private static TextView speedometer, batteryLife, powerDisplay;
+    private static ImageView bat0, bat25, bat50, bat75, bat100;
+    private ImageView checkEngine;
+    private static ScArcGauge powerGauge;
+    private Timer timer;
 
-		//checkEngine = rootView.findViewById(R.id.checkEngine);
-		//Power Gauge
-		powerGauge = rootView.findViewById(R.id.powerGauge);
-		powerDisplay = rootView.findViewById(R.id.counter);
-		// Clear all default features from the gauge
-		powerGauge.removeAllFeatures();
-		// Create the base notches.
-		ScNotches base = (ScNotches) powerGauge.addFeature(ScNotches.class);
-		base.setTag(ScGauge.BASE_IDENTIFIER);
-		base.setPosition(ScFeature.Positions.INSIDE);
-		base.setRepetitions(40);
-		base.setWidths(10);
-		base.setHeights(10, 120);
-		base.setColors(Color.parseColor("#dbdfe6"));
-
-		// Create the progress notches.
-		ScNotches progress = (ScNotches) powerGauge.addFeature(ScNotches.class);
-		progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
-		progress.setColors(
-				Color.parseColor("#0BA60A"),
-				Color.parseColor("#FEF301"),
-				Color.parseColor("#EA0C01")
-		);
-
-		// Set the value
-		powerGauge.setHighValue(0, 0, 100);
-
-		// Changes the text value to the gauge value
-		powerGauge.setOnEventListener(new ScGauge.OnEventListener() {
-			@Override
-			public void onValueChange(ScGauge gauge, float lowValue, float highValue, boolean isRunning) {
-				// Write the value
-				int value = (int) ScGauge.percentageToValue(highValue, 0, 13000);
-				powerDisplay.setText(Integer.toString(value));
-			}
+    //Creates a view that is compatible with ViewPager
+    @Override
+    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+                             Bundle savedInstanceState) {
+        ViewGroup rootView = (ViewGroup) inflater.inflate(
+                R.layout.main_tab, container, false);
+        //Initializing Fields
+        speedometer = rootView.findViewById(R.id.speedometer);
+        batteryLife = rootView.findViewById(R.id.batteryLife);
+        bat0 = rootView.findViewById(R.id.bat0);
+        bat25 = rootView.findViewById(R.id.bat25);
+        bat50 = rootView.findViewById(R.id.bat50);
+        bat75 = rootView.findViewById(R.id.bat75);
+        bat100 = rootView.findViewById(R.id.bat100);
 
 
+        //checkEngine = rootView.findViewById(R.id.checkEngine);
+        //Power Gauge
+        powerGauge = rootView.findViewById(R.id.powerGauge);
+        powerDisplay = rootView.findViewById(R.id.counter);
+        // Clear all default features from the gauge
+        powerGauge.removeAllFeatures();
+        // Create the base notches.
+        ScNotches base = (ScNotches) powerGauge.addFeature(ScNotches.class);
+        base.setTag(ScGauge.BASE_IDENTIFIER);
+        base.setPosition(ScFeature.Positions.INSIDE);
+        base.setRepetitions(40);
+        base.setWidths(10);
+        base.setHeights(10, 120);
+        base.setColors(Color.parseColor("#dbdfe6"));
 
-		});
-		//End value needs to be changed to reflect max output in watts
+        // Create the progress notches.
+        ScNotches progress = (ScNotches) powerGauge.addFeature(ScNotches.class);
+        progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
+        progress.setColors(
+                Color.parseColor("#0BA60A"),
+                Color.parseColor("#FEF301"),
+                Color.parseColor("#EA0C01")
+        );
 
-		return rootView;
-	}
-	//Updates field info
-	public static void setPowerGauge(String batt) {
-		powerGauge.setHighValue((float)Integer.parseInt(batt)); }
+        // Set the value
+        powerGauge.setHighValue(0, 0, 100);
 
+        // Changes the text value to the gauge value
+        powerGauge.setOnEventListener(new ScGauge.OnEventListener() {
+            @Override
+            public void onValueChange(ScGauge gauge, float lowValue, float highValue, boolean isRunning) {
+                // Write the value
+                int value = (int) ScGauge.percentageToValue(highValue, 0, 13000);
+                powerDisplay.setText(Integer.toString(value));
+            }
 
-	public static void setSpeedometer(String speed) {
-		speedometer.setText((CharSequence) speed);
-	}
+        });
+        //End value needs to be changed to reflect max output in watts
 
-	public static void setBatteryLife(String battery) { batteryLife.setText((CharSequence) battery); }
+        return rootView;
+    }
 
-	public void setCheckEngine(Boolean fault) {
-		if(fault) {
-			checkEngine.setVisibility(View.VISIBLE);
-		}
-		else {
-			checkEngine.setVisibility(View.INVISIBLE);
-		}
-	}
+    //Updates field info
+    public static void setPowerGauge(String batt) {
+        powerGauge.setHighValue((float) Integer.parseInt(batt));
+    }
 
-	public static void setBatImage(String battery){
-		int level = Integer.parseInt(battery);
-		if(level <= 100 && level > 75){
-			bat0.setVisibility(View.INVISIBLE);
-			bat25.setVisibility(View.INVISIBLE);
-			bat50.setVisibility(View.INVISIBLE);
-			bat75.setVisibility(View.INVISIBLE);
-			bat100.setVisibility(View.VISIBLE);
-		}
-		if(level <= 75 && level > 50){
-			bat0.setVisibility(View.INVISIBLE);
-			bat25.setVisibility(View.INVISIBLE);
-			bat50.setVisibility(View.INVISIBLE);
-			bat75.setVisibility(View.VISIBLE);
-			bat100.setVisibility(View.INVISIBLE);
-		}
-		if(level <= 50 && level > 25){
-			bat0.setVisibility(View.INVISIBLE);
-			bat25.setVisibility(View.INVISIBLE);
-			bat50.setVisibility(View.VISIBLE);
-			bat75.setVisibility(View.INVISIBLE);
-			bat100.setVisibility(View.INVISIBLE);
-		}
-		if(level <= 25 && level > 0){
-			bat0.setVisibility(View.INVISIBLE);
-			bat25.setVisibility(View.VISIBLE);
-			bat50.setVisibility(View.INVISIBLE);
-			bat75.setVisibility(View.INVISIBLE);
-			bat100.setVisibility(View.INVISIBLE);
-		}
-		if(level <=0){
-			bat0.setVisibility(View.VISIBLE);
-			bat25.setVisibility(View.INVISIBLE);
-			bat50.setVisibility(View.INVISIBLE);
-			bat75.setVisibility(View.INVISIBLE);
-			bat100.setVisibility(View.INVISIBLE);
-		}
+    public static void setSpeedometer(String speed) {
+        speedometer.setText(speed);
+    }
 
-	}
+    public static void setBatteryLife(String battery) {
+        batteryLife.setText(battery);
+    }
 
-	private static int convertBatteryLife(double battery) {
-		//Assumes battery is voltage and max is 302.4V min is 216V
-		int percentage = (int) ((battery - 216) / 86.4 * 100.0);
-		return percentage;
-	}
+    public void setCheckEngine(Boolean fault) {
+        if (fault) {
+            checkEngine.setVisibility(View.VISIBLE);
+        } else {
+            checkEngine.setVisibility(View.INVISIBLE);
+        }
+    }
+
+    public static void setBatImage(String battery) {
+        int level = Integer.parseInt(battery);
+        if (level <= 100 && level > 75) {
+            bat0.setVisibility(View.INVISIBLE);
+            bat25.setVisibility(View.INVISIBLE);
+            bat50.setVisibility(View.INVISIBLE);
+            bat75.setVisibility(View.INVISIBLE);
+            bat100.setVisibility(View.VISIBLE);
+        }
+        if (level <= 75 && level > 50) {
+            bat0.setVisibility(View.INVISIBLE);
+            bat25.setVisibility(View.INVISIBLE);
+            bat50.setVisibility(View.INVISIBLE);
+            bat75.setVisibility(View.VISIBLE);
+            bat100.setVisibility(View.INVISIBLE);
+        }
+        if (level <= 50 && level > 25) {
+            bat0.setVisibility(View.INVISIBLE);
+            bat25.setVisibility(View.INVISIBLE);
+            bat50.setVisibility(View.VISIBLE);
+            bat75.setVisibility(View.INVISIBLE);
+            bat100.setVisibility(View.INVISIBLE);
+        }
+        if (level <= 25 && level > 0) {
+            bat0.setVisibility(View.INVISIBLE);
+            bat25.setVisibility(View.VISIBLE);
+            bat50.setVisibility(View.INVISIBLE);
+            bat75.setVisibility(View.INVISIBLE);
+            bat100.setVisibility(View.INVISIBLE);
+        }
+        if (level <= 0) {
+            bat0.setVisibility(View.VISIBLE);
+            bat25.setVisibility(View.INVISIBLE);
+            bat50.setVisibility(View.INVISIBLE);
+            bat75.setVisibility(View.INVISIBLE);
+            bat100.setVisibility(View.INVISIBLE);
+        }
+
+    }
+
+    private static int convertBatteryLife(double battery) {
+        //Assumes battery is voltage and max is 302.4V min is 216V
+        int percentage = (int) ((battery - 216) / 86.4 * 100.0);
+        return percentage;
+    }
 }

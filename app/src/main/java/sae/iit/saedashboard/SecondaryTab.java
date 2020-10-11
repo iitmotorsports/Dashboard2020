@@ -44,12 +44,12 @@ public class SecondaryTab extends Fragment {
 		return rootView;
 	}
 
-	public static void setLeftMotorTemp(String LMT){ leftMotorTemp.setText((CharSequence)LMT); }
-	public static void setRightMotorTemp(String RMT){ rightMotorTemp.setText((CharSequence)RMT); }
-	public static void setLeftMotorContTemp(String LMCT){ leftMotorContTemp.setText((CharSequence)LMCT); }
-	public static void setRightMotorContTemp(String RMCT){ rightMotorContTemp.setText((CharSequence)RMCT); }
-	public static void setActiveAeroPos(String AAP){ activeAeroPos.setText((CharSequence)AAP); }
-	public static void setDCBusCurrent(String DCBC){ DCBusCurrent.setText((CharSequence)DCBC); }
+	public static void setLeftMotorTemp(String LMT){ leftMotorTemp.setText(LMT); }
+	public static void setRightMotorTemp(String RMT){ rightMotorTemp.setText(RMT); }
+	public static void setLeftMotorContTemp(String LMCT){ leftMotorContTemp.setText(LMCT); }
+	public static void setRightMotorContTemp(String RMCT){ rightMotorContTemp.setText(RMCT); }
+	public static void setActiveAeroPos(String AAP){ activeAeroPos.setText(AAP); }
+	public static void setDCBusCurrent(String DCBC){ DCBusCurrent.setText(DCBC); }
 
 
 
