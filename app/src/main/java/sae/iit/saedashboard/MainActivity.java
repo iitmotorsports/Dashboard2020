@@ -105,19 +105,18 @@ public class MainActivity extends AppCompatActivity {
 					public void run() {
 						try {
 
-							MainTab.setSpeedometer(TeensyMsg.ADD.SPEED.getValue());
-							MainTab.setPowerGauge(TeensyMsg.ADD.ANOTHERVAL.getValue());
-							MainTab.setBatteryLife(0);
-							MainTab.setBatImage(0);
-							SecondaryTab.setLeftMotorTemp("0");
-							SecondaryTab.setRightMotorTemp("0");
-							SecondaryTab.setLeftMotorContTemp("0");
-							SecondaryTab.setRightMotorContTemp("0");
-							SecondaryTab.setActiveAeroPos("0");
-							SecondaryTab.setDCBusCurrent("0");
+							mainTab.setSpeedometer(TeensyMsg.ADD.SPEED.getValue());
+							mainTab.setPowerGauge(TeensyMsg.ADD.ANOTHERVAL.getValue());
+							mainTab.setBatteryLife(0);
+							mainTab.setBatImage(0);
+							secondaryTab.setLeftMotorTemp("0");
+							secondaryTab.setRightMotorTemp("0");
+							secondaryTab.setLeftMotorContTemp("0");
+							secondaryTab.setRightMotorContTemp("0");
+							secondaryTab.setActiveAeroPos("0");
+							secondaryTab.setDCBusCurrent("0");
 
-						} catch (NullPointerException e) {
-						}
+						} catch (NullPointerException e) {return;}
 					}
 				});
 			}
@@ -157,47 +156,53 @@ public class MainActivity extends AppCompatActivity {
 	private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
-			if (intent.getAction().equals(ACTION_USB_PERMISSION)) {
-				ConsoleLog( "We Good 1");
-				boolean granted = intent.getExtras().getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED);
-				if (granted) {
-					ConsoleLog( "We Good 2");
-					connection = usbManager.openDevice(device);
-					serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection);
-					if (serialPort != null) {
-						ConsoleLog( "We Good 3");
-						if (serialPort.open()) {
-							setUiEnabled(true);
-							serialPort.setBaudRate(9600);
-							serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
-							serialPort.setStopBits(UsbSerialInterface.STOP_BITS_1);
-							serialPort.setParity(UsbSerialInterface.PARITY_NONE);
-							serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
-							serialPort.read(mCallback);
-							ConsoleLog( "Serial Connection Opened!");
-							setUiEnabled(true);
+			try {
+				switch (intent.getAction()) {
+					case ACTION_USB_PERMISSION:
+						ConsoleLog("We Good 1");
+						boolean granted = intent.getExtras().getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED);
+						if (granted) {
+							ConsoleLog("We Good 2");
+							connection = usbManager.openDevice(device);
+							serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection);
+							if (serialPort != null) {
+								ConsoleLog("We Good 3");
+								if (serialPort.open()) {
+									setUiEnabled(true);
+									serialPort.setBaudRate(9600);
+									serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
+									serialPort.setStopBits(UsbSerialInterface.STOP_BITS_1);
+									serialPort.setParity(UsbSerialInterface.PARITY_NONE);
+									serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
+									serialPort.read(mCallback);
+									ConsoleLog("Serial Connection Opened!");
+									setUiEnabled(true);
+								} else {
+									ConsoleLog("Not good PORT");
+								}
+							} else {
+								ConsoleLog("Not good no serial");
+							}
 						} else {
-							ConsoleLog( "Not good PORT");
+							ConsoleLog("not good at all");
 						}
-					} else {
-						ConsoleLog( "Not good no serial");
-					}
-				} else {
-					ConsoleLog( "not good at all");
+						break;
+					case UsbManager.ACTION_USB_DEVICE_ATTACHED:
+						ConsoleLog("connected");
+						onClickStart(startButton);
+						break;
+					case UsbManager.ACTION_USB_DEVICE_DETACHED:
+						onClickStop(closeButton);
+						break;
 				}
-			} else if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
-				ConsoleLog( "connected");
-				onClickStart(startButton);
-			} else if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
-				onClickStop(closeButton);
-			}
+			} catch (NullPointerException e){return;}
 		}
 	};
 
     /**
      * Log a string to test Console using tvAppend
      *
-     * @param msg
+     * @param msg Message String
      */
     public void ConsoleLog(String msg){
         tvAppend(sconsole, msg + "\n");
@@ -257,7 +262,6 @@ public class MainActivity extends AppCompatActivity {
 				data = new String(arg0, Charset.defaultCharset());
             }
 			line = data;
-			data.concat("/n");
 			ConsoleLog(line);
 		}
     };
@@ -282,7 +286,7 @@ public class MainActivity extends AppCompatActivity {
 
 	//CSV File Writer
 	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
-    public void export(View view) throws InterruptedException {
+    public void export(View view) {
 		try {
 				//saving the file into device
 				FileOutputStream out = openFileOutput("data.csv", Context.MODE_PRIVATE);

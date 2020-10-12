@@ -29,8 +29,8 @@ import java.util.concurrent.TimeUnit;
 import pl.pawelkleczkowski.customgauge.CustomGauge;
 
 public class MainTab extends Fragment {
-    private static TextView speedometer, batteryLife, powerDisplay;
-    private static ImageView bat0, bat25, bat50, bat75, bat100;
+    private TextView speedometer, batteryLife, powerDisplay;
+    private ImageView bat0, bat25, bat50, bat75, bat100;
     private ImageView checkEngine;
     private static ScArcGauge powerGauge;
     private Timer timer;
@@ -84,7 +84,7 @@ public class MainTab extends Fragment {
             public void onValueChange(ScGauge gauge, float lowValue, float highValue, boolean isRunning) {
                 // Write the value
                 int value = (int) ScGauge.percentageToValue(highValue, 0, 13000);
-                powerDisplay.setText(Integer.toString(value));
+                powerDisplay.setText(String.valueOf(value));
             }
 
         });
@@ -94,16 +94,16 @@ public class MainTab extends Fragment {
     }
 
     //Updates field info
-    public static void setPowerGauge(long battery) {
-        powerGauge.setHighValue(Math.min((float) battery/100, 1));
+    public void setPowerGauge(long battery) {
+        powerGauge.setHighValue(Math.min((float) battery / 300, 1));
     }
 
-    public static void setSpeedometer(long speed) {
-        speedometer.setText(String.valueOf(speed));
-    }
-
-    public static void setBatteryLife(long battery) {
+    public void setBatteryLife(long battery) {
         batteryLife.setText(String.valueOf(battery));
+    }
+
+    public void setSpeedometer(long speed) {
+        speedometer.setText(String.valueOf(speed));
     }
 
     public void setCheckEngine(Boolean fault) {
@@ -114,7 +114,7 @@ public class MainTab extends Fragment {
         }
     }
 
-    public static void setBatImage(long level) {
+    public void setBatImage(long level) {
         if (level <= 100 && level > 75) {
             bat0.setVisibility(View.INVISIBLE);
             bat25.setVisibility(View.INVISIBLE);
@@ -150,12 +150,10 @@ public class MainTab extends Fragment {
             bat75.setVisibility(View.INVISIBLE);
             bat100.setVisibility(View.INVISIBLE);
         }
-
     }
 
     private static int convertBatteryLife(double battery) {
         //Assumes battery is voltage and max is 302.4V min is 216V
-        int percentage = (int) ((battery - 216) / 86.4 * 100.0);
-        return percentage;
+        return (int) ((battery - 216) / 86.4 * 100.0);
     }
 }
