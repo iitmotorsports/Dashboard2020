@@ -15,7 +15,7 @@ public class TeensyMsg {
 
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.UTF_8); // Change API
     private static final int ID_SIZE = 2; // How big is the teensy message ID
-    private static HashMap<Integer, byte[]> Teensy_Data = new HashMap<Integer, byte[]>();
+    private static HashMap<Integer, byte[]> Teensy_Data = new HashMap<>();
 
     /*
      * Enumurate the teensy addresses and define functions for each one that needs
@@ -65,7 +65,7 @@ public class TeensyMsg {
     }
 
     /*
-     * Returns the hex string representation of the stored teensy byte array
+     * Returns the hex string representation of the stored Teensy byte array
      *
      * @param MsgID
      * @return The hex string
@@ -151,7 +151,7 @@ public class TeensyMsg {
      * @param raw_data
      */
     public static void setData(byte[] raw_data) {
-       // if (raw_data.length == 10) // 2 for ID, 8 for data bytes
+       if (raw_data.length == 10) // 2 for ID, 8 for data bytes
             // Instead of chopping the original array up, just store the whole thing
             Teensy_Data.put(getDataID(raw_data), raw_data); // IMPROVE: check that ID is within range
     }
@@ -166,7 +166,6 @@ public class TeensyMsg {
             str.append(e.getKey());
             str.append(" : ");
             str.append(hexStr(e.getValue()).replaceAll("..(?!$)", "$0|"));
-            str.append('\n');
         }
         return str.toString();
     }

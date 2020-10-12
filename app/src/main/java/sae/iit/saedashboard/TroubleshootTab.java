@@ -6,13 +6,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.ImageView;
-import android.widget.PopupWindow;
-import android.view.ViewGroup.LayoutParams;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
-
-import static android.content.Context.LAYOUT_INFLATER_SERVICE;
 
 
 //implements View.OnClickListener

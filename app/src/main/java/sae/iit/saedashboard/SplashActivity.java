@@ -1,9 +1,7 @@
 package sae.iit.saedashboard;
 import android.app.Activity;
 import android.content.Intent;
-import android.media.MediaPlayer;
 import android.net.Uri;
-import android.os.Handler;
 import android.os.Bundle;
 import android.view.MotionEvent;
 import android.widget.VideoView;
@@ -15,16 +13,12 @@ public class SplashActivity extends Activity {
 	public void onCreate(Bundle savedInstanceState) {
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_splash);
-		videoView = (VideoView) findViewById(R.id.videoView);
+		videoView = findViewById(R.id.videoView);
 
 		Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.startup);
 		videoView.setVideoURI(video);
 
-		videoView.setOnCompletionListener(new MediaPlayer.OnCompletionListener() {
-			public void onCompletion(MediaPlayer mp) {
-				startNextActivity();
-			}
-		});
+		videoView.setOnCompletionListener(mp -> startNextActivity());
 
 		videoView.start();
 	}
