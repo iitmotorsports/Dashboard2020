@@ -18,10 +18,9 @@ public class TeensyMsg {
     private static HashMap<Integer, byte[]> Teensy_Data = new HashMap<>();
 
     /*
-     * Enumurate the teensy addresses and define functions for each one that needs
+     * Enumerate the teensy addresses and define functions for each one that needs
      * a value exposed
      */
-
 
     public enum ADD {
         SPEED(258) {
