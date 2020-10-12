@@ -54,7 +54,7 @@ public class TeensyMsg {
      * @return The hex string
      */
 
-    public static String hexStr(byte[] bytes) { // TODO: Ensure string Charset is correct
+    public static String hexStr(byte[] bytes) {
         byte[] hexChars = new byte[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
             int v = bytes[j] & 0xFF;
