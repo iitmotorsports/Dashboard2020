@@ -1,12 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
     android:orientation="horizontal">
-    android:
 
     <TextView
         android:id="@+id/speedometer"
@@ -14,7 +12,6 @@
         android:layout_height="119dp"
         android:background="#121527"
         android:gravity="center"
-        android:text="100"
         android:textColor="@android:color/white"
         android:textSize="100sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -48,18 +45,18 @@
         <LinearLayout
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="bottom|right"
-            android:layout_marginRight="10dp"
-            android:gravity="right"
+            android:layout_gravity="bottom|end"
+            android:layout_marginEnd="5dp"
+            android:gravity="end"
             android:orientation="vertical">
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:gravity="center"
-                android:text="Power (Watts)"
+                android:text="@string/power_watts"
                 android:textColor="@android:color/white"
-                android:textSize="20dp" />
+                android:textSize="20sp" />
 
             <TextView
                 android:id="@+id/counter"
@@ -67,9 +64,9 @@
                 android:layout_height="wrap_content"
                 android:gravity="center"
                 android:paddingLeft="10dp"
-                android:text="0"
+                android:paddingRight="10dp"
                 android:textColor="@android:color/white"
-                android:textSize="40dp"
+                android:textSize="40sp"
                 android:textStyle="bold" />
         </LinearLayout>
 
@@ -79,7 +76,7 @@
         android:id="@+id/speedometerLabel"
         android:layout_width="115dp"
         android:layout_height="55dp"
-        android:text="mph"
+        android:text="@string/mph"
         android:textColor="@android:color/white"
         android:textSize="35sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -88,12 +85,14 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.335" />
+
     <ImageView
         android:id="@+id/bat0"
 
         android:layout_width="171dp"
         android:layout_height="162dp"
         android:layout_marginTop="56dp"
+        android:contentDescription="@string/batt_at_0"
         android:src="@drawable/battery0"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.933"
@@ -106,6 +105,7 @@
         android:layout_width="171dp"
         android:layout_height="162dp"
         android:layout_marginTop="56dp"
+        android:contentDescription="@string/batt_at_25"
         android:src="@drawable/battery25"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.933"
@@ -118,6 +118,7 @@
         android:layout_width="171dp"
         android:layout_height="162dp"
         android:layout_marginTop="56dp"
+        android:contentDescription="@string/batt_at_50"
         android:src="@drawable/battery50"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.933"
@@ -130,6 +131,7 @@
         android:layout_width="171dp"
         android:layout_height="162dp"
         android:layout_marginTop="56dp"
+        android:contentDescription="@string/batt_at_75"
         android:src="@drawable/battery75"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.933"
@@ -142,6 +144,7 @@
         android:layout_width="171dp"
         android:layout_height="162dp"
         android:layout_marginTop="56dp"
+        android:contentDescription="@string/batt_at_100"
         android:src="@drawable/battery100"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.933"
@@ -154,7 +157,6 @@
         android:layout_height="54dp"
         android:background="#121527"
         android:gravity="center"
-        android:text="100"
         android:textColor="@android:color/white"
         android:textSize="50sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -168,7 +170,7 @@
         android:id="@+id/bateryLife2"
         android:layout_width="66dp"
         android:layout_height="39dp"
-        android:text="%"
+        android:text="@string/PercentSign"
         android:textColor="@android:color/white"
         android:textSize="35sp"
         app:layout_constraintBottom_toBottomOf="parent"
@@ -177,7 +179,6 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.777" />
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>

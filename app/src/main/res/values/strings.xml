@@ -20,4 +20,12 @@
     <string name="left_motor_data">LEFT MOTOR DATA</string>
     <string name="right_motor_data">RIGHT MOTOR DATA</string>
     <string name="battery_management_system_data">BATTERY MANAGEMENT SYSTEM DATA</string>
+    <string name="power_watts">Power (Watts)</string>
+    <string name="mph">mph</string>
+    <string name="batt_at_0">Batt at 0</string>
+    <string name="batt_at_25">Batt at 25</string>
+    <string name="batt_at_50">Batt at 50</string>
+    <string name="batt_at_75">Batt at 75</string>
+    <string name="batt_at_100">Batt at 100</string>
+    <string name="PercentSign">%</string>
 </resources>
