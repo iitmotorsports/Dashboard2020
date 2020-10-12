@@ -5,6 +5,7 @@ import android.media.MediaPlayer;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Bundle;
+import android.view.MotionEvent;
 import android.widget.VideoView;
 
 public class SplashActivity extends Activity {
@@ -26,6 +27,13 @@ public class SplashActivity extends Activity {
 		});
 
 		videoView.start();
+	}
+
+	@Override
+	public boolean dispatchTouchEvent(MotionEvent ev) {
+		videoView.stopPlayback();
+		startNextActivity();
+		return super.dispatchTouchEvent(ev);
 	}
 
 	private void startNextActivity() {
