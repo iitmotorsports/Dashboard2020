@@ -95,7 +95,7 @@ public class MainTab extends Fragment {
 
     //Updates field info
     public static void setPowerGauge(String batt) {
-        powerGauge.setHighValue((float) Integer.parseInt(batt));
+        powerGauge.setHighValue(Math.min(Float.parseFloat(batt)/100, 1));
     }
 
     public static void setSpeedometer(String speed) {

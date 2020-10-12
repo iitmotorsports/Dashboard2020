@@ -51,6 +51,4 @@ public class SecondaryTab extends Fragment {
 	public static void setActiveAeroPos(String AAP){ activeAeroPos.setText(AAP); }
 	public static void setDCBusCurrent(String DCBC){ DCBusCurrent.setText(DCBC); }
 
-
-
 }

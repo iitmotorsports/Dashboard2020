@@ -5,7 +5,6 @@ import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.ViewPager;
 
 import android.annotation.SuppressLint;
-import android.app.ActionBar;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -15,20 +14,15 @@ import android.content.pm.ActivityInfo;
 import android.hardware.usb.UsbDevice;
 import android.hardware.usb.UsbDeviceConnection;
 import android.hardware.usb.UsbManager;
-import android.media.Image;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.Button;
-import android.widget.EditText;
 import android.widget.ImageButton;
-import android.widget.MediaController;
 import android.widget.TextView;
-import androidx.appcompat.app.AppCompatActivity;
 import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
-
 import java.io.File;
 import java.io.FileOutputStream;
 import java.nio.charset.Charset;
@@ -37,20 +31,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import java.util.concurrent.TimeUnit;
-
-import android.app.Activity;
-import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.view.View;
-import android.widget.ArrayAdapter;
 import android.widget.ListView;
-import android.widget.VideoView;
-import android.net.Uri;
-import android.os.Bundle;
-import android.view.View;
-import android.widget.MediaController;
 import android.widget.VideoView;
 
 import com.google.android.material.tabs.TabLayout;
@@ -145,8 +126,8 @@ public class MainActivity extends AppCompatActivity {
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				s = String.valueOf(TeensyMsg.getUnsignedShort(258));
-				pg = String.valueOf(TeensyMsg.getUnsignedShort(258));
+				s = String.valueOf(TeensyMsg.ADD.SPEED.getValue());
+				pg = String.valueOf(TeensyMsg.ADD.ANOTHERVAL.getValue());
 
 				runOnUiThread(new Runnable() {
 					@Override
@@ -352,7 +333,3 @@ public class MainActivity extends AppCompatActivity {
 			}
 	}
 }
-
-
-
-
