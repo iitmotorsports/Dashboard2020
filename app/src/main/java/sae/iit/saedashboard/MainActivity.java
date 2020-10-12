@@ -1,5 +1,6 @@
 package sae.iit.saedashboard;
 
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.ViewPager;
@@ -31,59 +32,32 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Timer;
 import java.util.TimerTask;
-import android.widget.ListView;
-import android.widget.VideoView;
 
 import com.google.android.material.tabs.TabLayout;
 
 public class MainActivity extends AppCompatActivity {
 	//Initializing variable
-	public String s = "0";
-	public String pg = "0";
-	public String bl = "0";
-	public String lmt = "0";
-	public String rmt = "0";
-	public String lmct = "0";
-	public String rmct = "0";
-	public String aap = "0";
-	public String soc = "0";
-	public String DCbc = "0";
-	public String v = "50";
-	public int volt = 50;
-	public String b = "blank";
-	public boolean be = false;
-	public String[] values = new String[13];
-	public final String ACTION_USB_PERMISSION = "com.hariharan.arduinousb.USB_PERMISSION";
-	static public int[] List;
-	private static final int NUM_OF_TABS = 4;
+    private MainTab mainTab = (MainTab) getSupportFragmentManager().findFragmentById(R.id.mainTab);
+    private SecondaryTab secondaryTab = (SecondaryTab) getSupportFragmentManager().findFragmentById(R.id.secondaryTab);
+    private TroubleshootTab troubleshootTab = (TroubleshootTab) getSupportFragmentManager().findFragmentById(R.id.troubleshootTab);
+    public final String ACTION_USB_PERMISSION = "com.hariharan.arduinousb.USB_PERMISSION";
+    private MyPagerAdapter pagerAdapter;
+    private boolean shown = false;
 	private ViewPager viewPager;
-	private MyPagerAdapter pagerAdapter;
-	private TabLayout tabLayout;
-	VideoView vid;
-
-	private MainTab mainTab = (MainTab) getSupportFragmentManager().findFragmentById(R.id.mainTab);
-	private SecondaryTab secondaryTab = (SecondaryTab) getSupportFragmentManager().findFragmentById(R.id.secondaryTab);
-	private TroubleshootTab troubleshootTab = (TroubleshootTab) getSupportFragmentManager().findFragmentById(R.id.troubleshootTab);
-	private ListView lv;
+    private TabLayout tabLayout;
 	private String line;
 	Button startButton, closeButton, clearButton, clearTButton;
+    UsbDeviceConnection connection;
+    UsbSerialDevice serialPort;
+    UsbManager usbManager;
 	ImageButton SHbutton;
-	private boolean shown = false;
 	TextView sconsole;
-	UsbManager usbManager;
 	UsbDevice device;
-	UsbSerialDevice serialPort;
-	UsbDeviceConnection connection;
-	StringBuilder data = new StringBuilder();
-    int j = 0;
-    
-    static HashMap<Long, Byte[]> Teensy_Data = new HashMap<Long, Byte[]>();
 
 	@SuppressLint("WrongViewCast")
 	@Override
 	protected void onCreate(Bundle savedInstanceState) {
 
-		data.append(" Time(sec),Speed(mph),Power(watts),Battery Percentage,Right Motor Temp(F),Right Motor Controller Temp(F),Left Motor Temp(F),Left Motor Controller Temp(F),Active Aero Position(Degrees),DC Bus Current(A) ");
 		super.onCreate(savedInstanceState);
 		setContentView(R.layout.activity_main);
 		setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
@@ -119,31 +93,28 @@ public class MainActivity extends AppCompatActivity {
 		filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
 		filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
 		registerReceiver(broadcastReceiver, filter);
-		tvAppend(sconsole, "This is a test");
+		ConsoleLog( "Console Start!");
 
 		//Background update Function. MOST IMPORTANT
 		Timer timer = new Timer();
 		timer.scheduleAtFixedRate(new TimerTask() {
 			@Override
 			public void run() {
-				s = String.valueOf(TeensyMsg.ADD.SPEED.getValue());
-				pg = String.valueOf(TeensyMsg.ADD.ANOTHERVAL.getValue());
-
 				runOnUiThread(new Runnable() {
 					@Override
 					public void run() {
 						try {
 
-							MainTab.setSpeedometer(s);
-							MainTab.setPowerGauge(pg);
-							MainTab.setBatteryLife(bl);
-							MainTab.setBatImage(bl);
-							SecondaryTab.setLeftMotorTemp(lmt);
-							SecondaryTab.setRightMotorTemp(rmt);
-							SecondaryTab.setLeftMotorContTemp(lmct);
-							SecondaryTab.setRightMotorContTemp(rmct);
-							SecondaryTab.setActiveAeroPos(aap);
-							SecondaryTab.setDCBusCurrent(DCbc);
+							MainTab.setSpeedometer(TeensyMsg.ADD.SPEED.getValue());
+							MainTab.setPowerGauge(TeensyMsg.ADD.ANOTHERVAL.getValue());
+							MainTab.setBatteryLife(0);
+							MainTab.setBatImage(0);
+							SecondaryTab.setLeftMotorTemp("0");
+							SecondaryTab.setRightMotorTemp("0");
+							SecondaryTab.setLeftMotorContTemp("0");
+							SecondaryTab.setRightMotorContTemp("0");
+							SecondaryTab.setActiveAeroPos("0");
+							SecondaryTab.setDCBusCurrent("0");
 
 						} catch (NullPointerException e) {
 						}
@@ -152,18 +123,7 @@ public class MainActivity extends AppCompatActivity {
 			}
 
 		}, 0, 50);
-
-		//Data Logging
-		timer.scheduleAtFixedRate(new TimerTask() {
-			@Override
-			public void run() {
-				j++;
-				//generate data
-				data.append("\n"+j+","+Integer.parseInt(s)+","+Integer.parseInt(pg)+"," + Integer.parseInt(bl)+","+Integer.parseInt(rmt)+","+Integer.parseInt(rmct)+","+Integer.parseInt(lmt)+","+Integer.parseInt(lmct)+","+Integer.parseInt(aap)+","+Integer.parseInt(DCbc));
-			}
-		}, 0, 1000);
 	}
-
 
 	public void onClickStart(View view) {
 		HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
@@ -177,7 +137,7 @@ public class MainActivity extends AppCompatActivity {
 					usbManager.requestPermission(device, pi);
 					keep = false;
 				} else {
-					tvAppend(sconsole, "\n" + deviceVID + "\n");
+					ConsoleLog(String.valueOf(deviceVID));
 					connection = null;
 					device = null;
 				}
@@ -191,21 +151,21 @@ public class MainActivity extends AppCompatActivity {
 	public void onClickStop(View view) {
 		setUiEnabled(false);
 		serialPort.close();
-		tvAppend(sconsole, "\nSerial Connection Closed!");
+		ConsoleLog( "Serial Connection Closed!");
 	}
 
 	private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
 		@Override
 		public void onReceive(Context context, Intent intent) {
 			if (intent.getAction().equals(ACTION_USB_PERMISSION)) {
-				tvAppend(sconsole, "We Good 1");
+				ConsoleLog( "We Good 1");
 				boolean granted = intent.getExtras().getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED);
 				if (granted) {
-					tvAppend(sconsole, "We Good 2");
+					ConsoleLog( "We Good 2");
 					connection = usbManager.openDevice(device);
 					serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection);
 					if (serialPort != null) {
-						tvAppend(sconsole, "We Good 3");
+						ConsoleLog( "We Good 3");
 						if (serialPort.open()) {
 							setUiEnabled(true);
 							serialPort.setBaudRate(9600);
@@ -214,25 +174,34 @@ public class MainActivity extends AppCompatActivity {
 							serialPort.setParity(UsbSerialInterface.PARITY_NONE);
 							serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
 							serialPort.read(mCallback);
-							tvAppend(sconsole, "Serial Connection Opened!\n");
+							ConsoleLog( "Serial Connection Opened!");
 							setUiEnabled(true);
 						} else {
-							tvAppend(sconsole, "Not good PORT");
+							ConsoleLog( "Not good PORT");
 						}
 					} else {
-						tvAppend(sconsole, "Not good no serial");
+						ConsoleLog( "Not good no serial");
 					}
 				} else {
-					tvAppend(sconsole, "not good at all");
+					ConsoleLog( "not good at all");
 				}
 			} else if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_ATTACHED)) {
-				tvAppend(sconsole, "connected");
+				ConsoleLog( "connected");
 				onClickStart(startButton);
 			} else if (intent.getAction().equals(UsbManager.ACTION_USB_DEVICE_DETACHED)) {
 				onClickStop(closeButton);
 			}
 		}
 	};
+
+    /**
+     * Log a string to test Console using tvAppend
+     *
+     * @param msg
+     */
+    public void ConsoleLog(String msg){
+        tvAppend(sconsole, msg + "\n");
+    }
 
 	private void tvAppend(TextView tv, CharSequence text) {
 		final TextView ftv = tv;
@@ -275,8 +244,8 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	UsbSerialInterface.UsbReadCallback mCallback = new UsbSerialInterface.UsbReadCallback() {
-		@Override
-		public void onReceivedData(byte[] arg0) {
+		@RequiresApi(api = Build.VERSION_CODES.KITKAT)
+        public void onReceivedData(byte[] arg0) {
 
             TeensyMsg.setData(arg0);
 
@@ -289,7 +258,7 @@ public class MainActivity extends AppCompatActivity {
             }
 			line = data;
 			data.concat("/n");
-			tvAppend(sconsole, line + "/n");
+			ConsoleLog(line);
 		}
     };
 
@@ -312,11 +281,12 @@ public class MainActivity extends AppCompatActivity {
 	}
 
 	//CSV File Writer
-	public void export(View view) throws InterruptedException {
+	@RequiresApi(api = Build.VERSION_CODES.KITKAT)
+    public void export(View view) throws InterruptedException {
 		try {
 				//saving the file into device
 				FileOutputStream out = openFileOutput("data.csv", Context.MODE_PRIVATE);
-				out.write((data.toString()).getBytes());
+				out.write((TeensyMsg.dataString()).getBytes());
 				out.close();
 				//exporting
 				Context context = getApplicationContext();

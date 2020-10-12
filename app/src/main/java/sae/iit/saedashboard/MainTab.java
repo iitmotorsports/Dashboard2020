@@ -94,16 +94,16 @@ public class MainTab extends Fragment {
     }
 
     //Updates field info
-    public static void setPowerGauge(String batt) {
-        powerGauge.setHighValue(Math.min(Float.parseFloat(batt)/100, 1));
+    public static void setPowerGauge(long battery) {
+        powerGauge.setHighValue(Math.min((float) battery/100, 1));
     }
 
-    public static void setSpeedometer(String speed) {
-        speedometer.setText(speed);
+    public static void setSpeedometer(long speed) {
+        speedometer.setText(String.valueOf(speed));
     }
 
-    public static void setBatteryLife(String battery) {
-        batteryLife.setText(battery);
+    public static void setBatteryLife(long battery) {
+        batteryLife.setText(String.valueOf(battery));
     }
 
     public void setCheckEngine(Boolean fault) {
@@ -114,8 +114,7 @@ public class MainTab extends Fragment {
         }
     }
 
-    public static void setBatImage(String battery) {
-        int level = Integer.parseInt(battery);
+    public static void setBatImage(long level) {
         if (level <= 100 && level > 75) {
             bat0.setVisibility(View.INVISIBLE);
             bat25.setVisibility(View.INVISIBLE);

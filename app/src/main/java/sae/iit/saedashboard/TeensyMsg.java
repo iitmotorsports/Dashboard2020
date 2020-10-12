@@ -10,6 +10,7 @@ import java.nio.charset.StandardCharsets;
 import java.util.HashMap;
 import java.util.Map;
 
+@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class TeensyMsg {
 
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.UTF_8); // Change API
@@ -19,7 +20,6 @@ public class TeensyMsg {
     /*
      * Enumurate the teensy addresses and define functions for each one that needs
      * a value exposed
-     * 
      */
 
 
@@ -33,6 +33,7 @@ public class TeensyMsg {
         },
         ANOTHERVAL(258) {
             public long getValue() {
+
                 return getUnsignedInt(address, 3);
             }
         };
@@ -48,12 +49,11 @@ public class TeensyMsg {
 
     /*
      * Returns the hex string representation of the given byte array
-     * 
+     *
      * @param bytes
      * @return The hex string
      */
 
-    @RequiresApi(api = Build.VERSION_CODES.KITKAT)
     public static String hexStr(byte[] bytes) { // TODO: Ensure string Charset is correct
         byte[] hexChars = new byte[bytes.length * 2];
         for (int j = 0; j < bytes.length; j++) {
@@ -66,8 +66,8 @@ public class TeensyMsg {
 
     /*
      * Returns the hex string representation of the stored teensy byte array
-     * 
-     * @param bytes
+     *
+     * @param MsgID
      * @return The hex string
      */
     public static String msgHex(int MsgID) {
@@ -80,8 +80,8 @@ public class TeensyMsg {
     /*
      * Reads the first two bytes of a message's array, composing them into an
      * unsigned short value
-     * 
-     * @param data
+     *
+     * @param MsgID
      * @return The unsigned short value as an int
      */
     public static int getUnsignedShort(int MsgID) {
@@ -94,8 +94,8 @@ public class TeensyMsg {
     /*
      * Reads two bytes at the message's index, composing them into an unsigned short
      * value.
-     * 
-     * @param data
+     *
+     * @param MsgID
      * @param position
      * @return The unsigned short value as an int
      */
@@ -109,8 +109,8 @@ public class TeensyMsg {
     /*
      * Reads the first four bytes of a message's array, composing them into an
      * unsigned int value
-     * 
-     * @param data
+     *
+     * @param MsgID
      * @return The unsigned int value as a long
      */
     public static long getUnsignedInt(int MsgID) {
@@ -123,8 +123,8 @@ public class TeensyMsg {
     /*
      * Reads four bytes at the message's index, composing them into an unsigned int
      * value.
-     * 
-     * @param data
+     *
+     * @param MsgID
      * @param position
      * @return The unsigned short value at the buffer's current position as a long
      */
@@ -137,8 +137,8 @@ public class TeensyMsg {
 
     /*
      * Get the ID from the byte array received from the teensy
-     * 
-     * @param data
+     *
+     * @param raw_data
      * @return The message ID
      */
     private static int getDataID(byte[] raw_data) { // The ID 0xDEAD is 57005
@@ -147,7 +147,7 @@ public class TeensyMsg {
 
     /*
      * Set teensy data in a HashMap given a raw byte array
-     * 
+     *
      * @param raw_data
      */
     public static void setData(byte[] raw_data) {
