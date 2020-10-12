@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
-    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
@@ -88,65 +87,13 @@
         app:layout_constraintVertical_bias="0.335" />
 
     <ImageView
-        android:id="@+id/bat0"
+        android:id="@+id/batteryLifeIcon"
 
         android:layout_width="171dp"
         android:layout_height="162dp"
         android:layout_marginTop="56dp"
         android:contentDescription="@string/batt_at_0"
         android:src="@drawable/battery0"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.933"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/bat25"
-
-        android:layout_width="171dp"
-        android:layout_height="162dp"
-        android:layout_marginTop="56dp"
-        android:contentDescription="@string/batt_at_25"
-        android:src="@drawable/battery25"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.933"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/bat50"
-
-        android:layout_width="171dp"
-        android:layout_height="162dp"
-        android:layout_marginTop="56dp"
-        android:contentDescription="@string/batt_at_50"
-        android:src="@drawable/battery50"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.933"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/bat75"
-
-        android:layout_width="171dp"
-        android:layout_height="162dp"
-        android:layout_marginTop="56dp"
-        android:contentDescription="@string/batt_at_75"
-        android:src="@drawable/battery75"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.933"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <ImageView
-        android:id="@+id/bat100"
-
-        android:layout_width="171dp"
-        android:layout_height="162dp"
-        android:layout_marginTop="56dp"
-        android:contentDescription="@string/batt_at_100"
-        android:src="@drawable/battery100"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.933"
         app:layout_constraintStart_toStartOf="parent"
