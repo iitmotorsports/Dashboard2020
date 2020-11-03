@@ -13,6 +13,7 @@ import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
@@ -37,7 +38,8 @@ import java.util.TimerTask;
 
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class MainActivity extends AppCompatActivity {
-    public final String ACTION_USB_PERMISSION = "com.hariharan.arduinousb.USB_PERMISSION";
+    private final static int MAX_LOG_LINE = 27;
+    public final static String ACTION_USB_PERMISSION = "com.hariharan.arduinousb.USB_PERMISSION";
     private MainTab mainTab = (MainTab) getSupportFragmentManager().findFragmentById(R.id.mainTab);
     private SecondaryTab secondaryTab = (SecondaryTab) getSupportFragmentManager().findFragmentById(R.id.secondaryTab);
     private TroubleshootTab troubleshootTab = (TroubleshootTab) getSupportFragmentManager().findFragmentById(R.id.troubleshootTab);
@@ -115,6 +117,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
         }, 0, 50);
+
+        TeensyMsg.loadLookupTable();
     }
 
     public void onClickStart(View view) {
@@ -164,7 +168,7 @@ public class MainActivity extends AppCompatActivity {
                                     setUiEnabled(true);
                                     serialPort.setBaudRate(115200);
                                     serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
-                                    serialPort.setStopBits(UsbSerialInterface.STOP_BITS_1);
+                                    serialPort.setStopBits(UsbSerialInterface.STOP_BITS_2);
                                     serialPort.setParity(UsbSerialInterface.PARITY_NONE);
                                     serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
                                     serialPort.read(mCallback);
@@ -193,21 +197,37 @@ public class MainActivity extends AppCompatActivity {
         }
     };
 
+    public void writeTerminal(final TextView tv, final String data) {
+        tv.append(data);
+        // Erase excessive lines
+        int excessLineNumber = tv.getLineCount() - MAX_LOG_LINE;
+        if (excessLineNumber > 0) {
+            int eolIndex = -1;
+            CharSequence charSequence = tv.getText();
+            for (int i = 0; i < excessLineNumber; i++) {
+                do {
+                    eolIndex++;
+                } while (eolIndex < charSequence.length() && charSequence.charAt(eolIndex) != '\n');
+            }
+            if (eolIndex < charSequence.length()) {
+                tv.getEditableText().delete(0, eolIndex + 1);
+            } else {
+                tv.setText("");
+            }
+        }
+    }
+
+    public void clearTerminal(final TextView tv) {
+        tv.setText("");
+    }
+
     /**
      * Log a string to test Console using tvAppend
      *
      * @param msg Message String
      */
     public void ConsoleLog(String msg) {
-        if (sconsole.getLineCount() > 25)
-            runOnUiThread(() -> sconsole.setText(""));
-        tvAppend(sconsole, msg + "\n");
-    }
-
-    private void tvAppend(TextView tv, CharSequence text) {
-        final TextView ftv = tv;
-        final CharSequence ftext = text;
-        runOnUiThread(() -> ftv.append(ftext));
+        runOnUiThread(() -> writeTerminal(sconsole, msg + "\n"));
     }
 
     public void setUiEnabled(boolean bool) {
@@ -215,8 +235,9 @@ public class MainActivity extends AppCompatActivity {
         closeButton.setEnabled(bool);
     }
 
-    public void onClickFault() {
+    public void onClickFault(View view) {
         serialPort.write("0000".getBytes());
+        Log.d("Buttons", "Fault Touch");
     }
 
     public void onClickSH(View view) {
@@ -237,13 +258,16 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+
     public void onClickClear(View view) {
-        sconsole.setText("");
+        clearTerminal(sconsole);
     }
 
     UsbSerialInterface.UsbReadCallback mCallback = arg0 -> {
-        TeensyMsg.setData(arg0);
-        ConsoleLog(TeensyMsg.hexStr(arg0));
+        String msg = TeensyMsg.setData(arg0);
+        if (msg.length() > 0) {
+            ConsoleLog(msg);
+        }
     };
 
 	/*protected void onResume(Bundle savedInstanceState) {

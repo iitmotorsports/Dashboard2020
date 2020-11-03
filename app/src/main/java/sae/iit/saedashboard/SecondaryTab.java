@@ -8,8 +8,6 @@ import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
 
-
-
 public class SecondaryTab extends Fragment {
 	private static TextView rightMotorTemp, leftMotorTemp, rightMotorContTemp, leftMotorContTemp, activeAeroPos, DCBusCurrent;
 	//============================
@@ -19,7 +17,6 @@ public class SecondaryTab extends Fragment {
 							 Bundle savedInstanceState) {
 		ViewGroup rootView = (ViewGroup) inflater.inflate(
 				R.layout.secondary_tab, container, false);
-
 
 		//Initializing Fields
 		rightMotorTemp = rootView.findViewById(R.id.rightMotorTemp);

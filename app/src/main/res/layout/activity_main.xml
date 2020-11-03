@@ -74,10 +74,12 @@
         android:text="Stop"
         app:layout_constraintStart_toStartOf="@+id/viewPager"
         app:layout_constraintTop_toBottomOf="@+id/Start" />
+
     <Button
         android:id="@+id/ClearF"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
+        android:onClick="onClickFault"
         android:text="Faults"
         app:layout_constraintStart_toStartOf="@+id/viewPager"
         app:layout_constraintTop_toBottomOf="@+id/Close" />
@@ -92,14 +94,20 @@
 
     <TextView
         android:id="@+id/textView7"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="700dp"
+        android:layout_height="0dp"
+        android:layout_marginStart="100dp"
+        android:layout_marginTop="48dp"
+        android:layout_marginBottom="8dp"
         android:background="#73FFFFFF"
         android:fontFamily="monospace"
-        android:padding="5dp"
+        android:padding="10dp"
         android:text=""
         android:textAlignment="viewStart"
         android:textColor="@color/black"
-        app:layout_constraintStart_toEndOf="@+id/Start"
-        app:layout_constraintTop_toBottomOf="@+id/tabLayout" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintStart_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias=".5" />
 </androidx.constraintlayout.widget.ConstraintLayout>
