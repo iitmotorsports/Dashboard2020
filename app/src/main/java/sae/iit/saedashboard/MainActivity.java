@@ -1,6 +1,7 @@
 package sae.iit.saedashboard;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
@@ -18,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -28,8 +30,12 @@ import com.felhr.usbserial.UsbSerialDevice;
 import com.felhr.usbserial.UsbSerialInterface;
 import com.google.android.material.tabs.TabLayout;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Objects;
@@ -118,7 +124,7 @@ public class MainActivity extends AppCompatActivity {
 
         }, 0, 50);
 
-        TeensyMsg.loadLookupTable();
+        TeensyMsg.loadLookupTable(this);
     }
 
     public void onClickStart(View view) {
@@ -258,9 +264,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        super.onActivityResult(requestCode, resultCode, resultData);
+        TeensyMsg.onActivityResult(requestCode, resultCode, resultData);
+    }
 
     public void onClickClear(View view) {
         clearTerminal(sconsole);
+        TeensyMsg.openFile();
     }
 
     UsbSerialInterface.UsbReadCallback mCallback = arg0 -> {

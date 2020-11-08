@@ -1,18 +1,25 @@
 package sae.iit.saedashboard;
 
+import android.app.Activity;
+import android.content.Intent;
+import android.net.Uri;
 import android.os.Build;
 import android.util.Log;
-import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
-
-import com.google.gson.JsonElement;
-import com.google.gson.JsonParser;
 
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.BufferedReader;
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
+import java.io.IOException;
+import java.io.PrintWriter;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.charset.StandardCharsets;
@@ -21,13 +28,16 @@ import java.util.Iterator;
 import java.util.Map;
 
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
-public class TeensyMsg {
+public class TeensyMsg { // TODO: switch this over to a non-static class
 
     private static final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.UTF_8); // Change API
     private static final int ID_SIZE = 2; // How big is the teensy message ID
+    private static final String FILENAME = "TEENSY_JSON_MAP.json";
     private static HashMap<Integer, byte[]> Teensy_Data = new HashMap<>();
     private static HashMap<Long, String> Teensy_LookUp_ID = new HashMap<>();
     private static HashMap<Integer, String> Teensy_LookUp_Tag = new HashMap<>();
+    private static JSONLoad loader;
+    private static Activity _activity;
 
     /*
      * Enumerate the teensy addresses and define functions for each one that needs
@@ -58,30 +68,65 @@ public class TeensyMsg {
         }
     }
 
-    public static boolean loadLookupTable() {
-        // TODO: Implement json file intake
-        String JSON_INPUT = "[\n" +
-                "    {\n" +
-                "        \"[INFO]  Finished inital Setup\": 1,\n" +
-                "        \"[ LOG ] Oh why hello there\": 2,\n" +
-                "        \"[ LOG ] A7 Pin Value: \": 3,\n" +
-                "        \"[FATAL] UNHANDLED STATE!\": 4,\n" +
-                "        \"[DEBUG] Start\": 5,\n" +
-                "        \"[DEBUG] Next\": 6,\n" +
-                "        \"[ERROR] State returned error code\": 7,\n" +
-                "        \"[FATAL] UNABLE TO CONTINUE\": 8,\n" +
-                "        \"[DEBUG] Begin setup\": 9,\n" +
-                "        \"[DEBUG] Setup only once\": 10,\n" +
-                "        \"[DEBUG] Finish setup\": 11\n" +
-                "    },\n" +
-                "    {\n" +
-                "        \"Teensy Start\": 1,\n" +
-                "        \"State Manager\": 2,\n" +
-                "        \"UNHANDLED STATE\": 3,\n" +
-                "        \"ID NOT SET\": 4\n" +
-                "    }\n" +
-                "]";
+    public static void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        loader.onActivityResult(requestCode, resultCode, resultData);
+        loadLookupTable(_activity);
+    }
 
+    public static void openFile(){
+        loader.openFile();
+    }
+
+    public static void saveMapToSystem() {
+        String loadedJsonStr = loader.getLoadedJsonStr();
+        if (loadedJsonStr != null) {
+            File path = _activity.getFilesDir();
+            File file = new File(path, FILENAME);
+            PrintWriter writer = null;
+            try {
+                writer = new PrintWriter(file);
+            } catch (FileNotFoundException e) {
+                e.printStackTrace();
+                Toast.makeText(_activity, "Failed to save Json data", Toast.LENGTH_LONG).show();
+                return;
+            }
+            writer.print(loadedJsonStr);
+            writer.close();
+        }
+    }
+
+    public static String loadMapFromSystem() throws IOException {
+        File path = _activity.getFilesDir();
+        File file = new File(path, FILENAME);
+        StringBuilder text = new StringBuilder();
+        BufferedReader br = new BufferedReader(new FileReader(file));
+        String line;
+        while ((line = br.readLine()) != null) {
+            text.append(line);
+            text.append('\n');
+        }
+        br.close();
+        String result = text.toString();
+        return result;
+    }
+
+    public static boolean loadLookupTable(Activity activity) {
+        Log.i("TeensyMsg","Loading lookup table");
+
+        if (loader == null) {
+            _activity = activity;
+            loader = new JSONLoad(activity);
+        }
+
+        String JSON_INPUT = loader.getLoadedJsonStr();
+        if (JSON_INPUT == null) {
+            try {
+                loadMapFromSystem();
+            } catch (IOException e) {
+                Toast.makeText(_activity, "No Teensy Json has been loaded", Toast.LENGTH_LONG).show();
+                return false;
+            }
+        }
         JSONArray json;
 
         try {
@@ -105,13 +150,13 @@ public class TeensyMsg {
 
         } catch (JSONException e) {
             e.printStackTrace();
+            Toast.makeText(_activity, "Json does not match correct format", Toast.LENGTH_LONG).show();
             return false;
         }
 
         Log.i("Json Array", "Json array loaded");
-//        Log.d("Json Array", Teensy_LookUp_ID.toString());
-//        Log.d("Json Array", Teensy_LookUp_Tag.toString());
-
+        Toast.makeText(_activity, "Teensy Json map updated", Toast.LENGTH_SHORT).show();
+        saveMapToSystem();
         return true;
     }
 
