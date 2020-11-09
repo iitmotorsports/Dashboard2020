@@ -1,16 +1,9 @@
 package sae.iit.saedashboard;
 
 import android.annotation.SuppressLint;
-import android.app.Activity;
-import android.app.PendingIntent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.ActivityInfo;
-import android.hardware.usb.UsbDevice;
-import android.hardware.usb.UsbDeviceConnection;
-import android.hardware.usb.UsbManager;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
@@ -19,44 +12,31 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.ImageButton;
 import android.widget.TextView;
-import android.widget.Toast;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.viewpager.widget.ViewPager;
 
-import com.felhr.usbserial.UsbSerialDevice;
-import com.felhr.usbserial.UsbSerialInterface;
 import com.google.android.material.tabs.TabLayout;
 
-import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
-import java.util.HashMap;
-import java.util.Map;
-import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
 @RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class MainActivity extends AppCompatActivity {
     private final static int MAX_LOG_LINE = 27;
-    public final static String ACTION_USB_PERMISSION = "com.hariharan.arduinousb.USB_PERMISSION";
-    private MainTab mainTab = (MainTab) getSupportFragmentManager().findFragmentById(R.id.mainTab);
-    private SecondaryTab secondaryTab = (SecondaryTab) getSupportFragmentManager().findFragmentById(R.id.secondaryTab);
-    private TroubleshootTab troubleshootTab = (TroubleshootTab) getSupportFragmentManager().findFragmentById(R.id.troubleshootTab);
+    private final String LOG_ID = "Main Activity";
+    private final MainTab mainTab = (MainTab) getSupportFragmentManager().findFragmentById(R.id.mainTab);
+    private final SecondaryTab secondaryTab = (SecondaryTab) getSupportFragmentManager().findFragmentById(R.id.secondaryTab);
+    private final TroubleshootTab troubleshootTab = (TroubleshootTab) getSupportFragmentManager().findFragmentById(R.id.troubleshootTab);
     private boolean shown = false;
-    Button startButton, closeButton, clearButton, clearTButton;
-    UsbDeviceConnection connection;
-    UsbSerialDevice serialPort;
-    UsbManager usbManager;
-    ImageButton SHbutton;
-    TextView sconsole;
-    UsbDevice device;
+    private Button startButton, closeButton, clearButton, clearTButton;
+    private ImageButton SHButton;
+    private TextView SConsole;
+    private TeensyStream TStream;
 
     @SuppressLint("WrongViewCast")
     @Override
@@ -84,22 +64,15 @@ public class MainActivity extends AppCompatActivity {
         closeButton = findViewById(R.id.Close);
         clearButton = findViewById(R.id.ClearF);
         clearTButton = findViewById(R.id.Clear);
-        SHbutton = findViewById(R.id.Show);
+        SHButton = findViewById(R.id.Show);
         //Makes corner Buttons invisible
         startButton.setVisibility(View.INVISIBLE);
         closeButton.setVisibility(View.INVISIBLE);
         clearButton.setVisibility(View.INVISIBLE);
         clearTButton.setVisibility(View.INVISIBLE);
-        sconsole = findViewById(R.id.textView7);
-        sconsole.setVisibility(View.INVISIBLE);
-        setUiEnabled(false);
-        usbManager = (UsbManager) getSystemService(USB_SERVICE);
-        IntentFilter filter = new IntentFilter();
-        filter.addAction(ACTION_USB_PERMISSION);
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_ATTACHED);
-        filter.addAction(UsbManager.ACTION_USB_DEVICE_DETACHED);
-        registerReceiver(broadcastReceiver, filter);
-        ConsoleLog("Console Start!");
+        SConsole = findViewById(R.id.textView7);
+        SConsole.setVisibility(View.INVISIBLE);
+        setUIButtonsOn(false);
 
         //Background update Function. MOST IMPORTANT
         Timer timer = new Timer();
@@ -108,9 +81,9 @@ public class MainActivity extends AppCompatActivity {
             public void run() {
                 runOnUiThread(() -> {
                     try {
-                        MainTab.setSpeedometer(TeensyMsg.ADD.SPEED.getValue());
-                        MainTab.setPowerGauge(TeensyMsg.ADD.SPEED.getValue());
-                        MainTab.setBatteryLife(TeensyMsg.ADD.SPEED.getValue());
+                        MainTab.setSpeedometer(TeensyStream.ADD.SPEED.getValue(TStream));
+                        MainTab.setPowerGauge(TeensyStream.ADD.SPEED.getValue(TStream));
+                        MainTab.setBatteryLife(TeensyStream.ADD.SPEED.getValue(TStream));
                         SecondaryTab.setLeftMotorTemp("0");
                         SecondaryTab.setRightMotorTemp("0");
                         SecondaryTab.setLeftMotorContTemp("0");
@@ -124,86 +97,53 @@ public class MainActivity extends AppCompatActivity {
 
         }, 0, 50);
 
-        TeensyMsg.loadLookupTable(this);
-    }
-
-    public void onClickStart(View view) {
-        HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
-        if (!usbDevices.isEmpty()) {
-            boolean keep = true;
-            for (Map.Entry<String, UsbDevice> entry : usbDevices.entrySet()) {
-                device = entry.getValue();
-                int deviceVID = device.getVendorId();
-                if (deviceVID == 5824) {
-                    PendingIntent pi = PendingIntent.getBroadcast(this, 0, new Intent(ACTION_USB_PERMISSION), 0);
-                    usbManager.requestPermission(device, pi);
-                    keep = false;
-                } else {
-                    ConsoleLog(String.valueOf(deviceVID));
-                    connection = null;
-                    device = null;
-                }
-
-                if (!keep)
-                    break;
-            }
+        TeensyStream.TeensyCallback connect = (() -> {
+            this.onClickStart(startButton);
         }
-    }
-
-    public void onClickStop(View view) {
-        setUiEnabled(false);
-        serialPort.close();
-        ConsoleLog("Serial Connection Closed!");
-    }
-
-    private final BroadcastReceiver broadcastReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            try {
-                switch (Objects.requireNonNull(intent.getAction())) {
-                    case ACTION_USB_PERMISSION:
-                        ConsoleLog("We Good 1");
-                        boolean granted = Objects.requireNonNull(intent.getExtras()).getBoolean(UsbManager.EXTRA_PERMISSION_GRANTED);
-                        if (granted) {
-                            ConsoleLog("We Good 2");
-                            connection = usbManager.openDevice(device);
-                            serialPort = UsbSerialDevice.createUsbSerialDevice(device, connection);
-                            if (serialPort != null) {
-                                ConsoleLog("We Good 3");
-                                if (serialPort.open()) {
-                                    setUiEnabled(true);
-                                    serialPort.setBaudRate(115200);
-                                    serialPort.setDataBits(UsbSerialInterface.DATA_BITS_8);
-                                    serialPort.setStopBits(UsbSerialInterface.STOP_BITS_2);
-                                    serialPort.setParity(UsbSerialInterface.PARITY_NONE);
-                                    serialPort.setFlowControl(UsbSerialInterface.FLOW_CONTROL_OFF);
-                                    serialPort.read(mCallback);
-                                    ConsoleLog("Serial Connection Opened!");
-                                    setUiEnabled(true);
-                                } else {
-                                    ConsoleLog("Not good PORT");
-                                }
-                            } else {
-                                ConsoleLog("Not good no serial");
-                            }
-                        } else {
-                            ConsoleLog("not good at all");
-                        }
-                        break;
-                    case UsbManager.ACTION_USB_DEVICE_ATTACHED:
-                        ConsoleLog("connected");
-                        onClickStart(startButton);
-                        break;
-                    case UsbManager.ACTION_USB_DEVICE_DETACHED:
-                        onClickStop(closeButton);
-                        break;
-                }
-            } catch (NullPointerException ignored) {
-            }
+        );
+        TeensyStream.TeensyCallback disconnect = (() -> {
+            this.onClickStop(closeButton);
         }
-    };
+        );
 
-    public void writeTerminal(final TextView tv, final String data) {
+        TStream = new TeensyStream(this, this::ConsoleLog, connect, disconnect);
+        Log.i(LOG_ID, "Teensy stream created");
+    }
+
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        super.onActivityResult(requestCode, resultCode, resultData);
+        TStream.onActivityResult(requestCode, resultCode, resultData);
+    }
+
+    /**
+     * Clear test console
+     */
+    public void ConsoleClear() { // Test this
+        runOnUiThread(() -> SConsole.setText(""));
+    }
+
+    /**
+     * Log a string to test Console
+     *
+     * @param msg Message String
+     */
+    private void ConsoleLog(String msg) {
+        runOnUiThread(() -> writeTerminal(SConsole, msg + "\n"));
+    }
+
+    /**
+     * Set whether start button should be disabled
+     * and the close button to be enabled
+     *
+     * @param bool boolean value
+     */
+    public void setUIButtonsOn(boolean bool) {
+        startButton.setEnabled(!bool);
+        closeButton.setEnabled(bool);
+    }
+
+    private void writeTerminal(final TextView tv, final String data) {
         tv.append(data);
         // Erase excessive lines
         int excessLineNumber = tv.getLineCount() - MAX_LOG_LINE;
@@ -223,27 +163,19 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void clearTerminal(final TextView tv) {
-        tv.setText("");
+    public void onClickStart(View view) {
+        TStream.open();
+        setUIButtonsOn(true);
     }
 
-    /**
-     * Log a string to test Console using tvAppend
-     *
-     * @param msg Message String
-     */
-    public void ConsoleLog(String msg) {
-        runOnUiThread(() -> writeTerminal(sconsole, msg + "\n"));
+    public void onClickStop(View view) {
+        TStream.close();
+        setUIButtonsOn(false);
     }
 
-    public void setUiEnabled(boolean bool) {
-        startButton.setEnabled(!bool);
-        closeButton.setEnabled(bool);
-    }
-
-    public void onClickFault(View view) {
-        serialPort.write("0000".getBytes());
-        Log.d("Buttons", "Fault Touch");
+    public void onClickFault(View view) { // TODO: implement android to teensy communication
+        TStream.write("0000".getBytes());
+        Log.d(LOG_ID, "Fault Button");
     }
 
     public void onClickSH(View view) {
@@ -252,65 +184,44 @@ public class MainActivity extends AppCompatActivity {
             closeButton.setVisibility(View.VISIBLE);
             clearButton.setVisibility(View.VISIBLE);
             clearTButton.setVisibility(View.VISIBLE);
-            sconsole.setVisibility(View.VISIBLE);
+            SConsole.setVisibility(View.VISIBLE);
             shown = true;
         } else {
             startButton.setVisibility(View.INVISIBLE);
             closeButton.setVisibility(View.INVISIBLE);
             clearButton.setVisibility(View.INVISIBLE);
             clearTButton.setVisibility(View.INVISIBLE);
-            sconsole.setVisibility(View.INVISIBLE);
+            SConsole.setVisibility(View.INVISIBLE);
             shown = false;
         }
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        super.onActivityResult(requestCode, resultCode, resultData);
-        TeensyMsg.onActivityResult(requestCode, resultCode, resultData);
-    }
-
     public void onClickClear(View view) {
-        clearTerminal(sconsole);
-        TeensyMsg.openFile();
+        ConsoleClear();
+        TStream.updateJsonMap(); // TODO: move to it's own button
     }
 
-    UsbSerialInterface.UsbReadCallback mCallback = arg0 -> {
-        String msg = TeensyMsg.setData(arg0);
-        if (msg.length() > 0) {
-            ConsoleLog(msg);
-        }
-    };
-
-	/*protected void onResume(Bundle savedInstanceState) {
+/*	protected void onResume(Bundle savedInstanceState) {
 		//Hides the status bar.
 		View decorView = getWindow().getDecorView();
 		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
 		decorView.setSystemUiVisibility(uiOptions);
-	}*/
-
-    //Updates display on tablet
-    //Will receive an array
+	}
+    //Updates display on tablet, will receive an array
     static public void update() {
-    }
-
-    @Override
-    public void onDestroy() {
-        unregisterReceiver(broadcastReceiver);
-        super.onDestroy();
-    }
+    }*/
 
     //CSV File Writer
     public void export(View view) {
         try {
             //saving the file into device
             FileOutputStream out = openFileOutput("data.csv", Context.MODE_PRIVATE);
-            out.write((TeensyMsg.dataString()).getBytes());
+            out.write((TStream.dataString()).getBytes());
             out.close();
             //exporting
             Context context = getApplicationContext();
-            File filelocation = new File(getFilesDir(), "data.csv");
-            Uri path = FileProvider.getUriForFile(context, "com.example.exportcsv.fileprovider", filelocation);
+            File fileLocation = new File(getFilesDir(), "data.csv");
+            Uri path = FileProvider.getUriForFile(context, "com.example.exportcsv.fileprovider", fileLocation);
             Intent fileIntent = new Intent(Intent.ACTION_SEND);
             fileIntent.setType("text/csv");
             fileIntent.putExtra(Intent.EXTRA_SUBJECT, "Data");

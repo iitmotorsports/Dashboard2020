@@ -16,8 +16,12 @@ public class JSONLoad {
     private String loadedJsonStr;
     private Activity activity;
 
-    public String getLoadedJsonStr(){
+    public String getLoadedJsonStr() {
         return loadedJsonStr;
+    }
+
+    public void clearLoadedJsonStr() {
+        loadedJsonStr = null;
     }
 
     public String readTextFromUri(Uri uri) throws IOException {
@@ -49,7 +53,7 @@ public class JSONLoad {
         }
     }
 
-    public void openFile(){
+    public void openFile() {
         try {
             Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
             intent.addCategory(Intent.CATEGORY_OPENABLE);
@@ -61,7 +65,7 @@ public class JSONLoad {
         }
     }
 
-    public JSONLoad(Activity activity){
+    public JSONLoad(Activity activity) {
         this.activity = activity;
     }
 }
