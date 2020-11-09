@@ -28,4 +28,17 @@
     <string name="batt_at_75">Batt at 75</string>
     <string name="batt_at_100">Batt at 100</string>
     <string name="PercentSign">%</string>
+    <string name="show_app_functions">Show app functions</string>
+    <string name="close_serial_communication">Close Serial Communication</string>
+    <string name="stop">Stop</string>
+    <string name="start_usb_serial_communication">Start USB Serial Communication</string>
+    <string name="start">Start</string>
+    <string name="ping_serial_to_clear_faults">Ping Serial to clear faults</string>
+    <string name="faults">Faults</string>
+    <string name="clear_the_serial_log">Clear the serial log</string>
+    <string name="clear">Clear</string>
+    <string name="json">JSON</string>
+    <string name="ascii">Ascii</string>
+    <string name="hex">Hex</string>
+    <string name="modetoggle">modeToggle</string>
 </resources>

@@ -7,107 +7,147 @@
     android:background="#121527"
     tools:context=".MainActivity">
 
-    <com.google.android.material.tabs.TabLayout
-        android:id="@+id/tabLayout"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:tabIndicatorColor="@android:color/white"
-        app:tabTextColor="@android:color/white">
-
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/mainTab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/mainTabName" />
-
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/secondaryTab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/secondaryTabName" />
-
-        <com.google.android.material.tabs.TabItem
-            android:id="@+id/troubleshootTab"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/troubleshootTabName" />
-    </com.google.android.material.tabs.TabLayout>
-
     <androidx.viewpager.widget.ViewPager
-        android:id="@+id/viewPager"
+        android:id="@+id/MainPager"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        tools:layout_editor_absoluteX="0dp"
-        tools:layout_editor_absoluteY="0dp">
-        <LinearLayout
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:orientation="vertical">
-        </LinearLayout>
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent">
+
     </androidx.viewpager.widget.ViewPager>
 
-    <ImageButton
-        android:id="@+id/Show"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onClickSH"
-        app:layout_constraintStart_toStartOf="@+id/viewPager"
-        app:layout_constraintTop_toTopOf="@+id/tabLayout"
-        app:srcCompat="@android:drawable/ic_menu_manage" />
+    <LinearLayout
+        android:id="@+id/FunctionTab"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:keepScreenOn="true"
+        android:orientation="vertical">
 
-    <Button
-        android:id="@+id/Start"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onClickStart"
-        android:text="Start"
-        app:layout_constraintStart_toStartOf="@+id/viewPager"
-        app:layout_constraintTop_toBottomOf="@+id/Show" />
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
 
-    <Button
-        android:id="@+id/Close"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onClickStop"
-        android:text="Stop"
-        app:layout_constraintStart_toStartOf="@+id/viewPager"
-        app:layout_constraintTop_toBottomOf="@+id/Start" />
+            <ImageButton
+                android:id="@+id/Show"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:contentDescription="@string/show_app_functions"
+                android:keepScreenOn="true"
+                android:onClick="onClickSH"
+                app:srcCompat="@android:drawable/ic_menu_manage" />
 
-    <Button
-        android:id="@+id/ClearF"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:onClick="onClickFault"
-        android:text="Faults"
-        app:layout_constraintStart_toStartOf="@+id/viewPager"
-        app:layout_constraintTop_toBottomOf="@+id/Close" />
-    <Button
-        android:id="@+id/Clear"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="Clear"
-        android:onClick="onClickClear"
-        app:layout_constraintStart_toStartOf="@+id/viewPager"
-        app:layout_constraintTop_toBottomOf="@+id/ClearF" />
+            <com.google.android.material.tabs.TabLayout
+                android:id="@+id/tabLayout"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                app:tabIndicatorColor="#ff80cbc4"
+                app:tabSelectedTextColor="@android:color/white"
+                app:tabTextColor="@android:color/white">
 
-    <TextView
-        android:id="@+id/textView7"
-        android:layout_width="700dp"
-        android:layout_height="0dp"
-        android:layout_marginStart="100dp"
-        android:layout_marginTop="48dp"
-        android:layout_marginBottom="8dp"
-        android:background="#73FFFFFF"
-        android:fontFamily="monospace"
-        android:padding="10dp"
-        android:text=""
-        android:textAlignment="viewStart"
-        android:textColor="@color/black"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintStart_toEndOf="parent"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias=".5" />
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/mainTab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/mainTabName" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/secondaryTab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/secondaryTabName" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/troubleshootTab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/troubleshootTabName" />
+            </com.google.android.material.tabs.TabLayout>
+        </LinearLayout>
+
+        <LinearLayout
+            android:id="@+id/FunctionSubTab"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:keepScreenOn="true"
+            android:visibility="invisible"
+            tools:visibility="visible">
+
+            <LinearLayout
+                android:id="@+id/FunctionSubButtons"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="4dp"
+                android:keepScreenOn="true"
+                android:orientation="vertical">
+
+                <ToggleButton
+                    android:id="@+id/SerialToggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:onClick="onSerialToggle" />
+
+                <Button
+                    android:id="@+id/ClearF"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/ping_serial_to_clear_faults"
+                    android:keepScreenOn="true"
+                    android:onClick="onClickFault"
+                    android:text="@string/faults" />
+
+                <Button
+                    android:id="@+id/Clear"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:contentDescription="@string/clear_the_serial_log"
+                    android:keepScreenOn="true"
+                    android:onClick="onClickClear"
+                    android:text="@string/clear" />
+
+                <ToggleButton
+                    android:id="@+id/Load"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="true"
+                    android:keepScreenOn="true"
+                    android:longClickable="true"
+                    android:onClick="onClickLoad"
+                    android:textOff="@string/json"
+                    android:textOn="@string/json" />
+
+                <ToggleButton
+                    android:id="@+id/modeToggle"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:onClick="onModeToggle"
+                    android:text="@string/modetoggle"
+                    android:textOff="@string/ascii"
+                    android:textOn="@string/hex" />
+
+            </LinearLayout>
+
+            <TextView
+                android:id="@+id/SerialLog"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:layout_marginStart="4dp"
+                android:layout_marginTop="4dp"
+                android:layout_marginEnd="8dp"
+                android:layout_marginBottom="8dp"
+                android:background="#73FFFFFF"
+                android:fontFamily="monospace"
+                android:keepScreenOn="true"
+                android:padding="8dp"
+                android:text=""
+                android:textAlignment="viewStart"
+                android:textColor="@color/black" />
+
+        </LinearLayout>
+
+    </LinearLayout>
+
 </androidx.constraintlayout.widget.ConstraintLayout>

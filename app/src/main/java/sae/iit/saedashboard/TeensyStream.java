@@ -34,16 +34,24 @@ public class TeensyStream {
     private final String FILENAME_SAVE = "TEENSY_JSON_MAP.json";
     private final String LOG_TAG = "Teensy Stream";
     private final HashMap<Integer, byte[]> Teensy_Data = new HashMap<>();
-    private final HashMap<Long, String> Teensy_LookUp_ID = new HashMap<>();
-    private final HashMap<Integer, String> Teensy_LookUp_Tag = new HashMap<>();
+    private HashMap<Integer, String> Teensy_LookUp_Tag = new HashMap<>();
+    private HashMap<Long, String> Teensy_LookUp_Str = new HashMap<>();
     private final JSONLoad loader;
     private final Activity activity;
     private final USBSerial serialConnection;
+    private boolean JSONLoaded = false;
+    private final TeensyLogJsonLoadCallback callOnLoad;
+    private boolean hexLog = false;
 
-    public interface TeensyCallback extends USBSerial.DeviceActionCallback {}
+    public interface TeensyCallback extends USBSerial.DeviceActionCallback {
+    }
 
     public interface TeensyLogCallback {
         void callback(String msg);
+    }
+
+    public interface TeensyLogJsonLoadCallback {
+        void callback(boolean jsonLoaded);
     }
 
     /**
@@ -76,12 +84,21 @@ public class TeensyStream {
         loadLookupTable();
     }
 
+    public void setHexMode(boolean enable) {
+        hexLog = enable;
+    }
+
+    public boolean getHexMode() {
+        return hexLog;
+    }
+
     public void updateJsonMap() {
         loader.openFile();
     }
 
-    public TeensyStream(Activity activity, TeensyLogCallback logMessage, TeensyCallback deviceAttach, TeensyCallback deviceDetach) {
+    public TeensyStream(Activity activity, TeensyLogCallback logMessage, TeensyCallback deviceAttach, TeensyCallback deviceDetach, TeensyLogJsonLoadCallback callOnLoad) {
         this.activity = activity;
+        this.callOnLoad = callOnLoad;
         loader = new JSONLoad(activity);
 
         UsbSerialInterface.UsbReadCallback streamCallback = arg0 -> {
@@ -96,15 +113,22 @@ public class TeensyStream {
         loadLookupTable();
     }
 
-    public void open(){
-        serialConnection.open();
+    private void loadLookupTable() {
+        if (callOnLoad != null)
+            callOnLoad.callback(__loadLookupTable());
+        else
+            __loadLookupTable();
     }
 
-    public void close(){
+    public boolean open() {
+        return serialConnection.open();
+    }
+
+    public void close() {
         serialConnection.close();
     }
 
-    public void write(byte[] buffer){
+    public void write(byte[] buffer) {
         serialConnection.write(buffer);
     }
 
@@ -119,11 +143,26 @@ public class TeensyStream {
                 writer = new PrintWriter(file);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                Toast.makeText(activity, "Failed to save Json data", Toast.LENGTH_LONG).show();
+                Toast.makeText(activity, "Failed to save map data", Toast.LENGTH_LONG).show();
                 return;
             }
             writer.print(loadedJsonStr);
             writer.close();
+        }
+    }
+
+    public void clearMapData() {
+        File path = activity.getFilesDir();
+        File file = new File(path, FILENAME_SAVE);
+        if (file.delete()) {
+            Teensy_LookUp_Tag = new HashMap<>();
+            Teensy_LookUp_Str = new HashMap<>();
+            callOnLoad.callback(false);
+            loader.clearLoadedJsonStr();
+            JSONLoaded = false;
+            Toast.makeText(activity, "Map data deleted", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(activity, "Failed to delete map data", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -141,19 +180,26 @@ public class TeensyStream {
         return text.toString();
     }
 
-    private void loadLookupTable() {
+    private boolean __loadLookupTable() {
         Log.i(LOG_TAG, "Loading lookup table");
 
         String JSON_INPUT = loader.getLoadedJsonStr();
         if (JSON_INPUT == null) {
+            if (JSONLoaded) {
+                Toast.makeText(this.activity, "Teensy map unchanged", Toast.LENGTH_SHORT).show();
+                return true;
+            }
             try {
                 JSON_INPUT = loadMapFromSystem();
             } catch (IOException e) {
-                Toast.makeText(this.activity, "No Teensy Json has been loaded", Toast.LENGTH_LONG).show();
-                return;
+                Toast.makeText(this.activity, "No Teensy map has been loaded", Toast.LENGTH_LONG).show();
+                return false;
             }
         }
         JSONArray json;
+
+        HashMap<Integer, String> NEW_Teensy_LookUp_Tag = new HashMap<>();
+        HashMap<Long, String> NEW_Teensy_LookUp_Str = new HashMap<>();
 
         try {
             json = new JSONArray(JSON_INPUT);
@@ -163,7 +209,7 @@ public class TeensyStream {
 
             while (keys.hasNext()) {
                 String key = keys.next();
-                Teensy_LookUp_ID.put(entry.getLong(key), key);
+                NEW_Teensy_LookUp_Tag.put(entry.getInt(key), key);
             }
 
             entry = json.getJSONObject(1);
@@ -171,18 +217,25 @@ public class TeensyStream {
 
             while (keys.hasNext()) {
                 String key = keys.next();
-                Teensy_LookUp_Tag.put(entry.getInt(key), key);
+                NEW_Teensy_LookUp_Str.put(entry.getLong(key), key);
             }
 
         } catch (JSONException e) {
             e.printStackTrace();
             Toast.makeText(this.activity, "Json does not match correct format", Toast.LENGTH_LONG).show();
-            return;
+            return JSONLoaded;
         }
 
         Log.i(LOG_TAG, "Json array loaded");
-        Toast.makeText(this.activity, "Teensy Json map updated", Toast.LENGTH_SHORT).show();
+        if (JSONLoaded)
+            Toast.makeText(this.activity, "Teensy map updated", Toast.LENGTH_SHORT).show();
+        else
+            Toast.makeText(this.activity, "Loaded Teensy map", Toast.LENGTH_SHORT).show();
         saveMapToSystem();
+        Teensy_LookUp_Tag = NEW_Teensy_LookUp_Tag;
+        Teensy_LookUp_Str = NEW_Teensy_LookUp_Str;
+        JSONLoaded = true;
+        return true;
     }
 
     /**
@@ -195,7 +248,7 @@ public class TeensyStream {
         ByteBuffer buf = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
         long number = ((long) buf.getInt(ID_SIZE) & 0xffffffffL);
         long string = ((long) buf.getInt(ID_SIZE + 4) & 0xffffffffL);
-        return Teensy_LookUp_ID.get(string) + " " + number;
+        return Teensy_LookUp_Str.get(string) + " " + number;
     }
 
     /**
@@ -302,6 +355,22 @@ public class TeensyStream {
      */
     private String setData(byte[] raw_data) { // Improve: run this on separate thread
         StringBuilder output = new StringBuilder();
+
+        if (hexLog) {
+            for (int i = 0; i < raw_data.length; i += 10) {
+                byte[] data_block = new byte[10];
+                try {
+                    System.arraycopy(raw_data, i, data_block, 0, 10);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    continue;
+                }
+                output.append(hexStr(data_block)).append("\n");
+            }
+            if (output.length() == 0)
+                return "";
+            return output.substring(0, output.length() - 1);
+        }
+
         for (int i = 0; i < raw_data.length; i += 10) {
             byte[] data_block = new byte[10];
             try {
@@ -310,6 +379,7 @@ public class TeensyStream {
                 continue;
             }
             int ID = getDataID(data_block);
+//            Log.i(LOG_TAG, hexStr(data_block) + " | " + ID + " : " + Teensy_LookUp_Tag.get(ID) + " | " + getLookupString(data_block));
             if (Teensy_LookUp_Tag.containsKey(ID)) {
                 output.append(Teensy_LookUp_Tag.get(ID)).append(" ").append(getLookupString(data_block)).append("\n");
             } else {
@@ -318,7 +388,7 @@ public class TeensyStream {
 
         }
         if (output.length() == 0) {
-            Log.w(LOG_TAG, "Teensy may be overwhelming the device!");
+            Log.w(LOG_TAG, "Device might be overwhelmed!");
             return output.toString();
         }
         return output.substring(0, output.length() - 1);

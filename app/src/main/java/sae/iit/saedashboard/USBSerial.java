@@ -29,6 +29,7 @@ public class USBSerial {
     private UsbSerialDevice serialPort;
     private final Activity activity;
     private UsbDevice device;
+    private boolean connected = false;
 
     public interface DeviceActionCallback {
         void callback();
@@ -56,6 +57,7 @@ public class USBSerial {
 //                                    setUIButtonsOn(true);
                                     serialPort.read(mCallback);
                                     Log.i(LOG_ID, "Serial Connection Opened!");
+                                    connected = true;
                                 }
                             }
                             break;
@@ -64,6 +66,7 @@ public class USBSerial {
 //                            onClickStart(startButton);
                             break;
                         case UsbManager.ACTION_USB_DEVICE_DETACHED:
+                            connected = false;
                             detach.callback();
 //                            onClickStop(closeButton);
                             break;
@@ -81,32 +84,32 @@ public class USBSerial {
         Log.i(LOG_ID, "Receiver registered");
     }
 
-    public void open() {
+    public boolean open() {
         HashMap<String, UsbDevice> usbDevices = usbManager.getDeviceList();
         if (!usbDevices.isEmpty()) {
-            boolean keep = true;
             for (Map.Entry<String, UsbDevice> entry : usbDevices.entrySet()) {
                 device = entry.getValue();
                 int deviceVID = device.getVendorId();
                 if (deviceVID == TEENSY_VID) {
                     PendingIntent pi = PendingIntent.getBroadcast(activity, 0, new Intent(ACTION_USB_PERMISSION), 0);
                     usbManager.requestPermission(device, pi);
-                    keep = false;
+                    return true;
                 } else {
                     Log.i(LOG_ID, String.valueOf(deviceVID));
                     connection = null;
                     device = null;
                 }
-
-                if (!keep)
-                    break;
             }
         }
+        return false;
     }
 
     public void close() {
-        serialPort.close();
-        Log.i(LOG_ID, "Serial Connection Closed!");
+        if (connected) {
+            connected = false;
+            serialPort.close();
+            Log.i(LOG_ID, "Serial Connection Closed!");
+        }
     }
 
     @Override
@@ -117,6 +120,7 @@ public class USBSerial {
     }
 
     public void write(byte[] buffer) {
-        serialPort.write(buffer);
+        if (connected)
+            serialPort.write(buffer);
     }
 }

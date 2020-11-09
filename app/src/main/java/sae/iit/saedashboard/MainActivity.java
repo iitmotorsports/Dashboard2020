@@ -9,9 +9,9 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
-import android.widget.Button;
-import android.widget.ImageButton;
+import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
@@ -29,13 +29,9 @@ import java.util.TimerTask;
 public class MainActivity extends AppCompatActivity {
     private final static int MAX_LOG_LINE = 27;
     private final String LOG_ID = "Main Activity";
-    private final MainTab mainTab = (MainTab) getSupportFragmentManager().findFragmentById(R.id.mainTab);
-    private final SecondaryTab secondaryTab = (SecondaryTab) getSupportFragmentManager().findFragmentById(R.id.secondaryTab);
-    private final TroubleshootTab troubleshootTab = (TroubleshootTab) getSupportFragmentManager().findFragmentById(R.id.troubleshootTab);
-    private boolean shown = false;
-    private Button startButton, closeButton, clearButton, clearTButton;
-    private ImageButton SHButton;
-    private TextView SConsole;
+    private ToggleButton SerialToggle;
+    private LinearLayout FunctionSubTab;
+    private TextView SerialLog;
     private TeensyStream TStream;
 
     @SuppressLint("WrongViewCast")
@@ -52,27 +48,18 @@ public class MainActivity extends AppCompatActivity {
         decorView.setSystemUiVisibility(uiOptions);
         //Setting up ViewPager, Adapter, and TabLayout
 
-        ViewPager viewPager = findViewById(R.id.viewPager);
+        ViewPager MainPager = findViewById(R.id.MainPager);
         MyPagerAdapter pagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         TabLayout tabLayout = findViewById(R.id.tabLayout);
 
-        viewPager.setKeepScreenOn(true);
-        viewPager.setAdapter(pagerAdapter);
-        tabLayout.setupWithViewPager(viewPager);
-        tabLayout.setTabTextColors(getResources().getColor(R.color.white), getResources().getColor(R.color.white));
-        startButton = findViewById(R.id.Start);
-        closeButton = findViewById(R.id.Close);
-        clearButton = findViewById(R.id.ClearF);
-        clearTButton = findViewById(R.id.Clear);
-        SHButton = findViewById(R.id.Show);
-        //Makes corner Buttons invisible
-        startButton.setVisibility(View.INVISIBLE);
-        closeButton.setVisibility(View.INVISIBLE);
-        clearButton.setVisibility(View.INVISIBLE);
-        clearTButton.setVisibility(View.INVISIBLE);
-        SConsole = findViewById(R.id.textView7);
-        SConsole.setVisibility(View.INVISIBLE);
-        setUIButtonsOn(false);
+        MainPager.setKeepScreenOn(true);
+        MainPager.setAdapter(pagerAdapter);
+        tabLayout.setupWithViewPager(MainPager);
+        FunctionSubTab = findViewById(R.id.FunctionSubTab);
+        SerialToggle = findViewById(R.id.SerialToggle);
+        SerialLog = findViewById(R.id.SerialLog);
+
+        ToggleButton JSONToggle = findViewById(R.id.Load);
 
         //Background update Function. MOST IMPORTANT
         Timer timer = new Timer();
@@ -97,16 +84,13 @@ public class MainActivity extends AppCompatActivity {
 
         }, 0, 50);
 
-        TeensyStream.TeensyCallback connect = (() -> {
-            this.onClickStart(startButton);
-        }
-        );
-        TeensyStream.TeensyCallback disconnect = (() -> {
-            this.onClickStop(closeButton);
-        }
-        );
+        TStream = new TeensyStream(this, this::ConsoleLog, () -> SerialToggle.setChecked(true), () -> SerialToggle.setChecked(false), JSONToggle::setChecked);
 
-        TStream = new TeensyStream(this, this::ConsoleLog, connect, disconnect);
+        JSONToggle.setOnLongClickListener(v -> {
+            TStream.clearMapData();
+            return true;
+        });
+
         Log.i(LOG_ID, "Teensy stream created");
     }
 
@@ -116,11 +100,19 @@ public class MainActivity extends AppCompatActivity {
         TStream.onActivityResult(requestCode, resultCode, resultData);
     }
 
+    public void onSerialToggle(View view) {
+        if (SerialToggle.isChecked()) {
+            SerialToggle.setChecked(TStream.open());
+        } else {
+            TStream.close();
+        }
+    }
+
     /**
      * Clear test console
      */
     public void ConsoleClear() { // Test this
-        runOnUiThread(() -> SConsole.setText(""));
+        runOnUiThread(() -> SerialLog.setText(""));
     }
 
     /**
@@ -129,18 +121,7 @@ public class MainActivity extends AppCompatActivity {
      * @param msg Message String
      */
     private void ConsoleLog(String msg) {
-        runOnUiThread(() -> writeTerminal(SConsole, msg + "\n"));
-    }
-
-    /**
-     * Set whether start button should be disabled
-     * and the close button to be enabled
-     *
-     * @param bool boolean value
-     */
-    public void setUIButtonsOn(boolean bool) {
-        startButton.setEnabled(!bool);
-        closeButton.setEnabled(bool);
+        runOnUiThread(() -> writeTerminal(SerialLog, msg + "\n"));
     }
 
     private void writeTerminal(final TextView tv, final String data) {
@@ -163,53 +144,37 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
-    public void onClickStart(View view) {
-        TStream.open();
-        setUIButtonsOn(true);
-    }
-
-    public void onClickStop(View view) {
-        TStream.close();
-        setUIButtonsOn(false);
-    }
-
     public void onClickFault(View view) { // TODO: implement android to teensy communication
         TStream.write("0000".getBytes());
         Log.d(LOG_ID, "Fault Button");
     }
 
     public void onClickSH(View view) {
-        if (!shown) {
-            startButton.setVisibility(View.VISIBLE);
-            closeButton.setVisibility(View.VISIBLE);
-            clearButton.setVisibility(View.VISIBLE);
-            clearTButton.setVisibility(View.VISIBLE);
-            SConsole.setVisibility(View.VISIBLE);
-            shown = true;
-        } else {
-            startButton.setVisibility(View.INVISIBLE);
-            closeButton.setVisibility(View.INVISIBLE);
-            clearButton.setVisibility(View.INVISIBLE);
-            clearTButton.setVisibility(View.INVISIBLE);
-            SConsole.setVisibility(View.INVISIBLE);
-            shown = false;
+        switch (FunctionSubTab.getVisibility()) {
+            case View.VISIBLE:
+                Log.d(LOG_ID, "Hide functions");
+                FunctionSubTab.setVisibility(View.INVISIBLE);
+                break;
+            case View.INVISIBLE:
+                Log.d(LOG_ID, "Show functions");
+                FunctionSubTab.setVisibility(View.VISIBLE);
+                break;
+            case View.GONE:
+                break;
         }
     }
 
     public void onClickClear(View view) {
         ConsoleClear();
-        TStream.updateJsonMap(); // TODO: move to it's own button
     }
 
-/*	protected void onResume(Bundle savedInstanceState) {
-		//Hides the status bar.
-		View decorView = getWindow().getDecorView();
-		int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN;
-		decorView.setSystemUiVisibility(uiOptions);
-	}
-    //Updates display on tablet, will receive an array
-    static public void update() {
-    }*/
+    public void onClickLoad(View view) {
+        TStream.updateJsonMap();
+    }
+
+    public void onModeToggle(View view) {
+        TStream.setHexMode(!TStream.getHexMode());
+    }
 
     //CSV File Writer
     public void export(View view) {

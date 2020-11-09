@@ -39,7 +39,7 @@ public class JSONLoad {
 
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         if (requestCode == PICK_JSON_FILE && resultCode == Activity.RESULT_OK) {
-            Uri uri = null;
+            Uri uri;
             if (resultData != null) {
                 uri = resultData.getData();
                 try {
@@ -55,13 +55,14 @@ public class JSONLoad {
 
     public void openFile() {
         try {
-            Intent intent = new Intent(Intent.ACTION_OPEN_DOCUMENT);
+            Intent intent = new Intent(Intent.ACTION_GET_CONTENT);
+            intent.setType("*/*");
             intent.addCategory(Intent.CATEGORY_OPENABLE);
-            intent.setType("text/json");
-            activity.startActivityForResult(intent, PICK_JSON_FILE);
+
+            activity.startActivityForResult(Intent.createChooser(intent, "Select a file"), PICK_JSON_FILE);
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(activity, "Failed to request a file", Toast.LENGTH_LONG).show();
+            Toast.makeText(activity, "Failed to request for file", Toast.LENGTH_LONG).show();
         }
     }
 
