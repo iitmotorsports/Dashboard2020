@@ -8,8 +8,7 @@
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
         android:theme="@style/AppTheme.NoActionBar"
-        android:fullBackupContent="">
-        <!--        android:theme="@style/Theme.AppCompat.NoActionBar">-->
+        android:fullBackupContent="@xml/backup_files">
         <activity
             android:name="sae.iit.saedashboard.SplashActivity"
             android:screenOrientation="landscape">
