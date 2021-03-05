@@ -78,7 +78,7 @@ public class MainTab extends Fragment {
     }
 
     public void setBatteryLife(long battery) {
-        batteryLife.setText(String.valueOf(battery));
+        batteryLife.setText(String.valueOf(battery).concat("%"));
         setBatImage(battery);
 //        setBatImage(convertBatteryLife(battery)/302.4);
     }

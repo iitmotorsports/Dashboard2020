@@ -8,18 +8,18 @@
 
     <TextView
         android:id="@+id/speedometer"
-        android:layout_width="279dp"
-        android:layout_height="119dp"
+        android:layout_width="176dp"
+        android:layout_height="115dp"
         android:background="#121527"
         android:gravity="center"
         android:textColor="@android:color/white"
         android:textSize="100sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.085"
+        app:layout_constraintHorizontal_bias="0.183"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.139" />
+        app:layout_constraintVertical_bias="0.145" />
 
     <FrameLayout
         android:id="@+id/frameLayout"
@@ -33,14 +33,14 @@
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintVertical_bias="0.856">
 
-        <com.sccomponents.gauges.library.ScArcGauge xmlns:sc="http://schemas.android.com/apk/res-auto"
+        <com.sccomponents.gauges.library.ScArcGauge
             android:id="@+id/powerGauge"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_gravity="center_horizontal"
             android:padding="10dp"
-            sc:sccAngleStart="-180"
-            sc:sccAngleSweep="90" />
+            app:sccAngleStart="-180"
+            app:sccAngleSweep="90" />
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -81,52 +81,37 @@
         android:textSize="35sp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.496"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.335" />
+        app:layout_constraintHorizontal_bias="0.278"
+        app:layout_constraintStart_toStartOf="@+id/speedometer"
+        app:layout_constraintTop_toTopOf="@+id/speedometer"
+        app:layout_constraintVertical_bias="0.271" />
 
     <ImageView
         android:id="@+id/batteryLifeIcon"
 
         android:layout_width="171dp"
         android:layout_height="162dp"
-        android:layout_marginTop="56dp"
         android:contentDescription="@string/batt_at_0"
         android:src="@drawable/battery0"
+        app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.933"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintHorizontal_bias="0.87"
+        app:layout_constraintStart_toEndOf="@+id/frameLayout"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintVertical_bias="0.409" />
 
     <TextView
         android:id="@+id/batteryLife"
         android:layout_width="125dp"
         android:layout_height="54dp"
+        android:layout_marginTop="16dp"
         android:background="#121527"
         android:gravity="center"
         android:textColor="@android:color/white"
         android:textSize="50sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.858"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.765" />
-
-    <TextView
-        android:id="@+id/bateryLife2"
-        android:layout_width="66dp"
-        android:layout_height="39dp"
-        android:text="@string/PercentSign"
-        android:textColor="@android:color/white"
-        android:textSize="35sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.969"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent"
-        app:layout_constraintVertical_bias="0.777" />
+        app:layout_constraintEnd_toEndOf="@+id/batteryLifeIcon"
+        app:layout_constraintStart_toStartOf="@+id/batteryLifeIcon"
+        app:layout_constraintTop_toBottomOf="@+id/batteryLifeIcon" />
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
