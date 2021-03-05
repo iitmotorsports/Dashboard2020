@@ -122,4 +122,9 @@ public class USBSerial {
         if (connected)
             serialPort.write(buffer);
     }
+
+    public boolean isConnected() {
+        return connected;
+    }
+
 }

@@ -192,9 +192,18 @@ public class TeensyStream {
             }
         };
 
-        serialConnection = new USBSerial(activity, streamCallback, deviceAttach, deviceDetach);
+        TeensyCallback detach = () -> {
+            deviceDetach.callback();
+            for (Map.Entry<Long, msgBlock> entry : Teensy_Data.entrySet()) {
+                entry.getValue().clearValue();
+            }
+        };
+
+        serialConnection = new USBSerial(activity, streamCallback, deviceAttach, detach);
 
         loadLookupTable(activity);
+
+        new android.os.Handler().postDelayed(serialConnection::open, 2000);
     }
 
     // region Messaging
@@ -213,6 +222,10 @@ public class TeensyStream {
 
         void setUpdate(UPDATE when) {
             this.updateWhen = when;
+        }
+
+        void clearValue() {
+            this.value = 0;
         }
 
         void update(long val) {
