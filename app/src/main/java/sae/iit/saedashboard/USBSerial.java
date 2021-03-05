@@ -58,17 +58,16 @@ public class USBSerial {
                                     serialPort.read(mCallback);
                                     Log.i(LOG_ID, "Serial Connection Opened!");
                                     connected = true;
+                                    attach.callback();
                                 }
                             }
                             break;
                         case UsbManager.ACTION_USB_DEVICE_ATTACHED:
-                            attach.callback();
-//                            onClickStart(startButton);
+                            open();
                             break;
                         case UsbManager.ACTION_USB_DEVICE_DETACHED:
                             connected = false;
                             detach.callback();
-//                            onClickStop(closeButton);
                             break;
                     }
                 } catch (NullPointerException ignored) {
@@ -113,7 +112,7 @@ public class USBSerial {
     }
 
     @Override
-    public void finalize() throws Throwable {
+    protected void finalize() throws Throwable {
         activity.unregisterReceiver(broadcastReceiver);
         Log.i(LOG_ID, "Receiver unregistered");
         super.finalize();
