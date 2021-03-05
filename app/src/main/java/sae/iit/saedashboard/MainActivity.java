@@ -18,7 +18,6 @@ import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
-import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 
@@ -70,7 +69,7 @@ public class MainActivity extends AppCompatActivity {
 
         //Setting up ViewPager, Adapter, and TabLayout
 
-        ViewPager MainPager = findViewById(R.id.MainPager);
+        CustomSwipeViewPager MainPager = findViewById(R.id.MainPager);
         MyPagerAdapter pagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         TabLayout tabLayout = findViewById(R.id.tabLayout);
 
@@ -232,6 +231,18 @@ public class MainActivity extends AppCompatActivity {
                 break;
             case View.GONE:
                 break;
+        }
+    }
+
+    public void onClickLock(View view) {
+        LinearLayout MainFunctionTab = findViewById(R.id.MainFunctionTab);
+        CustomSwipeViewPager MainPager = findViewById(R.id.MainPager);
+        if (MainFunctionTab.getVisibility() == View.VISIBLE) {
+            MainFunctionTab.setVisibility(View.INVISIBLE);
+            MainPager.setLocked(true);
+        } else {
+            MainFunctionTab.setVisibility(View.VISIBLE);
+            MainPager.setLocked(false);
         }
     }
 
