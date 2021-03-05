@@ -12,6 +12,7 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
@@ -23,6 +24,10 @@ import com.google.android.material.tabs.TabLayout;
 
 import java.io.File;
 import java.io.FileOutputStream;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
+import java.util.Date;
+import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -33,7 +38,11 @@ public class MainActivity extends AppCompatActivity {
     private ToggleButton SerialToggle;
     private LinearLayout FunctionSubTab;
     private TextView SerialLog;
+    private ScrollView ConsoleScroller;
     private TeensyStream TStream;
+    ToggleButton ChargingSetButton;
+    DateFormat df = new SimpleDateFormat("[HH:mm:ss]", Locale.getDefault());
+    private boolean chargingAvailable = false;
 
     @SuppressLint("WrongViewCast")
     @Override
@@ -55,6 +64,8 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
+        Toaster.setContext(this.getBaseContext());
+
         //Setting up ViewPager, Adapter, and TabLayout
 
         ViewPager MainPager = findViewById(R.id.MainPager);
@@ -67,8 +78,18 @@ public class MainActivity extends AppCompatActivity {
         FunctionSubTab = findViewById(R.id.FunctionSubTab);
         SerialToggle = findViewById(R.id.SerialToggle);
         SerialLog = findViewById(R.id.SerialLog);
+        ConsoleScroller = findViewById(R.id.SerialScroller);
 
-        ToggleButton JSONToggle = findViewById(R.id.Load);
+        findViewById(R.id.Clear).setOnLongClickListener(v -> {
+            ConsoleTest();
+            return false;
+        });
+
+
+
+        ChargingSetButton = findViewById(R.id.chargeSet);
+        MainTab mT = (MainTab) pagerAdapter.getItem(0);
+        SecondaryTab sT = (SecondaryTab) pagerAdapter.getItem(1);
 
         //Background update Function. MOST IMPORTANT
         Timer timer = new Timer();
@@ -76,16 +97,16 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void run() {
                 runOnUiThread(() -> {
-                    try {
-                        MainTab.setSpeedometer(TeensyStream.ADD.SPEED.getValue(TStream));
-                        MainTab.setPowerGauge(TeensyStream.ADD.SPEED.getValue(TStream));
-                        MainTab.setBatteryLife(TeensyStream.ADD.SPEED.getValue(TStream));
-                        SecondaryTab.setLeftMotorTemp("0");
-                        SecondaryTab.setRightMotorTemp("0");
-                        SecondaryTab.setLeftMotorContTemp("0");
-                        SecondaryTab.setRightMotorContTemp("0");
-                        SecondaryTab.setActiveAeroPos("0");
-                        SecondaryTab.setDCBusCurrent("0");
+                    try { // TODO: Teensy value mapping
+//                        mT.setSpeedometer(TeensyStream.ADD.SPEED.getValue(TStream));
+//                        mT.setPowerGauge(TeensyStream.ADD.SPEED.getValue(TStream));
+//                        mT.setBatteryLife(TeensyStream.ADD.SPEED.getValue(TStream));
+                        sT.setLeftMotorTemp("0");
+                        sT.setRightMotorTemp("0");
+                        sT.setLeftMotorContTemp("0");
+                        sT.setRightMotorContTemp("0");
+                        sT.setActiveAeroPos("0");
+                        sT.setDCBusCurrent("0");
                     } catch (NullPointerException ignored) {
                     }
                 });
@@ -93,12 +114,21 @@ public class MainActivity extends AppCompatActivity {
 
         }, 0, 50);
 
+        setupTeensyStream();
+    }
+
+    private void setupTeensyStream(){
+        ToggleButton JSONToggle = findViewById(R.id.Load);
+
         TStream = new TeensyStream(this, this::ConsoleLog, () -> SerialToggle.setChecked(true), () -> SerialToggle.setChecked(false), JSONToggle::setChecked);
 
         JSONToggle.setOnLongClickListener(v -> {
-            TStream.clearMapData();
+            TStream.clearMapData(this);
             return true;
         });
+
+        // Teensy value mapping
+
 
         Log.i(LOG_ID, "Teensy stream created");
     }
@@ -106,12 +136,17 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         super.onActivityResult(requestCode, resultCode, resultData);
-        TStream.onActivityResult(requestCode, resultCode, resultData);
+        TStream.onActivityResult(this, requestCode, resultCode, resultData);
     }
 
     public void onSerialToggle(View view) {
         if (SerialToggle.isChecked()) {
-            SerialToggle.setChecked(TStream.open());
+            if (TStream.open()) {
+                SerialToggle.setChecked(true);
+            } else {
+                SerialToggle.setChecked(false);
+                Toaster.showToast("Failed to make a connection");
+            }
         } else {
             TStream.close();
         }
@@ -120,8 +155,13 @@ public class MainActivity extends AppCompatActivity {
     /**
      * Clear test console
      */
-    public void ConsoleClear() { // Test this
-        runOnUiThread(() -> SerialLog.setText(""));
+    public void ConsoleClear() {
+        ConsoleScroller.smoothScrollTo(0, SerialLog.getBottom() + 50);
+    }
+
+    public void ConsoleTest() {
+        Toaster.showToast("Printing Test String", false, true);
+        for (int i = 0; i < 50; i++) ConsoleLog("Test String " + i);
     }
 
     /**
@@ -130,32 +170,27 @@ public class MainActivity extends AppCompatActivity {
      * @param msg Message String
      */
     private void ConsoleLog(String msg) {
-        runOnUiThread(() -> writeTerminal(SerialLog, msg + "\n"));
+        runOnUiThread(() -> writeTerminal(SerialLog, String.format("%s %s\n", df.format(new Date()), msg)));
+        ConsoleScroller.post(() -> ConsoleScroller.fullScroll(View.FOCUS_DOWN));
+        ConsoleScroller.post(() -> ConsoleScroller.scrollTo(0, 100));
     }
 
     private void writeTerminal(final TextView tv, final String data) {
         tv.append(data);
-        // Erase excessive lines
-        int excessLineNumber = tv.getLineCount() - MAX_LOG_LINE;
-        if (excessLineNumber > 0) {
-            int eolIndex = -1;
-            CharSequence charSequence = tv.getText();
-            for (int i = 0; i < excessLineNumber; i++) {
-                do {
-                    eolIndex++;
-                } while (eolIndex < charSequence.length() && charSequence.charAt(eolIndex) != '\n');
-            }
-            if (eolIndex < charSequence.length()) {
-                tv.getEditableText().delete(0, eolIndex + 1);
-            } else {
-                tv.setText("");
-            }
-        }
     }
 
-    public void onClickFault(View view) { // TODO: implement android to teensy communication
-        TStream.write("0000".getBytes());
-        Log.d(LOG_ID, "Fault Button");
+    public void onClickFault(View view) {
+        TStream.write(TeensyStream.COMMAND.CLEAR_FAULT);
+    }
+
+    public void onClickCharge(View view) { // TODO: only allow to send signal when teensy says so
+        Toaster.showToast("Ahhh!");
+//        if (chargingAvailable) {
+        TStream.write(TeensyStream.COMMAND.CHARGE);
+//        } else {
+//            ChargingSetButton.setChecked(false);
+//            Toast.makeText(this.getBaseContext(), "Charging not available right now", Toast.LENGTH_SHORT).show();
+//        }
     }
 
     public void onClickSH(View view) {
@@ -178,6 +213,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickLoad(View view) {
+        Toaster.showToast("Find log_lookup.json", true);
         TStream.updateJsonMap();
     }
 
