@@ -1,6 +1,5 @@
 package sae.iit.saedashboard;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -41,7 +40,6 @@ public class MainActivity extends AppCompatActivity {
     DateFormat df = new SimpleDateFormat("[HH:mm:ss]", Locale.getDefault());
     private boolean chargingAvailable = false;
 
-    @SuppressLint("WrongViewCast")
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -212,7 +210,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onModeToggle(View view) {
-        TStream.setHexMode(!TStream.getHexMode());
+        TStream.setHexMode(!TStream.isHexMode());
     }
 
     //CSV File Writer
@@ -220,7 +218,7 @@ public class MainActivity extends AppCompatActivity {
         try {
             //saving the file into device
             FileOutputStream out = openFileOutput("data.csv", Context.MODE_PRIVATE);
-            out.write((TStream.dataString()).getBytes());
+            out.write((TStream.toString()).getBytes());
             out.close();
             //exporting
             Context context = getApplicationContext();
