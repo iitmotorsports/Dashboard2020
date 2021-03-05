@@ -140,6 +140,12 @@
                     android:textOn="@string/charging"
                     android:textSize="12sp" />
 
+                <TextView
+                    android:id="@+id/lineCounter"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textAlignment="center" />
+
             </LinearLayout>
 
             <ScrollView
