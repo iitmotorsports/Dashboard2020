@@ -3,21 +3,30 @@
     package="sae.iit.saedashboard">
 
     <application
+        android:allowBackup="false"
+        android:fullBackupContent="@xml/backup_files"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
         android:roundIcon="@mipmap/ic_launcher_round"
         android:supportsRtl="true"
-        android:theme="@style/AppTheme.NoActionBar"
-        android:fullBackupContent="@xml/backup_files">
+        android:theme="@style/AppTheme.NoActionBar">
         <activity
             android:name="sae.iit.saedashboard.SplashActivity"
             android:screenOrientation="landscape">
             <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/usb_device_filter" />
         </activity>
-        <activity android:name="sae.iit.saedashboard.MainActivity" />
+        <activity
+            android:name="sae.iit.saedashboard.MainActivity"
+            android:launchMode="singleInstance"
+            android:screenOrientation="landscape" />
 
         <provider
             android:name="androidx.core.content.FileProvider"
