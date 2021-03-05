@@ -17,15 +17,18 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
 import java.util.Locale;
 import java.util.Map;
+import java.util.Objects;
 
 public class TeensyStream {
-    private final HashMap<Long, byte[]> Teensy_Data = new HashMap<>();
+    private final HashMap<Long, Long> Teensy_Data = new HashMap<>();
     private final String FILENAME_SAVE = "TEENSY_JSON_MAP.json";
     private final TeensyLogBooleanCallback callOnLoad;
     private final String LOG_TAG = "Teensy Stream";
@@ -115,6 +118,49 @@ public class TeensyStream {
         return hexLog;
     }
 
+    public long requestData(long msgID) {
+        return Teensy_Data.containsKey(msgID) ? Teensy_Data.get(msgID) : 0;
+    }
+
+    public static <T, E> T getKeyByValue(Map<T, E> map, E value) {
+        for (Map.Entry<T, E> entry : map.entrySet()) {
+            if (Objects.equals(value, entry.getValue())) {
+                return entry.getKey();
+            }
+        }
+        return null;
+    }
+
+    public long requestDataMappingID(String stringTag, String stringMsg) {
+        if (!JSONLoaded) {
+            Log.w(LOG_TAG, "JSON has not been loaded, unable to process request");
+            return -1;
+        }
+        Integer tagID = getKeyByValue(Teensy_LookUp_Tag, stringTag);
+        Integer strID = getKeyByValue(Teensy_LookUp_Str, stringMsg);
+
+        if (tagID != null && strID != null) {
+            ByteBuffer mapping = ByteBuffer.allocate(4);
+            mapping.order(ByteOrder.LITTLE_ENDIAN);
+            mapping.putShort(tagID.shortValue());
+            mapping.putShort(strID.shortValue());
+            long msgID = mapping.getInt(0);
+            Teensy_Data.put(msgID, 0L);
+            return msgID;
+        }
+
+        return -1;
+    }
+
+    private long[] updateData(byte[] data_block) {
+        long[] IDs = ByteSplit.getTeensyMsg(data_block);
+        long msgID = IDs[3];
+        if (Teensy_Data.containsKey(msgID)) { // Only store value if it is needed
+            Teensy_Data.put(msgID, IDs[2]);
+        }
+        return IDs;
+    }
+
     /**
      * Set teensy data in a HashMap given a raw byte array
      *
@@ -132,6 +178,7 @@ public class TeensyStream {
                     Log.w(LOG_TAG, "Received cutoff array");
                     continue;
                 }
+                updateData(data_block);
                 output.append(ByteSplit.hexStr(data_block)).append("\n");
             }
             if (output.length() == 0)
@@ -147,14 +194,9 @@ public class TeensyStream {
                 continue;
             }
 
-            long[] IDs = ByteSplit.getTeensyMsg(data_block);
+            long[] IDs = updateData(data_block);
             int callerID = (int) IDs[0];
             int stringID = (int) IDs[1];
-            long msgID = IDs[3];
-
-            if (Teensy_Data.containsKey(msgID)) { // Only store value if it is needed
-                Teensy_Data.put(msgID, data_block);
-            }
 
             output.append(Teensy_LookUp_Tag.get(callerID)).append(' ').append(Teensy_LookUp_Str.get(stringID)).append(' ').append(IDs[2]).append('\n');
         }
@@ -169,13 +211,14 @@ public class TeensyStream {
      * @return The string representation of the stored teensy messages
      */
     public String dataString() {
-        StringBuilder str = new StringBuilder();
-        for (Map.Entry<Long, byte[]> e : Teensy_Data.entrySet()) {
-            str.append(e.getKey());
-            str.append(" : ");
-            str.append(ByteSplit.hexStr(e.getValue()).replaceAll("..(?!$)", "$0|"));
-        }
-        return str.toString();
+//        StringBuilder str = new StringBuilder();
+//        for (Map.Entry<Long, Long> e : Teensy_Data.entrySet()) {
+//            str.append(e.getKey());
+//            str.append(" : ");
+//            str.append(ByteSplit.hexStr(e.getValue()).replaceAll("..(?!$)", "$0|"));
+//        }
+//        return str.toString();
+        return "";
     }
 
     // region Serial IO
