@@ -7,6 +7,7 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -28,12 +29,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Timer;
-import java.util.TimerTask;
 
-//@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class MainActivity extends AppCompatActivity {
-    private final static int MAX_LOG_LINE = 27;
     private final String LOG_ID = "Main Activity";
     private ToggleButton SerialToggle;
     private LinearLayout FunctionSubTab;
@@ -85,39 +82,36 @@ public class MainActivity extends AppCompatActivity {
             return false;
         });
 
-
-
         ChargingSetButton = findViewById(R.id.chargeSet);
         MainTab mT = (MainTab) pagerAdapter.getItem(0);
         SecondaryTab sT = (SecondaryTab) pagerAdapter.getItem(1);
 
-        //Background update Function. MOST IMPORTANT
-        Timer timer = new Timer();
-        timer.scheduleAtFixedRate(new TimerTask() {
+        // UI update handler
+        Handler handler = new Handler();
+        Runnable runnableCode = new Runnable() {
             @Override
             public void run() {
-                runOnUiThread(() -> {
-                    try { // TODO: Teensy value mapping
-//                        mT.setSpeedometer(TeensyStream.ADD.SPEED.getValue(TStream));
-//                        mT.setPowerGauge(TeensyStream.ADD.SPEED.getValue(TStream));
-//                        mT.setBatteryLife(TeensyStream.ADD.SPEED.getValue(TStream));
-                        sT.setLeftMotorTemp("0");
-                        sT.setRightMotorTemp("0");
-                        sT.setLeftMotorContTemp("0");
-                        sT.setRightMotorContTemp("0");
-                        sT.setActiveAeroPos("0");
-                        sT.setDCBusCurrent("0");
-                    } catch (NullPointerException ignored) {
-                    }
-                });
+                try { // TODO: Teensy value mapping
+                    mT.setSpeedometer((long) (Math.random() * 100));
+                    mT.setPowerGauge((long) (Math.random() * 100));
+                    mT.setBatteryLife((long) (Math.random() * 100));
+                    sT.setLeftMotorTemp("0");
+                    sT.setRightMotorTemp("0");
+                    sT.setLeftMotorContTemp("0");
+                    sT.setRightMotorContTemp("0");
+                    sT.setActiveAeroPos("0");
+                    sT.setDCBusCurrent("0");
+                } catch (NullPointerException ignored) {
+                }
+                handler.postDelayed(this, 25); // TODO: How much of a delay do we really need?
             }
-
-        }, 0, 50);
+        };
+        handler.post(runnableCode);
 
         setupTeensyStream();
     }
 
-    private void setupTeensyStream(){
+    private void setupTeensyStream() {
         ToggleButton JSONToggle = findViewById(R.id.Load);
 
         TStream = new TeensyStream(this, this::ConsoleLog, () -> SerialToggle.setChecked(true), () -> SerialToggle.setChecked(false), JSONToggle::setChecked);
