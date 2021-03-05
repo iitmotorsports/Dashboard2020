@@ -2,7 +2,6 @@ package sae.iit.saedashboard;
 
 import android.graphics.Color;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,10 +18,10 @@ import com.sccomponents.gauges.library.ScNotches;
 import java.util.Timer;
 
 public class MainTab extends Fragment {
-    public static TextView speedometer, batteryLife, powerDisplay;
-    private static ImageView batteryLifeIcon;
-    private static ImageView checkEngine;
-    private static ScArcGauge powerGauge;
+    public TextView speedometer, batteryLife, powerDisplay;
+    private ImageView batteryLifeIcon;
+    private ImageView checkEngine;
+    private ScArcGauge powerGauge;
     private Timer timer;
 
     //Creates a view that is compatible with ViewPager
@@ -74,21 +73,21 @@ public class MainTab extends Fragment {
     }
 
     //Updates field info
-    public static void setPowerGauge(long battery) {
+    public void setPowerGauge(long battery) {
         powerGauge.setHighValue(Math.min((float) battery / 302.4f, 1) * 100);
     }
 
-    public static void setBatteryLife(long battery) {
+    public void setBatteryLife(long battery) {
         batteryLife.setText(String.valueOf(battery));
         setBatImage(battery);
 //        setBatImage(convertBatteryLife(battery)/302.4);
     }
 
-    public static void setSpeedometer(long speed) {
+    public void setSpeedometer(long speed) {
         speedometer.setText(String.valueOf(speed));
     }
 
-    public static void setCheckEngine(Boolean state) {
+    public void setCheckEngine(Boolean state) {
         if (state) {
             checkEngine.setVisibility(View.VISIBLE);
         } else {
@@ -96,7 +95,7 @@ public class MainTab extends Fragment {
         }
     }
 
-    public static void setBatImage(double level) {
+    public void setBatImage(double level) {
         if (level > 75) {
             batteryLifeIcon.setImageResource(R.drawable.battery100);
         } else if (level > 50) {
