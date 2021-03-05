@@ -41,4 +41,6 @@
     <string name="ascii">Ascii</string>
     <string name="hex">Hex</string>
     <string name="modetoggle">modeToggle</string>
+    <string name="charge">Charge</string>
+    <string name="charging">Charging</string>
 </resources>
