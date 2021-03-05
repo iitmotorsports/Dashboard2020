@@ -123,17 +123,18 @@ public class MainActivity extends AppCompatActivity {
         setupTeensyStream();
     }
 
-    long msgIDSpeedometer = -1;
-    long msgIDPowerGauge = -1;
-    long msgIDBatteryLife = -1;
+    private long msgIDSpeedometer = -1;
+    private long msgIDPowerGauge = -1;
+    private long msgIDBatteryLife = -1;
+    private long speedDv = 0;
 
     private void updateTabs() {
-        mainTab.setSpeedometer(TStream.requestData(msgIDSpeedometer));
-        mainTab.setPowerGauge(TStream.requestData(msgIDPowerGauge));
+        long speed = TStream.requestData(msgIDSpeedometer);
+        mainTab.setSpeedometer(speed);
+        mainTab.setPowerGauge(Math.abs(speed - speedDv) * 2);
+        speedDv = speed;
         mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
-//        mainTab.setSpeedometer((int)(Math.random()*1000));
-//        mainTab.setPowerGauge((int)(Math.random()*100));
-//        mainTab.setBatteryLife((int)(Math.random()*100));
+        mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
         secondTab.setLeftMotorTemp("0");
         secondTab.setRightMotorTemp("0");
         secondTab.setLeftMotorContTemp("0");
