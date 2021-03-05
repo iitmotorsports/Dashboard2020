@@ -2,11 +2,7 @@ package sae.iit.saedashboard;
 
 import android.app.Activity;
 import android.content.Intent;
-import android.os.Build;
 import android.util.Log;
-import android.widget.Toast;
-
-import androidx.annotation.RequiresApi;
 
 import com.felhr.usbserial.UsbSerialInterface;
 
@@ -17,31 +13,33 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.nio.charset.StandardCharsets;
+import java.text.SimpleDateFormat;
+import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.Locale;
 import java.util.Map;
 
-@RequiresApi(api = Build.VERSION_CODES.KITKAT)
 public class TeensyStream {
-    private final byte[] HEX_ARRAY = "0123456789ABCDEF".getBytes(StandardCharsets.UTF_8);
-    private final int ID_SIZE = 2; // How big is the teensy message ID
+    private final HashMap<Long, byte[]> Teensy_Data = new HashMap<>();
     private final String FILENAME_SAVE = "TEENSY_JSON_MAP.json";
+    private final TeensyLogBooleanCallback callOnLoad;
     private final String LOG_TAG = "Teensy Stream";
-    private final HashMap<Integer, byte[]> Teensy_Data = new HashMap<>();
-    private HashMap<Integer, String> Teensy_LookUp_Tag = new HashMap<>();
-    private HashMap<Long, String> Teensy_LookUp_Str = new HashMap<>();
-    private final JSONLoad loader;
-    private final Activity activity;
     private final USBSerial serialConnection;
+    private final JSONLoad loader;
+
+    private HashMap<Integer, String> Teensy_LookUp_Tag = new HashMap<>();
+    private HashMap<Integer, String> Teensy_LookUp_Str = new HashMap<>();
+    private FileOutputStream logFile;
+
     private boolean JSONLoaded = false;
-    private final TeensyLogJsonLoadCallback callOnLoad;
     private boolean hexLog = false;
+
+    // region Interfaces
 
     public interface TeensyCallback extends USBSerial.DeviceActionCallback {
     }
@@ -50,38 +48,63 @@ public class TeensyStream {
         void callback(String msg);
     }
 
-    public interface TeensyLogJsonLoadCallback {
+    public interface TeensyLogBooleanCallback {
         void callback(boolean jsonLoaded);
     }
 
+    // endregion
+
     /**
-     * Enumerate the teensy addresses and define functions for each one that needs
-     * a value exposed
+     * Commands that can be sent through the `write` function
      */
-    public enum ADD { // TODO: Move enumerators to MainActivity?
-        SPEED(258) {
-            public long getValue(TeensyStream TS) {
-                return TS.getUnsignedShort(address);
-            }
-            //Convert RPM to MPH
-        },
-        ANOTHERVAL(258) {
-            public long getValue(TeensyStream TS) {
-                return TS.getUnsignedInt(address, 3);
-            }
-        };
-        public int address;
-
-        abstract public long getValue(TeensyStream TS); // Changed to return 'Number' to return Integer or Long
-
-        ADD(int address) {
-            this.address = address;
-        }
+    public static final class COMMAND {
+        public static final byte[] CHARGE = {123};
+        public static final byte[] CLEAR_FAULT = {45};
     }
 
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        loader.onActivityResult(requestCode, resultCode, resultData);
-        loadLookupTable();
+    public TeensyStream(Activity activity, TeensyLogCallback logMessage, TeensyCallback deviceAttach, TeensyCallback deviceDetach, TeensyLogBooleanCallback callOnLoad) {
+        Log.i(LOG_TAG, "Making teensy stream");
+        this.callOnLoad = callOnLoad;
+        loader = new JSONLoad(activity);
+
+        try { // Set logging file
+            File path = activity.getFilesDir();
+            String FILENAME_LOG = "TEENSY_LOG-%s.log";
+            Calendar calendar = Calendar.getInstance();
+            String date = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.US).format(calendar.getTime());
+            File file = new File(path, String.format(FILENAME_LOG, date));
+            logFile = new FileOutputStream(file);
+            Log.i(LOG_TAG, file.getAbsolutePath());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Toaster.showToast("Failed to open new file for teensy logging", true);
+        }
+
+        UsbSerialInterface.UsbReadCallback streamCallback;
+
+        if (logFile != null) {
+            streamCallback = arg0 -> {
+                try {
+                    logFile.write(arg0);
+                } catch (Exception ignored) {
+                }
+                String msg = setData(arg0);
+                if (msg.length() > 0) {
+                    logMessage.callback(msg);
+                }
+            };
+        } else {
+            streamCallback = arg0 -> {
+                String msg = setData(arg0);
+                if (msg.length() > 0) {
+                    logMessage.callback(msg);
+                }
+            };
+        }
+
+        serialConnection = new USBSerial(activity, streamCallback, deviceAttach, deviceDetach);
+
+        loadLookupTable(activity);
     }
 
     public void setHexMode(boolean enable) {
@@ -92,33 +115,70 @@ public class TeensyStream {
         return hexLog;
     }
 
-    public void updateJsonMap() {
-        loader.openFile();
-    }
+    /**
+     * Set teensy data in a HashMap given a raw byte array
+     *
+     * @param raw_data byte array
+     */
+    private String setData(byte[] raw_data) { // Improve: run this on separate thread
+        StringBuilder output = new StringBuilder(32);
 
-    public TeensyStream(Activity activity, TeensyLogCallback logMessage, TeensyCallback deviceAttach, TeensyCallback deviceDetach, TeensyLogJsonLoadCallback callOnLoad) {
-        this.activity = activity;
-        this.callOnLoad = callOnLoad;
-        loader = new JSONLoad(activity);
-
-        UsbSerialInterface.UsbReadCallback streamCallback = arg0 -> {
-            String msg = setData(arg0);
-            if (msg.length() > 0) {
-                logMessage.callback(msg);
+        if (hexLog) {
+            for (int i = 0; i < raw_data.length; i += 8) {
+                byte[] data_block = new byte[8];
+                try {
+                    System.arraycopy(raw_data, i, data_block, 0, 8);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    Log.w(LOG_TAG, "Received cutoff array");
+                    continue;
+                }
+                output.append(ByteSplit.hexStr(data_block)).append("\n");
             }
-        };
+            if (output.length() == 0)
+                return "";
+            return output.substring(0, output.length() - 1);
+        }
 
-        serialConnection = new USBSerial(activity, streamCallback, deviceAttach, deviceDetach);
-        Log.i(LOG_TAG, "Loading lookup table");
-        loadLookupTable();
+        for (int i = 0; i < raw_data.length; i += 8) {
+            byte[] data_block = new byte[8];
+            try {
+                System.arraycopy(raw_data, i, data_block, 0, 8);
+            } catch (ArrayIndexOutOfBoundsException e) {
+                continue;
+            }
+
+            long[] IDs = ByteSplit.getTeensyMsg(data_block);
+            int callerID = (int) IDs[0];
+            int stringID = (int) IDs[1];
+            long msgID = IDs[3];
+
+            if (Teensy_Data.containsKey(msgID)) { // Only store value if it is needed
+                Teensy_Data.put(msgID, data_block);
+            }
+
+            output.append(Teensy_LookUp_Tag.get(callerID)).append(' ').append(Teensy_LookUp_Str.get(stringID)).append(' ').append(IDs[2]).append('\n');
+        }
+        if (output.length() == 0) {
+            Log.w(LOG_TAG, "USB serial might be overwhelmed!");
+            return output.toString();
+        }
+        return output.substring(0, output.length() - 1);
     }
 
-    private void loadLookupTable() {
-        if (callOnLoad != null)
-            callOnLoad.callback(__loadLookupTable());
-        else
-            __loadLookupTable();
+    /**
+     * @return The string representation of the stored teensy messages
+     */
+    public String dataString() {
+        StringBuilder str = new StringBuilder();
+        for (Map.Entry<Long, byte[]> e : Teensy_Data.entrySet()) {
+            str.append(e.getKey());
+            str.append(" : ");
+            str.append(ByteSplit.hexStr(e.getValue()).replaceAll("..(?!$)", "$0|"));
+        }
+        return str.toString();
     }
+
+    // region Serial IO
 
     public boolean open() {
         return serialConnection.open();
@@ -132,7 +192,27 @@ public class TeensyStream {
         serialConnection.write(buffer);
     }
 
-    private void saveMapToSystem() {
+    // endregion
+
+    // region File IO
+
+    public void updateJsonMap() {
+        loader.openFile();
+    }
+
+    public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent resultData) {
+        loader.onActivityResult(requestCode, resultCode, resultData);
+        loadLookupTable(activity);
+    }
+
+    private void loadLookupTable(Activity activity) {
+        if (callOnLoad != null)
+            callOnLoad.callback(__loadLookupTable(activity));
+        else
+            __loadLookupTable(activity);
+    }
+
+    private void saveMapToSystem(Activity activity) {
         String loadedJsonStr = loader.getLoadedJsonStr();
         loader.clearLoadedJsonStr();
         if (loadedJsonStr != null) {
@@ -143,7 +223,7 @@ public class TeensyStream {
                 writer = new PrintWriter(file);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                Toast.makeText(activity, "Failed to save map data", Toast.LENGTH_LONG).show();
+                Toaster.showToast("Failed to save map data", true);
                 return;
             }
             writer.print(loadedJsonStr);
@@ -151,7 +231,7 @@ public class TeensyStream {
         }
     }
 
-    public void clearMapData() {
+    public void clearMapData(Activity activity) {
         File path = activity.getFilesDir();
         File file = new File(path, FILENAME_SAVE);
         if (file.delete()) {
@@ -160,13 +240,13 @@ public class TeensyStream {
             callOnLoad.callback(false);
             loader.clearLoadedJsonStr();
             JSONLoaded = false;
-            Toast.makeText(activity, "Map data deleted", Toast.LENGTH_SHORT).show();
+            Toaster.showToast("Map data deleted");
         } else {
-            Toast.makeText(activity, "Failed to delete map data", Toast.LENGTH_SHORT).show();
+            Toaster.showToast("Failed to delete map data");
         }
     }
 
-    private String loadMapFromSystem() throws IOException {
+    private String loadMapFromSystem(Activity activity) throws IOException {
         File path = activity.getFilesDir();
         File file = new File(path, FILENAME_SAVE);
         StringBuilder text = new StringBuilder();
@@ -180,26 +260,26 @@ public class TeensyStream {
         return text.toString();
     }
 
-    private boolean __loadLookupTable() {
+    private boolean __loadLookupTable(Activity activity) {
         Log.i(LOG_TAG, "Loading lookup table");
 
         String JSON_INPUT = loader.getLoadedJsonStr();
         if (JSON_INPUT == null) {
             if (JSONLoaded) {
-                Toast.makeText(this.activity, "Teensy map unchanged", Toast.LENGTH_SHORT).show();
+                Toaster.showToast("Teensy map unchanged");
                 return true;
             }
             try {
-                JSON_INPUT = loadMapFromSystem();
+                JSON_INPUT = loadMapFromSystem(activity);
             } catch (IOException e) {
-                Toast.makeText(this.activity, "No Teensy map has been loaded", Toast.LENGTH_LONG).show();
+                Toaster.showToast("No Teensy map has been loaded", true);
                 return false;
             }
         }
         JSONArray json;
 
         HashMap<Integer, String> NEW_Teensy_LookUp_Tag = new HashMap<>();
-        HashMap<Long, String> NEW_Teensy_LookUp_Str = new HashMap<>();
+        HashMap<Integer, String> NEW_Teensy_LookUp_Str = new HashMap<>();
 
         try {
             json = new JSONArray(JSON_INPUT);
@@ -217,193 +297,26 @@ public class TeensyStream {
 
             while (keys.hasNext()) {
                 String key = keys.next();
-                NEW_Teensy_LookUp_Str.put(entry.getLong(key), key);
+                NEW_Teensy_LookUp_Str.put(entry.getInt(key), key);
             }
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Toast.makeText(this.activity, "Json does not match correct format", Toast.LENGTH_LONG).show();
+            Toaster.showToast("Json does not match correct format", true);
             return JSONLoaded;
         }
 
         Log.i(LOG_TAG, "Json array loaded");
         if (JSONLoaded)
-            Toast.makeText(this.activity, "Teensy map updated", Toast.LENGTH_SHORT).show();
+            Toaster.showToast("Teensy map updated");
         else
-            Toast.makeText(this.activity, "Loaded Teensy map", Toast.LENGTH_SHORT).show();
-        saveMapToSystem();
+            Toaster.showToast("Loaded Teensy map");
+        saveMapToSystem(activity);
         Teensy_LookUp_Tag = NEW_Teensy_LookUp_Tag;
         Teensy_LookUp_Str = NEW_Teensy_LookUp_Str;
         JSONLoaded = true;
         return true;
     }
+    // endregion
 
-    /**
-     * Returns a string matching the ID codes given
-     *
-     * @param data raw byte array
-     * @return the interpreted string
-     */
-    private String getLookupString(byte[] data) {
-        ByteBuffer buf = ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN);
-        long number = ((long) buf.getInt(ID_SIZE) & 0xffffffffL);
-        long string = ((long) buf.getInt(ID_SIZE + 4) & 0xffffffffL);
-        return Teensy_LookUp_Str.get(string) + " " + number;
-    }
-
-    /**
-     * Returns the hex string representation of the given byte array
-     *
-     * @param bytes byte array
-     * @return The hex string
-     */
-    public String hexStr(byte[] bytes) {
-        byte[] hexChars = new byte[bytes.length * 2];
-        for (int j = 0; j < bytes.length; j++) {
-            int v = bytes[j] & 0xFF;
-            hexChars[j * 2] = HEX_ARRAY[v >>> 4];
-            hexChars[j * 2 + 1] = HEX_ARRAY[v & 0x0F];
-        }
-        return new String(hexChars, StandardCharsets.UTF_8);
-    }
-
-    /**
-     * Returns the hex string representation of the stored Teensy byte array
-     *
-     * @param MsgID Message integer ID
-     * @return The hex string
-     */
-    public String msgHex(int MsgID) {
-        byte[] bytes = Teensy_Data.get(MsgID);
-        if (bytes == null)
-            return "";
-        return hexStr(bytes);
-    }
-
-    /**
-     * Reads the first two bytes of a message's array, composing them into an
-     * unsigned short value
-     *
-     * @param MsgID Message integer ID
-     * @return The unsigned short value as an int
-     */
-    public int getUnsignedShort(int MsgID) {
-        byte[] data = Teensy_Data.get(MsgID);
-        if (data == null)
-            return 0;
-        return (ByteBuffer.wrap(data).getShort(ID_SIZE) & 0xffff); // offset to ignore ID bytes
-    }
-
-    /**
-     * Reads two bytes at the message's index, composing them into an unsigned short
-     * value.
-     *
-     * @param MsgID    Message integer ID
-     * @param position position in message array
-     * @return The unsigned short value as an int
-     */
-    public int getUnsignedShort(int MsgID, int position) {
-        byte[] data = Teensy_Data.get(MsgID);
-        if (data == null)
-            return 0;
-        return (ByteBuffer.wrap(data).getShort(ID_SIZE + position) & 0xffff);
-    }
-
-    /**
-     * Reads the first four bytes of a message's array, composing them into an
-     * unsigned int value
-     *
-     * @param MsgID Message integer ID
-     * @return The unsigned int value as a long
-     */
-    public long getUnsignedInt(int MsgID) {
-        byte[] data = Teensy_Data.get(MsgID);
-        if (data == null)
-            return 0;
-        return ((long) ByteBuffer.wrap(data).getInt(ID_SIZE) & 0xffffffffL);
-    }
-
-    /**
-     * Reads four bytes at the message's index, composing them into an unsigned int
-     * value.
-     *
-     * @param MsgID    Message integer ID
-     * @param position position in message array
-     * @return The unsigned short value at the buffer's current position as a long
-     */
-    public long getUnsignedInt(int MsgID, int position) {
-        byte[] data = Teensy_Data.get(MsgID);
-        if (data == null)
-            return 0;
-        return ((long) ByteBuffer.wrap(data).getInt(ID_SIZE + position) & 0xffffffffL);
-    }
-
-    /**
-     * Get the ID from the byte array received from the teensy
-     *
-     * @param raw_data byte array
-     * @return The message ID
-     */
-    private int getDataID(byte[] raw_data) { // The ID 0xDEAD is 57005
-        return ByteBuffer.wrap(raw_data).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xffff; // get TMsg ID
-    }
-
-    /**
-     * Set teensy data in a HashMap given a raw byte array
-     *
-     * @param raw_data byte array
-     */
-    private String setData(byte[] raw_data) { // Improve: run this on separate thread
-        StringBuilder output = new StringBuilder();
-
-        if (hexLog) {
-            for (int i = 0; i < raw_data.length; i += 10) {
-                byte[] data_block = new byte[10];
-                try {
-                    System.arraycopy(raw_data, i, data_block, 0, 10);
-                } catch (ArrayIndexOutOfBoundsException e) {
-                    continue;
-                }
-                output.append(hexStr(data_block)).append("\n");
-            }
-            if (output.length() == 0)
-                return "";
-            return output.substring(0, output.length() - 1);
-        }
-
-        for (int i = 0; i < raw_data.length; i += 10) {
-            byte[] data_block = new byte[10];
-            try {
-                System.arraycopy(raw_data, i, data_block, 0, 10);
-            } catch (ArrayIndexOutOfBoundsException e) {
-                continue;
-            }
-            int ID = getDataID(data_block);
-//            Log.i(LOG_TAG, hexStr(data_block) + " | " + ID + " : " + Teensy_LookUp_Tag.get(ID) + " | " + getLookupString(data_block));
-            if (Teensy_LookUp_Tag.containsKey(ID)) {
-                output.append(Teensy_LookUp_Tag.get(ID)).append(" ").append(getLookupString(data_block)).append("\n");
-            } else {
-                Teensy_Data.put(getDataID(data_block), data_block);
-            }
-
-        }
-        if (output.length() == 0) {
-            Log.w(LOG_TAG, "Device might be overwhelmed!");
-            return output.toString();
-        }
-        return output.substring(0, output.length() - 1);
-    }
-
-    /**
-     * @return The string representation of the stored teensy messages
-     */
-    public String dataString() {
-        StringBuilder str = new StringBuilder();
-        for (Map.Entry<Integer, byte[]> e : Teensy_Data.entrySet()) {
-            str.append(e.getKey());
-            str.append(" : ");
-            str.append(hexStr(e.getValue()).replaceAll("..(?!$)", "$0|"));
-        }
-        return str.toString();
-    }
 }
