@@ -22,6 +22,7 @@ public class MainTab extends Fragment {
     private ImageView batteryLifeIcon;
     private ImageView checkEngine;
     private ScArcGauge powerGauge;
+    private ScArcGauge powerGauge2;
     private Timer timer;
 
     //Creates a view that is compatible with ViewPager
@@ -36,16 +37,25 @@ public class MainTab extends Fragment {
         //checkEngine = rootView.findViewById(R.id.checkEngine);
         //Power Gauge
         powerGauge = rootView.findViewById(R.id.powerGauge);
+        powerGauge2 = rootView.findViewById(R.id.powerGauge2);
         powerDisplay = rootView.findViewById(R.id.counter);
         // Clear all default features from the gauge
         powerGauge.removeAllFeatures();
+        powerGauge2.removeAllFeatures();
         // Create the base notches.
         ScNotches base = (ScNotches) powerGauge.addFeature(ScNotches.class);
         base.setTag(ScGauge.BASE_IDENTIFIER);
         base.setPosition(ScFeature.Positions.INSIDE);
-        base.setRepetitions(40);
-        base.setWidths(10);
-        base.setHeights(10, 120);
+        base.setRepetitions(20);
+        base.setWidths(25);
+        base.setHeights(30, 150);
+        base.setColors(Color.parseColor("#dbdfe6"));
+        base = (ScNotches) powerGauge2.addFeature(ScNotches.class);
+        base.setTag(ScGauge.BASE_IDENTIFIER);
+        base.setPosition(ScFeature.Positions.INSIDE);
+        base.setRepetitions(20);
+        base.setWidths(25);
+        base.setHeights(30, 150);
         base.setColors(Color.parseColor("#dbdfe6"));
 
         // Create the progress notches.
@@ -56,18 +66,18 @@ public class MainTab extends Fragment {
                 Color.parseColor("#FEF301"),
                 Color.parseColor("#EA0C01")
         );
+        progress = (ScNotches) powerGauge2.addFeature(ScNotches.class);
+        progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
+        progress.setColors(
+                Color.parseColor("#0BA60A"),
+                Color.parseColor("#FEF301"),
+                Color.parseColor("#EA0C01")
+        );
 
         // Set the value
         powerGauge.setHighValue(0, 0, 100);
+        powerGauge2.setHighValue(0, 0, 100);
         powerDisplay.setText("0");
-
-        // Changes the text value to the gauge value
-        powerGauge.setOnEventListener((gauge, lowValue, highValue, isRunning) -> {
-            // Write the value
-            int value = (int) ScGauge.percentageToValue(highValue, 0, 13000);
-            powerDisplay.setText(String.valueOf(value));
-        });
-        //End value needs to be changed to reflect max output in watts
 
         return rootView;
     }
@@ -75,12 +85,17 @@ public class MainTab extends Fragment {
     //Updates field info
     public void setPowerGauge(long battery) {
         powerGauge.setHighValue(Math.min((float) battery / 302.4f, 1) * 100);
+        powerGauge2.setHighValue(Math.min((float) battery / 302.4f, 1) * 100);
     }
 
     public void setBatteryLife(long battery) {
         batteryLife.setText(String.valueOf(battery).concat("%"));
         setBatImage(battery);
 //        setBatImage(convertBatteryLife(battery)/302.4);
+    }
+
+    public void setPowerDisplay(long power) {
+        powerDisplay.setText(String.valueOf(power));
     }
 
     public void setSpeedometer(long speed) {
