@@ -22,20 +22,26 @@ import androidx.viewpager.widget.ViewPager;
 
 import com.google.android.material.tabs.TabLayout;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileOutputStream;
+import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
     private final String LOG_ID = "Main Activity";
+    private final int MAX_LINES = 10000;
     private ToggleButton SerialToggle;
     private LinearLayout FunctionSubTab;
     private TextView SerialLog;
     private ScrollView ConsoleScroller;
     private TeensyStream TStream;
+    private MainTab mainTab;
+    private SecondaryTab secondTab;
     ToggleButton ChargingSetButton;
     DateFormat df = new SimpleDateFormat("[HH:mm:ss]", Locale.getDefault());
     private boolean chargingAvailable = false;
@@ -43,6 +49,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        // Make it fancy on newer devices
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         }
@@ -76,37 +83,63 @@ public class MainActivity extends AppCompatActivity {
         ConsoleScroller = findViewById(R.id.SerialScroller);
 
         findViewById(R.id.Clear).setOnLongClickListener(v -> {
-            ConsoleTest();
+            ConsoleHardClear();
             return false;
         });
 
         ChargingSetButton = findViewById(R.id.chargeSet);
-        MainTab mT = (MainTab) pagerAdapter.getItem(0);
-        SecondaryTab sT = (SecondaryTab) pagerAdapter.getItem(1);
+        mainTab = (MainTab) pagerAdapter.getItem(0);
+        secondTab = (SecondaryTab) pagerAdapter.getItem(1);
 
         // UI update handler
         Handler handler = new Handler();
         Runnable runnableCode = new Runnable() {
             @Override
             public void run() {
-                try { // TODO: Teensy value mapping
-                    mT.setSpeedometer((long) (Math.random() * 100));
-                    mT.setPowerGauge((long) (Math.random() * 100));
-                    mT.setBatteryLife((long) (Math.random() * 100));
-                    sT.setLeftMotorTemp("0");
-                    sT.setRightMotorTemp("0");
-                    sT.setLeftMotorContTemp("0");
-                    sT.setRightMotorContTemp("0");
-                    sT.setActiveAeroPos("0");
-                    sT.setDCBusCurrent("0");
+                try {
+                    updateTabs();
                 } catch (NullPointerException ignored) {
                 }
-                handler.postDelayed(this, 25); // TODO: How much of a delay do we really need?
+                handler.postDelayed(this, 60); // TODO: How much of a delay do we really need?
             }
         };
         handler.post(runnableCode);
 
+        // Clear console if it gets too big, also line counter
+        TextView lineCounter = findViewById(R.id.lineCounter);
+        Handler consoleClear = new Handler();
+        Runnable clearCode = new Runnable() {
+            @Override
+            public void run() {
+                int count = SerialLog.getLineCount();
+                lineCounter.setText(String.format(Locale.US, "%d/%d", count, MAX_LINES));
+                if (count > MAX_LINES)
+                    ConsoleHardClear();
+                consoleClear.postDelayed(this, 5000);
+            }
+        };
+        consoleClear.post(clearCode);
+
         setupTeensyStream();
+    }
+
+    long msgIDSpeedometer = -1;
+    long msgIDPowerGauge = -1;
+    long msgIDBatteryLife = -1;
+
+    private void updateTabs() {
+        mainTab.setSpeedometer(TStream.requestData(msgIDSpeedometer));
+        mainTab.setPowerGauge(TStream.requestData(msgIDPowerGauge));
+        mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
+//        mainTab.setSpeedometer((int)(Math.random()*1000));
+//        mainTab.setPowerGauge((int)(Math.random()*100));
+//        mainTab.setBatteryLife((int)(Math.random()*100));
+        secondTab.setLeftMotorTemp("0");
+        secondTab.setRightMotorTemp("0");
+        secondTab.setLeftMotorContTemp("0");
+        secondTab.setRightMotorContTemp("0");
+        secondTab.setActiveAeroPos("0");
+        secondTab.setDCBusCurrent("0");
     }
 
     private void setupTeensyStream() {
@@ -120,7 +153,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Teensy value mapping
-
+        msgIDSpeedometer = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Motor Speed:");
+        msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Power Value:");
+        msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[INFO]  BMS State Of Charge Value:");
 
         Log.i(LOG_ID, "Teensy stream created");
     }
@@ -151,9 +186,14 @@ public class MainActivity extends AppCompatActivity {
         ConsoleScroller.smoothScrollTo(0, SerialLog.getBottom() + 50);
     }
 
-    public void ConsoleTest() {
-        Toaster.showToast("Printing Test String", false, true);
-        for (int i = 0; i < 50; i++) ConsoleLog("Test String " + i);
+    public void ConsoleHardClear() {
+        SerialLog.setText("");
+        ConsoleScroller.postDelayed(() -> ConsoleScroller.fullScroll(View.FOCUS_DOWN), 25);
+    }
+
+    private String appendTimeToEachLine(String s) {
+        String prefix = df.format(new Date()).concat(" ");
+        return new BufferedReader(new StringReader(s)).lines().collect(Collectors.joining('\n' + prefix, prefix, "")).concat("\n");
     }
 
     /**
@@ -162,13 +202,8 @@ public class MainActivity extends AppCompatActivity {
      * @param msg Message String
      */
     private void ConsoleLog(String msg) {
-        runOnUiThread(() -> writeTerminal(SerialLog, String.format("%s %s\n", df.format(new Date()), msg)));
-        ConsoleScroller.post(() -> ConsoleScroller.fullScroll(View.FOCUS_DOWN));
-        ConsoleScroller.post(() -> ConsoleScroller.scrollTo(0, 100));
-    }
-
-    private void writeTerminal(final TextView tv, final String data) {
-        tv.append(data);
+        runOnUiThread(() -> SerialLog.append(appendTimeToEachLine(msg)));
+        ConsoleScroller.postDelayed(() -> ConsoleScroller.fullScroll(View.FOCUS_DOWN), 25);
     }
 
     public void onClickFault(View view) {
@@ -176,7 +211,6 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickCharge(View view) { // TODO: only allow to send signal when teensy says so
-        Toaster.showToast("Ahhh!");
 //        if (chargingAvailable) {
         TStream.write(TeensyStream.COMMAND.CHARGE);
 //        } else {
