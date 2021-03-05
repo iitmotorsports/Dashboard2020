@@ -5,6 +5,7 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:background="#121527"
+    android:clickable="false"
     tools:context=".MainActivity">
 
     <androidx.viewpager.widget.ViewPager
@@ -104,6 +105,7 @@
                     android:layout_height="wrap_content"
                     android:contentDescription="@string/clear_the_serial_log"
                     android:keepScreenOn="true"
+                    android:longClickable="true"
                     android:onClick="onClickClear"
                     android:text="@string/clear" />
 
@@ -128,23 +130,42 @@
                     android:textOff="@string/ascii"
                     android:textOn="@string/hex" />
 
+                <ToggleButton
+                    android:id="@+id/chargeSet"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:checked="false"
+                    android:onClick="onClickCharge"
+                    android:textOff="@string/charge"
+                    android:textOn="@string/charging"
+                    android:textSize="12sp" />
+
             </LinearLayout>
 
-            <TextView
-                android:id="@+id/SerialLog"
+            <ScrollView
+                android:id="@+id/SerialScroller"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:layout_marginStart="4dp"
-                android:layout_marginTop="4dp"
-                android:layout_marginEnd="8dp"
-                android:layout_marginBottom="8dp"
+                android:layout_margin="4dp"
                 android:background="#73FFFFFF"
-                android:fontFamily="monospace"
-                android:keepScreenOn="true"
-                android:padding="8dp"
-                android:text=""
-                android:textAlignment="viewStart"
-                android:textColor="@color/black" />
+                android:overScrollMode="always">
+
+                <TextView
+                    android:id="@+id/SerialLog"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginStart="4dp"
+                    android:layout_marginTop="4dp"
+                    android:layout_marginEnd="4dp"
+                    android:layout_marginBottom="4dp"
+                    android:fontFamily="monospace"
+                    android:keepScreenOn="true"
+                    android:padding="4dp"
+                    android:scrollbars="vertical"
+                    android:text=""
+                    android:textAlignment="viewStart"
+                    android:textColor="@color/black" />
+            </ScrollView>
 
         </LinearLayout>
 
