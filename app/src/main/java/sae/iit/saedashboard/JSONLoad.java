@@ -3,7 +3,6 @@ package sae.iit.saedashboard;
 import android.app.Activity;
 import android.content.Intent;
 import android.net.Uri;
-import android.widget.Toast;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -14,7 +13,7 @@ import java.util.Objects;
 public class JSONLoad {
     private static final int PICK_JSON_FILE = 2;
     private String loadedJsonStr;
-    private Activity activity;
+    private final Activity activity;
 
     public String getLoadedJsonStr() {
         return loadedJsonStr;
@@ -49,7 +48,7 @@ public class JSONLoad {
                     e.printStackTrace();
                 }
             }
-            Toast.makeText(activity, "Failed to load file", Toast.LENGTH_LONG).show();
+            Toaster.showToast("Failed to load file", true);
         }
     }
 
@@ -62,7 +61,7 @@ public class JSONLoad {
             activity.startActivityForResult(Intent.createChooser(intent, "Select a file"), PICK_JSON_FILE);
         } catch (Exception e) {
             e.printStackTrace();
-            Toast.makeText(activity, "Failed to request for file", Toast.LENGTH_LONG).show();
+            Toaster.showToast("Failed to request for file", true);
         }
     }
 
