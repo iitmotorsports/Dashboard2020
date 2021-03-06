@@ -1,12 +1,13 @@
 package sae.iit.saedashboard;
 
+import android.content.res.ColorStateList;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ImageView;
+import android.widget.RadioButton;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -16,8 +17,9 @@ import com.sccomponents.gauges.library.ScGauge;
 import com.sccomponents.gauges.library.ScNotches;
 
 public class MainTab extends Fragment {
-    public TextView speedometer, batteryLife, BMSCharge;
-    private ImageView checkEngine;
+    private TextView speedometer, batteryLife, BMSCharge;
+    private RadioButton FaultLight;
+    private ColorStateList BG, RED;
     private LinearGauge powerGauge;
     private LinearGauge powerGauge2;
     private LinearGauge batteryGauge;
@@ -45,17 +47,16 @@ public class MainTab extends Fragment {
 
         // Battery
         batteryGauge = rootView.findViewById(R.id.batteryGauge);
-//        batteryGauge.getLayoutParams().width = (display.widthPixels / 4) - 1;
-//        batteryGauge.getLayoutParams().height = (display.widthPixels / 8) - 1;
-//        batteryGauge.setLayoutParams(batteryGauge.getLayoutParams());
         setBatteryGauge(rootView);
 
         // BMS
         BMSChargeGauge = rootView.findViewById(R.id.BMSChargeGauge);
-//        BMSChargeGauge.getLayoutParams().width = (display.widthPixels / 4) - 1;
-//        BMSChargeGauge.getLayoutParams().height = (display.widthPixels / 8) - 1;
-//        BMSChargeGauge.setLayoutParams(BMSChargeGauge.getLayoutParams());
         setBMSChargeGauge();
+
+        // Fault Light
+        FaultLight = rootView.findViewById(R.id.FaultLight);
+        RED = ColorStateList.valueOf(Color.parseColor("#EA0C01"));
+        BG = ColorStateList.valueOf(Color.parseColor("#3A3D4F"));
 
         return rootView;
     }
@@ -160,6 +161,16 @@ public class MainTab extends Fragment {
     }
 
     // Updates field info
+    public void setFaultLight(boolean state) {
+        if (state) {
+            FaultLight.setChecked(true);
+            FaultLight.setButtonTintList(RED);
+        } else {
+            FaultLight.setChecked(false);
+            FaultLight.setButtonTintList(BG);
+        }
+    }
+
     public void setPowerGauge(long battery) {
         powerGauge.setHighValue(Math.min((float) battery / 302.4f, 1) * 100);
         powerGauge2.setHighValue(Math.min((float) battery / 302.4f, 1) * 100);
@@ -180,14 +191,6 @@ public class MainTab extends Fragment {
 
     public void setSpeedometer(long speed) {
         speedometer.setText(String.valueOf(speed));
-    }
-
-    public void setCheckEngine(Boolean state) {
-        if (state) {
-            checkEngine.setVisibility(View.VISIBLE);
-        } else {
-            checkEngine.setVisibility(View.INVISIBLE);
-        }
     }
 
     // TODO: Check if raw battery value received from Teensy is okay
