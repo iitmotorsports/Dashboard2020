@@ -45,4 +45,5 @@
     <string name="charging">Charging</string>
     <string name="UnlockedEmoji">🔓</string>
     <string name="lockedEmoji">🔒</string>
+    <string name="battery">Battery</string>
 </resources>

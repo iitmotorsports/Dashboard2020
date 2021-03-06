@@ -4,134 +4,214 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
 
+    android:layout_marginEnd="6dp"
     android:orientation="horizontal">
 
-    <TextView
-        android:id="@+id/speedometer"
-        android:layout_width="0dp"
-        android:layout_height="wrap_content"
-        android:gravity="center_horizontal"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:textSize="100sp"
+    <LinearLayout
+        android:id="@+id/MainTabLayout"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:clipChildren="false"
+        android:clipToPadding="false"
+        android:orientation="vertical"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
-
-    <LinearLayout
-        android:id="@+id/linearLayout2"
-        android:layout_width="143dp"
-        android:layout_height="75dp"
-        android:layout_gravity="bottom|end"
-        android:layout_marginStart="32dp"
-        android:layout_marginTop="32dp"
-        android:gravity="end"
-        android:orientation="vertical"
-        app:layout_constraintBottom_toTopOf="@+id/speedometer"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
 
-        <TextView
-            android:layout_width="wrap_content"
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:gravity="center"
-            android:text="@string/power_watts"
-            android:textColor="@android:color/white"
-            android:textSize="20sp" />
+            android:layout_gravity="center">
 
-        <TextView
-            android:id="@+id/counter"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:gravity="center"
-            android:paddingLeft="10dp"
-            android:paddingRight="10dp"
-            android:textColor="@android:color/white"
-            android:textSize="40sp"
-            android:textStyle="bold" />
-    </LinearLayout>
+            <TextView
+                android:id="@+id/speedometerLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="@string/mph"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"
+                android:textSize="24sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/speedometer"
+                app:layout_constraintStart_toStartOf="@+id/speedometer" />
 
-    <TextView
-        android:id="@+id/speedometerLabel"
-        android:layout_width="115dp"
-        android:layout_height="55dp"
-        android:gravity="center_horizontal"
-        android:text="@string/mph"
-        android:textAlignment="center"
-        android:textColor="@android:color/white"
-        android:textSize="35sp"
-        app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toEndOf="@+id/speedometer"
-        app:layout_constraintHorizontal_bias="0.646"
-        app:layout_constraintStart_toStartOf="@+id/speedometer"
-        app:layout_constraintTop_toTopOf="@+id/speedometer"
-        app:layout_constraintVertical_bias="0.0" />
+            <TextView
+                android:id="@+id/speedometer"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:gravity="center_horizontal"
+                android:includeFontPadding="false"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"
+                android:textSize="150sp"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
 
-    <ImageView
-        android:id="@+id/batteryLifeIcon"
+        </androidx.constraintlayout.widget.ConstraintLayout>
 
-        android:layout_width="133dp"
-        android:layout_height="124dp"
-        android:layout_marginTop="32dp"
-        android:layout_marginEnd="32dp"
-        android:contentDescription="@string/batt_at_0"
-        android:rotation="-90"
-        android:src="@drawable/battery0"
-        app:layout_constraintBottom_toTopOf="@+id/speedometer"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        <androidx.constraintlayout.widget.ConstraintLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:clipChildren="false"
+            android:clipToPadding="false">
 
-    <TextView
-        android:id="@+id/batteryLife"
-        android:layout_width="0dp"
-        android:layout_height="64dp"
-        android:gravity="end"
-        android:paddingLeft="15dp"
-        android:paddingRight="15dp"
-        android:textAlignment="textEnd"
-        android:textColor="@android:color/white"
-        android:textSize="50sp"
-        app:layout_constraintBottom_toBottomOf="@+id/batteryLifeIcon"
-        app:layout_constraintEnd_toEndOf="@+id/batteryLifeIcon"
-        app:layout_constraintHorizontal_bias="0.0"
-        app:layout_constraintStart_toStartOf="@+id/batteryLifeIcon"
-        app:layout_constraintTop_toTopOf="@+id/batteryLifeIcon"
-        app:layout_constraintVertical_bias="0.54" />
+            <LinearLayout
+                android:id="@+id/linearLayout3"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center"
+                android:orientation="horizontal"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.0">
 
-    <LinearLayout
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_marginTop="100dp"
-        android:gravity="center_vertical"
-        android:orientation="horizontal"
-        app:layout_constraintEnd_toEndOf="@+id/speedometer"
-        app:layout_constraintHorizontal_bias=".5"
-        app:layout_constraintStart_toStartOf="@+id/speedometer"
-        app:layout_constraintTop_toTopOf="@+id/speedometer">
+                <sae.iit.saedashboard.LinearGauge
+                    android:id="@+id/powerGauge2"
+                    android:layout_width="300dp"
+                    android:layout_height="150dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="32dp"
+                    android:padding="20dp"
+                    android:scaleX="-1" />
 
-        <com.sccomponents.gauges.library.ScArcGauge
-            android:id="@+id/powerGauge2"
-            android:layout_width="350dp"
-            android:layout_height="200dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="32dp"
-            android:padding="20dp"
-            android:scaleX="-1"
-            app:sccAngleStart="-90"
-            app:sccAngleSweep="0.6" />
+                <sae.iit.saedashboard.LinearGauge
+                    android:id="@+id/powerGauge"
+                    android:layout_width="300dp"
+                    android:layout_height="150dp"
+                    android:layout_gravity="center_horizontal"
+                    android:layout_marginBottom="32dp"
+                    android:padding="20dp"
+                    android:scaleX="1" />
+            </LinearLayout>
 
-        <com.sccomponents.gauges.library.ScArcGauge
-            android:id="@+id/powerGauge"
-            android:layout_width="350dp"
-            android:layout_height="200dp"
-            android:layout_gravity="center_horizontal"
-            android:layout_marginBottom="32dp"
-            android:padding="20dp"
-            android:scaleX="1"
-            app:sccAngleStart="-90"
-            app:sccAngleSweep="0.6" />
+            <LinearLayout
+                android:id="@+id/BMSLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginStart="13dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintStart_toStartOf="@+id/linearLayout3"
+                app:layout_constraintTop_toTopOf="@+id/linearLayout3"
+                app:layout_constraintVertical_bias="0.75">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:foregroundGravity="center">
+
+                    <sae.iit.saedashboard.LinearGauge
+                        android:id="@+id/BMSChargeGauge"
+                        android:layout_width="180dp"
+                        android:layout_height="0dp"
+                        android:scaleX="1"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/BMSCharge"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:textAlignment="textEnd"
+                        android:textColor="@android:color/white"
+                        android:textSize="50sp"
+                        app:layout_constraintBottom_toBottomOf="@id/BMSChargeGauge"
+                        app:layout_constraintEnd_toEndOf="@id/BMSChargeGauge"
+                        app:layout_constraintStart_toStartOf="@id/BMSChargeGauge"
+                        app:layout_constraintTop_toTopOf="@id/BMSChargeGauge" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/BMSText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingTop="5dp"
+                    android:text="@string/power_watts"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
+
+            <LinearLayout
+                android:id="@+id/BatteryLayout"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginEnd="13dp"
+                android:clipChildren="false"
+                android:clipToPadding="false"
+                android:gravity="center"
+                android:orientation="vertical"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/linearLayout3"
+                app:layout_constraintTop_toTopOf="@+id/linearLayout3"
+                app:layout_constraintVertical_bias="0.75">
+
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:layout_gravity="center"
+                    android:clipChildren="false"
+                    android:clipToPadding="false"
+                    android:foregroundGravity="center">
+
+                    <sae.iit.saedashboard.LinearGauge
+                        android:id="@+id/batteryGauge"
+                        android:layout_width="180dp"
+                        android:layout_height="0dp"
+                        android:scaleX="-1"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/batteryLife"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:paddingLeft="15dp"
+                        android:paddingRight="15dp"
+                        android:textAlignment="textEnd"
+                        android:textColor="@android:color/white"
+                        android:textSize="50sp"
+                        app:layout_constraintBottom_toBottomOf="@id/batteryGauge"
+                        app:layout_constraintEnd_toEndOf="@id/batteryGauge"
+                        app:layout_constraintStart_toStartOf="@id/batteryGauge"
+                        app:layout_constraintTop_toTopOf="@id/batteryGauge" />
+
+                </androidx.constraintlayout.widget.ConstraintLayout>
+
+                <TextView
+                    android:id="@+id/BatteryText"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:gravity="center"
+                    android:paddingTop="5dp"
+                    android:text="@string/battery"
+                    android:textColor="@android:color/white"
+                    android:textSize="20sp" />
+
+            </LinearLayout>
+
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
     </LinearLayout>
 
 
