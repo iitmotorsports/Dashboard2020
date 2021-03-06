@@ -13,6 +13,7 @@
         android:layout_width="40dp"
         android:layout_height="wrap_content"
         android:layout_weight="1"
+        android:alpha="0.5"
         android:background="#00FFFFFF"
         android:checked="false"
         android:onClick="onClickLock"
@@ -20,8 +21,8 @@
         android:textOff="@string/UnlockedEmoji"
         android:textOn="@string/lockedEmoji"
         android:textSize="24sp"
-        app:layout_constraintEnd_toEndOf="parent"
-        app:layout_constraintTop_toTopOf="parent" />
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent" />
 
     <sae.iit.saedashboard.CustomSwipeViewPager
         android:id="@+id/MainPager"
