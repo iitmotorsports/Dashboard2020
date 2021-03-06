@@ -130,7 +130,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateTabs() {
         long speed = TStream.requestData(msgIDSpeedometer);
         mainTab.setSpeedometer(speed);
-        mainTab.setPowerGauge(Math.abs(speed - speedDv) * 2);
+        mainTab.setPowerGauge(Math.abs(speed - speedDv) * 32);
         speedDv = speed;
         mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
         mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
