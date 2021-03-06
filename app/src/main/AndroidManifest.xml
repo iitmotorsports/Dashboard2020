@@ -2,6 +2,7 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     package="sae.iit.saedashboard">
 
+    <uses-permission android:name="android.permission.HAR" />
     <application
         android:allowBackup="true"
         android:fullBackupContent="@xml/backup_files"
@@ -19,9 +20,7 @@
 
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
-            <meta-data
-                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
-                android:resource="@xml/usb_device_filter" />
+
         </activity>
         <activity
             android:name="sae.iit.saedashboard.MainActivity"
@@ -33,9 +32,16 @@
             android:authorities="com.example.exportcsv.fileprovider"
             android:exported="false"
             android:grantUriPermissions="true">
+            <intent-filter>
+                <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
+            </intent-filter>
+
             <meta-data
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/provider_paths" />
+            <meta-data
+                android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED"
+                android:resource="@xml/usb_device_filter" />
         </provider>
 
     </application>
