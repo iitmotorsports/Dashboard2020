@@ -194,9 +194,7 @@ public class TeensyStream {
 
         TeensyCallback detach = () -> {
             deviceDetach.callback();
-            for (Map.Entry<Long, msgBlock> entry : Teensy_Data.entrySet()) {
-                entry.getValue().clearValue();
-            }
+            clearValues();
         };
 
         serialConnection = new USBSerial(activity, streamCallback, deviceAttach, detach);
@@ -204,6 +202,12 @@ public class TeensyStream {
         loadLookupTable(activity);
 
         new android.os.Handler().postDelayed(serialConnection::open, 2000);
+    }
+
+    private void clearValues() {
+        for (Map.Entry<Long, msgBlock> entry : Teensy_Data.entrySet()) {
+            entry.getValue().clearValue();
+        }
     }
 
     // region Messaging
@@ -428,6 +432,7 @@ public class TeensyStream {
 
     public void close() {
         serialConnection.close();
+        clearValues();
     }
 
     public void write(byte[] buffer) {
