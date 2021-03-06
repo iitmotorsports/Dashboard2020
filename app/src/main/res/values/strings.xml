@@ -46,5 +46,7 @@
     <string name="UnlockedEmoji">🔓</string>
     <string name="lockedEmoji">🔒</string>
     <string name="battery">Battery</string>
+    <string name="test">Test</string>
+    <string name="con">Con</string>
     <string name="fault">Fault</string>
 </resources>

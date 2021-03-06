@@ -93,102 +93,136 @@
             android:visibility="invisible"
             tools:visibility="visible">
 
-            <LinearLayout
-                android:id="@+id/FunctionSubButtons"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginStart="4dp"
-                android:keepScreenOn="true"
-                android:orientation="vertical">
-
-                <ToggleButton
-                    android:id="@+id/SerialToggle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:onClick="onSerialToggle" />
-
-                <Button
-                    android:id="@+id/ClearF"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/ping_serial_to_clear_faults"
-                    android:keepScreenOn="true"
-                    android:onClick="onClickFault"
-                    android:text="@string/faults" />
-
-                <Button
-                    android:id="@+id/Clear"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:contentDescription="@string/clear_the_serial_log"
-                    android:keepScreenOn="true"
-                    android:longClickable="true"
-                    android:onClick="onClickClear"
-                    android:text="@string/clear" />
-
-                <ToggleButton
-                    android:id="@+id/Load"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:checked="true"
-                    android:keepScreenOn="true"
-                    android:longClickable="true"
-                    android:onClick="onClickLoad"
-                    android:textOff="@string/json"
-                    android:textOn="@string/json" />
-
-                <ToggleButton
-                    android:id="@+id/modeToggle"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:checked="false"
-                    android:onClick="onModeToggle"
-                    android:text="@string/modetoggle"
-                    android:textOff="@string/ascii"
-                    android:textOn="@string/hex" />
-
-                <ToggleButton
-                    android:id="@+id/chargeSet"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:checked="false"
-                    android:onClick="onClickCharge"
-                    android:textOff="@string/charge"
-                    android:textOn="@string/charging"
-                    android:textSize="12sp" />
-
-                <TextView
-                    android:id="@+id/lineCounter"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:textAlignment="center" />
-
-            </LinearLayout>
-
             <ScrollView
-                android:id="@+id/SerialScroller"
-                android:layout_width="match_parent"
+                android:layout_width="wrap_content"
                 android:layout_height="match_parent"
-                android:layout_margin="4dp"
-                android:background="#73FFFFFF"
-                android:overScrollMode="always">
+                android:scrollbars="none">
 
-                <TextView
-                    android:id="@+id/SerialLog"
+                <LinearLayout
+                    android:id="@+id/FunctionSubButtons"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
-                    android:layout_marginTop="4dp"
-                    android:layout_marginEnd="4dp"
-                    android:layout_marginBottom="4dp"
-                    android:fontFamily="monospace"
                     android:keepScreenOn="true"
-                    android:padding="4dp"
-                    android:scrollbars="vertical"
-                    android:text=""
-                    android:textAlignment="viewStart"
-                    android:textColor="@color/black" />
+                    android:orientation="vertical">
+
+                    <ToggleButton
+                        android:id="@+id/SerialToggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onSerialToggle" />
+
+                    <Button
+                        android:id="@+id/Clear"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:contentDescription="@string/clear_the_serial_log"
+                        android:keepScreenOn="true"
+                        android:longClickable="true"
+                        android:onClick="onClickClear"
+                        android:text="@string/clear" />
+
+                    <ToggleButton
+                        android:id="@+id/Load"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="true"
+                        android:keepScreenOn="true"
+                        android:longClickable="true"
+                        android:onClick="onClickLoad"
+                        android:textOff="@string/json"
+                        android:textOn="@string/json" />
+
+                    <ToggleButton
+                        android:id="@+id/modeToggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:onClick="onModeToggle"
+                        android:text="@string/modetoggle"
+                        android:textOff="@string/ascii"
+                        android:textOn="@string/hex" />
+
+                    <ToggleButton
+                        android:id="@+id/chargeSet"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:onClick="onClickCharge"
+                        android:textOff="@string/charge"
+                        android:textOn="@string/charging"
+                        android:textSize="12sp" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/ConsoleSwitch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onConsoleSwitch"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="0dp"
+                        android:text="@string/con"
+                        android:textSize="18sp"
+                        app:switchMinWidth="1dp" />
+
+                    <androidx.appcompat.widget.SwitchCompat
+                        android:id="@+id/TestSwitch"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onTestSwitch"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="0dp"
+                        android:text="@string/test"
+                        android:textSize="18sp" />
+
+                </LinearLayout>
             </ScrollView>
+
+            <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/ConsoleLayout"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:visibility="invisible">
+
+                <ScrollView
+                    android:id="@+id/SerialScroller"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:layout_margin="4dp"
+                    android:background="#73FFFFFF"
+                    android:overScrollMode="always"
+                    tools:layout_editor_absoluteX="4dp"
+                    tools:layout_editor_absoluteY="-40dp">
+
+                    <TextView
+                        android:id="@+id/SerialLog"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="4dp"
+                        android:layout_marginTop="4dp"
+                        android:layout_marginEnd="4dp"
+                        android:layout_marginBottom="4dp"
+                        android:fontFamily="monospace"
+                        android:keepScreenOn="true"
+                        android:padding="4dp"
+                        android:scrollbars="vertical"
+                        android:text=""
+                        android:textAlignment="viewStart"
+                        android:textColor="@color/black" />
+                </ScrollView>
+
+                <TextView
+                    android:id="@+id/lineCounter"
+                    android:layout_width="0dp"
+                    android:layout_height="wrap_content"
+                    android:paddingLeft="4dp"
+                    android:paddingRight="4dp"
+                    android:textAlignment="textEnd"
+                    android:textColor="@color/black"
+                    app:layout_constraintEnd_toEndOf="@+id/SerialScroller"
+                    app:layout_constraintStart_toStartOf="@id/SerialScroller"
+                    app:layout_constraintTop_toTopOf="@+id/SerialScroller" />
+
+            </androidx.constraintlayout.widget.ConstraintLayout>
 
         </LinearLayout>
 

@@ -17,6 +17,8 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.SwitchCompat;
+import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.content.FileProvider;
 
 import com.google.android.material.tabs.TabLayout;
@@ -42,6 +44,9 @@ public class MainActivity extends AppCompatActivity {
     private MainTab mainTab;
     private SecondaryTab secondTab;
     ToggleButton ChargingSetButton;
+    ConstraintLayout ConsoleLayout;
+    Handler UIHandle;
+    boolean Testing = false;
     DateFormat df = new SimpleDateFormat("[HH:mm:ss]", Locale.getDefault());
     private boolean chargingAvailable = false;
 
@@ -80,8 +85,10 @@ public class MainActivity extends AppCompatActivity {
         SerialToggle = findViewById(R.id.SerialToggle);
         SerialLog = findViewById(R.id.SerialLog);
         ConsoleScroller = findViewById(R.id.SerialScroller);
+        ConsoleLayout = findViewById(R.id.ConsoleLayout);
 
         findViewById(R.id.Clear).setOnLongClickListener(v -> {
+            Toaster.showToast("Clearing console text", false, true);
             ConsoleHardClear();
             return false;
         });
@@ -91,18 +98,20 @@ public class MainActivity extends AppCompatActivity {
         secondTab = (SecondaryTab) pagerAdapter.getItem(1);
 
         // UI update handler
-        Handler handler = new Handler();
+        UIHandle = new Handler();
         Runnable runnableCode = new Runnable() {
             @Override
             public void run() {
-                try {
-                    updateTabs();
-                } catch (NullPointerException ignored) {
-                }
-                handler.postDelayed(this, 60); // TODO: How much of a delay do we really need?
+                if (!Testing)
+                    try {
+                        updateTabs();
+                    } catch (NullPointerException ignored) {
+                    }
+                UIHandle.postDelayed(this, 60); // TODO: How much of a delay do we really need?
             }
         };
-        handler.post(runnableCode);
+        UIHandle.post(runnableCode);
+
 
         // Clear console if it gets too big, also line counter
         TextView lineCounter = findViewById(R.id.lineCounter);
@@ -127,13 +136,33 @@ public class MainActivity extends AppCompatActivity {
     private long msgIDBatteryLife = -1;
     private long speedDv = 0;
 
-    private void updateTabs() {
+    private void updateTabs() { // TODO: set appropriate UI values
         long speed = TStream.requestData(msgIDSpeedometer);
         mainTab.setSpeedometer(speed);
         mainTab.setPowerGauge(Math.abs(speed - speedDv) * 32);
         speedDv = speed;
         mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
         mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
+        mainTab.setFaultLight(false);
+        secondTab.setLeftMotorTemp("0");
+        secondTab.setRightMotorTemp("0");
+        secondTab.setLeftMotorContTemp("0");
+        secondTab.setRightMotorContTemp("0");
+        secondTab.setActiveAeroPos("0");
+        secondTab.setDCBusCurrent("0");
+    }
+
+    double testVal = 1;
+
+    private void updateTestTabs() {
+        testVal += 1;
+        testVal %= 400;
+        long val = (long) (testVal + (Math.random() * testVal) / 10);
+        mainTab.setSpeedometer(val);
+        mainTab.setPowerGauge(val);
+        mainTab.setBatteryLife(val);
+        mainTab.setPowerDisplay(val);
+        mainTab.setFaultLight(val > 50);
         secondTab.setLeftMotorTemp("0");
         secondTab.setRightMotorTemp("0");
         secondTab.setLeftMotorContTemp("0");
@@ -146,6 +175,8 @@ public class MainActivity extends AppCompatActivity {
         ToggleButton JSONToggle = findViewById(R.id.Load);
 
         TStream = new TeensyStream(this, this::ConsoleLog, () -> SerialToggle.setChecked(true), () -> SerialToggle.setChecked(false), JSONToggle::setChecked);
+
+        TStream.setEnableLogCallback(false);
 
         JSONToggle.setOnLongClickListener(v -> {
             TStream.clearMapData(this);
@@ -206,6 +237,39 @@ public class MainActivity extends AppCompatActivity {
         ConsoleScroller.postDelayed(() -> ConsoleScroller.fullScroll(View.FOCUS_DOWN), 25);
     }
 
+    public void onConsoleSwitch(View view) {
+        if (((SwitchCompat) view).isChecked()) {
+            ConsoleLayout.setVisibility(View.VISIBLE);
+            TStream.setEnableLogCallback(true);
+            Toaster.showToast("Console Enabled", false, true);
+        } else {
+            ConsoleLayout.setVisibility(View.INVISIBLE);
+            TStream.setEnableLogCallback(false);
+            Toaster.showToast("Console Disabled", false, true);
+        }
+    }
+
+    public void onTestSwitch(View view) {
+        Testing = ((SwitchCompat) view).isChecked();
+        if (Testing) {
+            Toaster.showToast("Testing UI");
+            Runnable runnableCode = new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        updateTestTabs();
+                    } catch (NullPointerException ignored) {
+                    }
+                    if (Testing)
+                        UIHandle.postDelayed(this, 60);
+                    else
+                        Toaster.showToast("Stop testing UI");
+                }
+            };
+            UIHandle.postAtFrontOfQueue(runnableCode);
+        }
+    }
+
     public void onClickFault(View view) {
         TStream.write(TeensyStream.COMMAND.CLEAR_FAULT);
     }
@@ -256,6 +320,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onModeToggle(View view) {
+        Toaster.showToast("Changing console mode", false, true);
         TStream.setHexMode(!TStream.isHexMode());
     }
 

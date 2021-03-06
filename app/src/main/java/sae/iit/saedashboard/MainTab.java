@@ -124,7 +124,12 @@ public class MainTab extends Fragment {
         progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
         progress.setColors(
                 Color.parseColor("#EA0C01"),
+                Color.parseColor("#EA0C01"),
                 Color.parseColor("#FEF301"),
+                Color.parseColor("#FEF301"),
+                Color.parseColor("#0BA60A"),
+                Color.parseColor("#0BA60A"),
+                Color.parseColor("#0BA60A"),
                 Color.parseColor("#0BA60A")
 
         );
