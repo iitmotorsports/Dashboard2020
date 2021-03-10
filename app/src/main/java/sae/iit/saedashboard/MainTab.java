@@ -18,8 +18,8 @@ import com.sccomponents.gauges.library.ScNotches;
 
 public class MainTab extends Fragment {
     private TextView speedometer, batteryLife, BMSCharge;
-    private RadioButton FaultLight;
-    private ColorStateList BG, RED;
+    private RadioButton FaultLight, waitingLight, chargingLight;
+    private ColorStateList BG, RED, YELLOW, GREEN;
     private LinearGauge powerGauge;
     private LinearGauge powerGauge2;
     private LinearGauge batteryGauge;
@@ -53,9 +53,15 @@ public class MainTab extends Fragment {
         BMSChargeGauge = rootView.findViewById(R.id.BMSChargeGauge);
         setBMSChargeGauge();
 
-        // Fault Light
+        // Lights
         FaultLight = rootView.findViewById(R.id.FaultLight);
+        waitingLight = rootView.findViewById(R.id.waitingLight);
+        chargingLight = rootView.findViewById(R.id.chargingLight);
+
+        // Colors
         RED = ColorStateList.valueOf(Color.parseColor("#EA0C01"));
+        YELLOW = ColorStateList.valueOf(Color.parseColor("#FEF301"));
+        GREEN = ColorStateList.valueOf(Color.parseColor("#0BA60A"));
         BG = ColorStateList.valueOf(Color.parseColor("#3A3D4F"));
 
         return rootView;
@@ -173,6 +179,26 @@ public class MainTab extends Fragment {
         } else {
             FaultLight.setChecked(false);
             FaultLight.setButtonTintList(BG);
+        }
+    }
+
+    public void setWaitingLight(boolean state) {
+        if (state) {
+            waitingLight.setChecked(true);
+            waitingLight.setButtonTintList(YELLOW);
+        } else {
+            waitingLight.setChecked(false);
+            waitingLight.setButtonTintList(BG);
+        }
+    }
+
+    public void setChargingLight(boolean state) {
+        if (state) {
+            chargingLight.setChecked(true);
+            chargingLight.setButtonTintList(GREEN);
+        } else {
+            chargingLight.setChecked(false);
+            chargingLight.setButtonTintList(BG);
         }
     }
 

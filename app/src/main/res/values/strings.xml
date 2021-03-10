@@ -42,11 +42,12 @@
     <string name="hex">Hex</string>
     <string name="modetoggle">modeToggle</string>
     <string name="charge">Charge</string>
-    <string name="charging">Charging</string>
     <string name="UnlockedEmoji">🔓</string>
     <string name="lockedEmoji">🔒</string>
     <string name="battery">Battery</string>
     <string name="test">Test</string>
     <string name="con">Con</string>
     <string name="fault">Fault</string>
+    <string name="charging">Charging</string>
+    <string name="waiting">Waiting</string>
 </resources>

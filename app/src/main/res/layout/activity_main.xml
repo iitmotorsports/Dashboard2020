@@ -150,8 +150,7 @@
                         android:checked="false"
                         android:onClick="onClickCharge"
                         android:textOff="@string/charge"
-                        android:textOn="@string/charging"
-                        android:textSize="12sp" />
+                        android:textOn="@string/charge" />
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/ConsoleSwitch"

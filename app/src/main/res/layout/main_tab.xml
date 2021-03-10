@@ -223,10 +223,41 @@
                 android:textSize="18sp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toStartOf="@+id/BatteryLayout"
-                app:layout_constraintHorizontal_bias="0.496"
+                app:layout_constraintStart_toEndOf="@+id/BMSLayout"
+                app:layout_constraintTop_toTopOf="parent" />
+
+            <RadioButton
+                android:id="@+id/chargingLight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="#3A3D4F"
+                android:checked="false"
+                android:clickable="false"
+                android:contextClickable="false"
+                android:text="@string/charging"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/BatteryLayout"
                 app:layout_constraintStart_toEndOf="@+id/BMSLayout"
                 app:layout_constraintTop_toTopOf="parent"
-                app:layout_constraintVertical_bias="0.82" />
+                app:layout_constraintVertical_bias="0.9" />
+
+            <RadioButton
+                android:id="@+id/waitingLight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:buttonTint="#3A3D4F"
+                android:checked="false"
+                android:clickable="false"
+                android:contextClickable="false"
+                android:text="@string/waiting"
+                android:textSize="18sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toStartOf="@+id/BatteryLayout"
+                app:layout_constraintHorizontal_bias="0.507"
+                app:layout_constraintStart_toEndOf="@+id/BMSLayout"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintVertical_bias="0.7" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 

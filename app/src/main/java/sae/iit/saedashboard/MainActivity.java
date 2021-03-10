@@ -48,7 +48,14 @@ public class MainActivity extends AppCompatActivity {
     Handler UIHandle;
     boolean Testing = false;
     DateFormat df = new SimpleDateFormat("[HH:mm:ss]", Locale.getDefault());
-    private boolean chargingAvailable = false;
+
+    private long msgIDSpeedometer = -1;
+    private long msgIDPowerGauge = -1;
+    private long msgIDBatteryLife = -1;
+    private long msgIDFault = -1;
+    private long msgIDWaitingForInput = -1;
+    private long msgIDIsCharging = -1;
+    private long speedDv = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -131,11 +138,6 @@ public class MainActivity extends AppCompatActivity {
         setupTeensyStream();
     }
 
-    private long msgIDSpeedometer = -1;
-    private long msgIDPowerGauge = -1;
-    private long msgIDBatteryLife = -1;
-    private long speedDv = 0;
-
     private void updateTabs() { // TODO: set appropriate UI values
         long speed = TStream.requestData(msgIDSpeedometer);
         mainTab.setSpeedometer(speed);
@@ -143,7 +145,11 @@ public class MainActivity extends AppCompatActivity {
         speedDv = speed;
         mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
         mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
-        mainTab.setFaultLight(false);
+        mainTab.setFaultLight(TStream.requestData(msgIDFault) > 0);
+        mainTab.setWaitingLight(TStream.requestData(msgIDWaitingForInput) > 0);
+        boolean charging = TStream.requestData(msgIDIsCharging) > 0;
+        mainTab.setChargingLight(charging);
+        ChargingSetButton.setChecked(charging);
         secondTab.setLeftMotorTemp("0");
         secondTab.setRightMotorTemp("0");
         secondTab.setLeftMotorContTemp("0");
@@ -163,6 +169,8 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setBatteryLife(val);
         mainTab.setPowerDisplay(val);
         mainTab.setFaultLight(val > 50);
+        mainTab.setWaitingLight(val > 100);
+        mainTab.setChargingLight(val > 150);
         secondTab.setLeftMotorTemp("0");
         secondTab.setRightMotorTemp("0");
         secondTab.setLeftMotorContTemp("0");
@@ -184,9 +192,13 @@ public class MainActivity extends AppCompatActivity {
         });
 
         // Teensy value mapping
+        // TODO: option to set these values afterwards, as there might not be a JSON mapping to start
         msgIDSpeedometer = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Motor Speed:");
         msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Power Value:");
         msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[INFO]  BMS State Of Charge Value:");
+        msgIDFault = TStream.requestMsgID("[Front Teensy]", "[INFO]  Fault State");
+        msgIDWaitingForInput = TStream.requestMsgID("[Front Teensy]", "[INFO]  Waiting for input");
+        msgIDIsCharging = TStream.requestMsgID("[Front Teensy]", "[INFO]  Charging status");
 
         Log.i(LOG_ID, "Teensy stream created");
     }
@@ -275,13 +287,13 @@ public class MainActivity extends AppCompatActivity {
         TStream.write(TeensyStream.COMMAND.CLEAR_FAULT);
     }
 
-    public void onClickCharge(View view) { // TODO: only allow to send signal when teensy says so
-//        if (chargingAvailable) {
-        TStream.write(TeensyStream.COMMAND.CHARGE);
-//        } else {
-//            ChargingSetButton.setChecked(false);
-//            Toast.makeText(this.getBaseContext(), "Charging not available right now", Toast.LENGTH_SHORT).show();
-//        }
+    public void onClickCharge(View view) {
+        if (TStream.requestData(msgIDWaitingForInput) > 0 || TStream.requestData(msgIDIsCharging) > 0) {
+            TStream.write(TeensyStream.COMMAND.CHARGE);
+        } else {
+            Toaster.showToast("Charging not available right now");
+        }
+        ChargingSetButton.setChecked(false);
     }
 
     public void onClickSH(View view) {
