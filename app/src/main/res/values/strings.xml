@@ -50,4 +50,8 @@
     <string name="fault">Fault</string>
     <string name="charging">Charging</string>
     <string name="waiting">Waiting</string>
+    <string name="current_state">Current State</string>
+    <string name="_0">0</string>
+    <string name="_0_w">0 W</string>
+    <string name="_0Per">0 %</string>
 </resources>

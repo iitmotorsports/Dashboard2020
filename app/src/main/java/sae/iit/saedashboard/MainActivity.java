@@ -53,8 +53,6 @@ public class MainActivity extends AppCompatActivity {
     private long msgIDPowerGauge = -1;
     private long msgIDBatteryLife = -1;
     private long msgIDFault = -1;
-    private long msgIDWaitingForInput = -1;
-    private long msgIDIsCharging = -1;
     private long speedDv = 0;
 
     @Override
@@ -146,10 +144,10 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
         mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
         mainTab.setFaultLight(TStream.requestData(msgIDFault) > 0);
-        mainTab.setWaitingLight(TStream.requestData(msgIDWaitingForInput) > 0);
-        boolean charging = TStream.requestData(msgIDIsCharging) > 0;
-        mainTab.setChargingLight(charging);
-        ChargingSetButton.setChecked(charging);
+        mainTab.setWaitingLight(TStream.getState() == TeensyStream.STATE.Idle);
+        mainTab.setChargingLight(TStream.getState() == TeensyStream.STATE.Charging);
+        mainTab.setCurrentState(TStream.getState().name().replace('_', ' '));
+        ChargingSetButton.setChecked(TStream.getState() == TeensyStream.STATE.Charging);
         secondTab.setLeftMotorTemp("0");
         secondTab.setRightMotorTemp("0");
         secondTab.setLeftMotorContTemp("0");
@@ -197,8 +195,14 @@ public class MainActivity extends AppCompatActivity {
         msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Power Value:");
         msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[INFO]  BMS State Of Charge Value:");
         msgIDFault = TStream.requestMsgID("[Front Teensy]", "[INFO]  Fault State");
-        msgIDWaitingForInput = TStream.requestMsgID("[Front Teensy]", "[INFO]  Waiting for input");
-        msgIDIsCharging = TStream.requestMsgID("[Front Teensy]", "[INFO]  Charging status");
+        TStream.setStateIdentifier("[Front Teensy]", "[INFO]  Current State");
+        TStream.setStateEnum("[Teensy Initialize]", TeensyStream.STATE.Probably_Initializing);
+        TStream.setStateEnum("[PreCharge State]", TeensyStream.STATE.Precharge);
+        TStream.setStateEnum("[Idle State]", TeensyStream.STATE.Idle);
+        TStream.setStateEnum("[Charging State]", TeensyStream.STATE.Charging);
+        TStream.setStateEnum("[Button State]", TeensyStream.STATE.Button);
+        TStream.setStateEnum("[Driving Mode State]", TeensyStream.STATE.Driving);
+        TStream.setStateEnum("[Fault State]", TeensyStream.STATE.Fault);
 
         Log.i(LOG_ID, "Teensy stream created");
     }
@@ -288,11 +292,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickCharge(View view) {
-        if (TStream.requestData(msgIDWaitingForInput) > 0 || TStream.requestData(msgIDIsCharging) > 0) {
-            TStream.write(TeensyStream.COMMAND.CHARGE);
-        } else {
-            Toaster.showToast("Charging not available right now");
-        }
+        TStream.write(TeensyStream.COMMAND.CHARGE);
         ChargingSetButton.setChecked(false);
     }
 

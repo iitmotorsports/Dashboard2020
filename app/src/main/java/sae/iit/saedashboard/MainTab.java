@@ -17,7 +17,7 @@ import com.sccomponents.gauges.library.ScGauge;
 import com.sccomponents.gauges.library.ScNotches;
 
 public class MainTab extends Fragment {
-    private TextView speedometer, batteryLife, BMSCharge;
+    private TextView speedometer, batteryLife, BMSCharge, currentState;
     private RadioButton FaultLight, waitingLight, chargingLight;
     private ColorStateList BG, RED, YELLOW, GREEN;
     private LinearGauge powerGauge;
@@ -33,6 +33,7 @@ public class MainTab extends Fragment {
         speedometer = rootView.findViewById(R.id.speedometer);
         batteryLife = rootView.findViewById(R.id.batteryLife);
         BMSCharge = rootView.findViewById(R.id.BMSCharge);
+        currentState = rootView.findViewById(R.id.currentState);
 
         // checkEngine = rootView.findViewById(R.id.checkEngine);
         // Power Gauges
@@ -222,6 +223,10 @@ public class MainTab extends Fragment {
 
     public void setSpeedometer(long speed) {
         speedometer.setText(String.valueOf(speed));
+    }
+
+    public void setCurrentState(String state) {
+        currentState.setText(state);
     }
 
     // TODO: Check if raw battery value received from Teensy is okay

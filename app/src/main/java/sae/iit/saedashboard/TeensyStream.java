@@ -44,6 +44,9 @@ public class TeensyStream {
     private boolean JSONLoaded = false;
     private boolean hexMode = false;
 
+    private final HashMap<Long, STATE> Teensy_State_Map = new HashMap<>();
+    private long currentState = 0;
+
     // region Interfaces
 
     /**
@@ -141,6 +144,16 @@ public class TeensyStream {
         ON_VALUE_INCREASE,
     }
 
+    public enum STATE {
+        Probably_Initializing,
+        Precharge,
+        Idle,
+        Charging,
+        Button,
+        Driving,
+        Fault,
+    }
+
     // endregion
 
     /**
@@ -208,6 +221,7 @@ public class TeensyStream {
         for (Map.Entry<Long, msgBlock> entry : Teensy_Data.entrySet()) {
             entry.getValue().clearValue();
         }
+        currentState = -1;
     }
 
     // region Messaging
@@ -317,6 +331,7 @@ public class TeensyStream {
     public long requestMsgID(String stringTag, String stringMsg) {
         if (!JSONLoaded) {
             Log.w(LOG_TAG, "JSON has not been loaded, unable to process request");
+            Toaster.showToast("JSON has not been loaded, unable to process request");
             return -1;
         }
         Integer tagID = getKeyByValue(Teensy_LookUp_Tag, stringTag);
@@ -330,9 +345,52 @@ public class TeensyStream {
             long msgID = mapping.getInt(0);
             Teensy_Data.put(msgID, new msgBlock());
             return msgID;
+        } else {
+            Log.w(LOG_TAG, "Unable to match string " + stringTag + " " + stringMsg);
+            Toaster.showToast("Unable to match string " + stringTag + " " + stringMsg);
         }
 
         return -1;
+    }
+
+    /**
+     * Set what specific messages denotes what state the teensy is in
+     *
+     * @param stringTag The exact tag that the message has
+     * @param stringMsg The exact string that the message has
+     */
+    public void setStateIdentifier(String stringTag, String stringMsg) {
+        long msgID = requestMsgID(stringTag, stringMsg);
+        if (msgID != -1) {
+            setCallback(msgID, num -> currentState = num, UPDATE.ON_VALUE_CHANGE);
+        }
+    }
+
+    /**
+     * Set what an STATE ENUM should be mapped to
+     * If a STATE ENUM has not been mapped, getState will fail to return it
+     *
+     * @param stringTag The exact tag of the state
+     */
+    public void setStateEnum(String stringTag, STATE state) {
+        if (!JSONLoaded) {
+            Log.w(LOG_TAG, "JSON has not been loaded, unable to set STATE ENUM");
+            Toaster.showToast("JSON has not been loaded, unable to set STATE ENUM");
+            return;
+        }
+        Integer tagID = getKeyByValue(Teensy_LookUp_Tag, stringTag);
+        Teensy_State_Map.put(Long.valueOf(tagID), state);
+    }
+
+    /**
+     * Get the current presumed state the teensy is in
+     *
+     * @return STATE ENUM
+     */
+    public STATE getState() {
+        if (!Teensy_State_Map.containsKey(currentState))
+            return STATE.Probably_Initializing;
+        return Teensy_State_Map.get(currentState);
     }
 
     // endregion
