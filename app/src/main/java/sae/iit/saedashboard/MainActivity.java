@@ -56,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
     private long msgIDBatteryLife = -1;
     private long msgIDFault = -1;
     private long speedDv = 0;
+    private Handler LPUIHandle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -106,6 +107,22 @@ public class MainActivity extends AppCompatActivity {
 
         // UI update handler
         UIHandle = new Handler();
+        LPUIHandle = new Handler();
+        // Low priority runnable
+        Runnable lowPriority = new Runnable() {
+            @Override
+            public void run() {
+                if (!Testing)
+                    try {
+                        updateLPTabs();
+                    } catch (NullPointerException ignored) {
+                    }
+                else {
+                    updateLPTestTabs();
+                }
+                UIHandle.postDelayed(this, 200);
+            }
+        };
         Runnable runnableCode = new Runnable() {
             @Override
             public void run() {
@@ -114,11 +131,14 @@ public class MainActivity extends AppCompatActivity {
                         updateTabs();
                     } catch (NullPointerException ignored) {
                     }
+                else {
+                    updateTestTabs();
+                }
                 UIHandle.postDelayed(this, 60); // TODO: How much of a delay do we really need?
             }
         };
         UIHandle.post(runnableCode);
-
+        LPUIHandle.post(lowPriority);
 
         // Clear console if it gets too big, also line counter
         TextView lineCounter = findViewById(R.id.lineCounter);
@@ -141,15 +161,19 @@ public class MainActivity extends AppCompatActivity {
     private void updateTabs() { // TODO: set appropriate UI values
         long speed = TStream.requestData(msgIDSpeedometer);
         mainTab.setSpeedometer(speed);
-        mainTab.setPowerGauge(Math.abs(speed - speedDv) * 32);
+        mainTab.setSpeedGauge(Math.abs(speed - speedDv) * 32);
         speedDv = speed;
-        mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
-        mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
         mainTab.setFaultLight(TStream.requestData(msgIDFault) > 0);
         mainTab.setWaitingLight(TStream.getState() == TeensyStream.STATE.Idle);
         mainTab.setChargingLight(TStream.getState() == TeensyStream.STATE.Charging);
         mainTab.setCurrentState(TStream.getState().name().replace('_', ' '));
         ChargingSetButton.setChecked(TStream.getState() == TeensyStream.STATE.Charging);
+
+    }
+
+    private void updateLPTabs() {
+        mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
+        mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
         secondTab.setValues(0, 0, 0, 0, 0, 0);
     }
 
@@ -160,12 +184,17 @@ public class MainActivity extends AppCompatActivity {
         testVal %= 400;
         long val = (long) (testVal + (Math.random() * testVal) / 10);
         mainTab.setSpeedometer(val);
-        mainTab.setPowerGauge(val);
-        mainTab.setBatteryLife(val);
-        mainTab.setPowerDisplay(val);
+        mainTab.setSpeedGauge(val);
         mainTab.setFaultLight(val > 50);
         mainTab.setWaitingLight(val > 100);
         mainTab.setChargingLight(val > 150);
+
+    }
+
+    private void updateLPTestTabs() {
+        long val = (long) (testVal + (Math.random() * testVal) / 10);
+        mainTab.setBatteryLife(val);
+        mainTab.setPowerDisplay(val);
         secondTab.setValues(val, val, val, val, val, val);
     }
 
@@ -261,24 +290,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void onTestSwitch(View view) {
         Testing = ((SwitchCompat) view).isChecked();
-        if (Testing) {
-            Toaster.showToast("Testing UI");
-            Runnable runnableCode = new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        updateTestTabs();
-                        ConsoleLog("Test");
-                    } catch (NullPointerException ignored) {
-                    }
-                    if (Testing)
-                        UIHandle.postDelayed(this, 60);
-                    else
-                        Toaster.showToast("Stop testing UI");
-                }
-            };
-            UIHandle.postAtFrontOfQueue(runnableCode);
-        }
     }
 
     public void onClickFault(View view) {

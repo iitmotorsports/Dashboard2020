@@ -1,2 +1,3 @@
+include ':sc-gauges'
 include ':app', ':library', ':library-releases'
 rootProject.name='SAE Dashboard'

@@ -76,4 +76,5 @@ public class LinearGauge extends ScGauge {
         // Return the path
         return path;
     }
+
 }

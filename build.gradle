@@ -1,5 +1,7 @@
 ext {
     compileSdkVersion = 29
+    scGaugesVersion = '3.5.5'
+    scGaugesVersion1 = '3.5.4'
 }// Top-level build file where you can add configuration options common to all sub-projects/modules.
 
 buildscript {

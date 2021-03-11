@@ -200,7 +200,7 @@ public class MainTab extends Fragment {
         }
     }
 
-    public void setPowerGauge(long battery) {
+    public void setSpeedGauge(long battery) {
         powerGauge.setHighValue(Math.min((float) battery / 302.4f, 1) * 100);
         powerGauge2.setHighValue(Math.min((float) battery / 302.4f, 1) * 100);
     }
