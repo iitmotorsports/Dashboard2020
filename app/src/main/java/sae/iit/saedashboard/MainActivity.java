@@ -50,6 +50,8 @@ public class MainActivity extends AppCompatActivity {
     DateFormat df = new SimpleDateFormat("[HH:mm:ss]", Locale.getDefault());
 
     private long msgIDSpeedometer = -1;
+    private long msgIDMC0Voltage = -1;
+    private long msgIDMC1Voltage = -1;
     private long msgIDPowerGauge = -1;
     private long msgIDBatteryLife = -1;
     private long msgIDFault = -1;
@@ -148,12 +150,7 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setChargingLight(TStream.getState() == TeensyStream.STATE.Charging);
         mainTab.setCurrentState(TStream.getState().name().replace('_', ' '));
         ChargingSetButton.setChecked(TStream.getState() == TeensyStream.STATE.Charging);
-        secondTab.setLeftMotorTemp("0");
-        secondTab.setRightMotorTemp("0");
-        secondTab.setLeftMotorContTemp("0");
-        secondTab.setRightMotorContTemp("0");
-        secondTab.setActiveAeroPos("0");
-        secondTab.setDCBusCurrent("0");
+        secondTab.setValues(0, 0, 0, 0, 0, 0);
     }
 
     double testVal = 1;
@@ -169,12 +166,7 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setFaultLight(val > 50);
         mainTab.setWaitingLight(val > 100);
         mainTab.setChargingLight(val > 150);
-        secondTab.setLeftMotorTemp("0");
-        secondTab.setRightMotorTemp("0");
-        secondTab.setLeftMotorContTemp("0");
-        secondTab.setRightMotorContTemp("0");
-        secondTab.setActiveAeroPos("0");
-        secondTab.setDCBusCurrent("0");
+        secondTab.setValues(val, val, val, val, val, val);
     }
 
     private void setupTeensyStream() {
@@ -191,6 +183,8 @@ public class MainActivity extends AppCompatActivity {
 
         // Teensy value mapping
         // TODO: option to set these values afterwards, as there might not be a JSON mapping to start
+        msgIDMC0Voltage = TStream.requestMsgID("[Front Teensy]", "[INFO]  MC0 Voltage:");
+        msgIDMC1Voltage = TStream.requestMsgID("[Front Teensy]", "[INFO]  MC1 Voltage:");
         msgIDSpeedometer = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Motor Speed:");
         msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Power Value:");
         msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[INFO]  BMS State Of Charge Value:");
