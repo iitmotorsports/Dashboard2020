@@ -6,7 +6,6 @@ import android.content.pm.ActivityInfo;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
 import android.util.Log;
 import android.view.View;
 import android.view.Window;
@@ -31,6 +30,8 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Timer;
+import java.util.TimerTask;
 import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
@@ -45,7 +46,6 @@ public class MainActivity extends AppCompatActivity {
     private SecondaryTab secondTab;
     ToggleButton ChargingSetButton;
     ConstraintLayout ConsoleLayout;
-    Handler UIHandle;
     boolean Testing = false;
     DateFormat df = new SimpleDateFormat("[HH:mm:ss]", Locale.getDefault());
 
@@ -56,7 +56,6 @@ public class MainActivity extends AppCompatActivity {
     private long msgIDBatteryLife = -1;
     private long msgIDFault = -1;
     private long speedDv = 0;
-    private Handler LPUIHandle;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -105,56 +104,58 @@ public class MainActivity extends AppCompatActivity {
         mainTab = (MainTab) pagerAdapter.getItem(0);
         secondTab = (SecondaryTab) pagerAdapter.getItem(1);
 
-        // UI update handler
-        UIHandle = new Handler();
-        LPUIHandle = new Handler();
-        // Low priority runnable
-        Runnable lowPriority = new Runnable() {
+        // UI update timers
+        Timer LPUITimer = new Timer();
+        TimerTask LPUI_task = new TimerTask() {
             @Override
             public void run() {
-                if (!Testing)
-                    try {
-                        updateLPTabs();
-                    } catch (NullPointerException ignored) {
+                runOnUiThread(() -> {
+                    if (!Testing)
+                        try {
+                            updateLPTabs();
+                        } catch (NullPointerException ignored) {
+                        }
+                    else {
+                        updateLPTestTabs();
                     }
-                else {
-                    updateLPTestTabs();
-                }
-                UIHandle.postDelayed(this, 200);
+                });
             }
         };
-        Runnable runnableCode = new Runnable() {
+        Timer UITimer = new Timer();
+        TimerTask UI_task = new TimerTask() {
             @Override
             public void run() {
-                if (!Testing)
-                    try {
-                        updateTabs();
-                    } catch (NullPointerException ignored) {
+                runOnUiThread(() -> {
+                    if (!Testing)
+                        try {
+                            updateTabs();
+                        } catch (NullPointerException ignored) {
+                        }
+                    else {
+                        updateTestTabs();
                     }
-                else {
-                    updateTestTabs();
-                }
-                UIHandle.postDelayed(this, 60); // TODO: How much of a delay do we really need?
+                });
             }
         };
-        UIHandle.post(runnableCode);
-        LPUIHandle.post(lowPriority);
-
         // Clear console if it gets too big, also line counter
         TextView lineCounter = findViewById(R.id.lineCounter);
-        Handler consoleClear = new Handler();
-        Runnable clearCode = new Runnable() {
+        Timer consoleTimerAsync = new Timer();
+        TimerTask ConsoleTask = new TimerTask() {
             @Override
             public void run() {
-                int count = SerialLog.getLineCount();
-                lineCounter.setText(String.format(Locale.US, "%d/%d", count, MAX_LINES));
-                if (count > MAX_LINES)
-                    ConsoleHardClear();
-                consoleClear.postDelayed(this, 5000);
+                runOnUiThread(() -> {
+                    int count = SerialLog.getLineCount();
+                    lineCounter.setText(String.format(Locale.US, "%d/%d", count, MAX_LINES));
+                    if (count > MAX_LINES)
+                        ConsoleHardClear();
+                });
             }
         };
-        consoleClear.post(clearCode);
 
+        // Timer values
+        consoleTimerAsync.schedule(ConsoleTask, 0, 5000);
+        UITimer.schedule(UI_task, 0, 60);// TODO: How much of a delay do we really need?
+        LPUITimer.schedule(LPUI_task, 0, 200);
         setupTeensyStream();
     }
 

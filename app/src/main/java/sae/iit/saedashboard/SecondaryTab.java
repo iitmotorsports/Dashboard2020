@@ -33,17 +33,17 @@ public class SecondaryTab extends Fragment {
 
         // TODO: set proper ranges/colors
         leftMCTempGauge = rootView.findViewById(R.id.leftMCTempGauge);
-        leftMCTempGauge.initialize(0, 0, 100, 0.8f, 25, 5, 250, BG, GREEN, YELLOW, RED);
+        leftMCTempGauge.initialize(0, 0, 100, 0.8f, 50, 5, 250, BG, GREEN, YELLOW, RED);
         leftMotorTempGauge = rootView.findViewById(R.id.leftMotorTempGauge);
-        leftMotorTempGauge.initialize(0, 0, 100, 0.8f, 25, 5, 250, BG, GREEN, YELLOW, RED);
+        leftMotorTempGauge.initialize(0, 0, 100, 0.8f, 50, 5, 250, BG, GREEN, YELLOW, RED);
         rightMCTempGauge = rootView.findViewById(R.id.rightMCTempGauge);
-        rightMCTempGauge.initialize(0, 0, 100, 0.8f, 25, 5, 250, BG, GREEN, YELLOW, RED);
+        rightMCTempGauge.initialize(0, 0, 100, 0.8f, 50, 5, 250, BG, GREEN, YELLOW, RED);
         rightMotorTempGauge = rootView.findViewById(R.id.rightMotorTempGauge);
-        rightMotorTempGauge.initialize(0, 0, 100, 0.8f, 25, 5, 250, BG, GREEN, YELLOW, RED);
+        rightMotorTempGauge.initialize(0, 0, 100, 0.8f, 50, 5, 250, BG, GREEN, YELLOW, RED);
         DCBusCurrentGauge = rootView.findViewById(R.id.DCBusCurrentGauge);
-        DCBusCurrentGauge.initialize(0, 0, 100, 0.8f, 25, 5, 250, BG, GREEN, YELLOW, RED);
+        DCBusCurrentGauge.initialize(0, 0, 100, 0.8f, 50, 5, 250, BG, GREEN, YELLOW, RED);
         activeAeroPosGauge = rootView.findViewById(R.id.activeAeroPosGauge);
-        activeAeroPosGauge.initialize(0, 0, 100, 0.8f, 25, 5, 250, BG, GREEN, YELLOW, RED);
+        activeAeroPosGauge.initialize(0, 0, 100, 0.8f, 50, 5, 250, BG, GREEN, YELLOW, RED);
 
         return rootView;
     }
