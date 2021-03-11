@@ -20,10 +20,7 @@ public class MainTab extends Fragment {
     private TextView speedometer, batteryLife, BMSCharge, currentState;
     private RadioButton FaultLight, waitingLight, chargingLight;
     private ColorStateList BG, RED, YELLOW, GREEN;
-    private LinearGauge powerGauge;
-    private LinearGauge powerGauge2;
-    private LinearGauge batteryGauge;
-    private LinearGauge BMSChargeGauge;
+    private LinearGauge powerGauge, powerGauge2, batteryGauge, BMSChargeGauge;
 
     // Creates a view that is compatible with ViewPager
     @Override
@@ -31,7 +28,7 @@ public class MainTab extends Fragment {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.main_tab, container, false);
         // Initializing Fields
         speedometer = rootView.findViewById(R.id.speedometer);
-        batteryLife = rootView.findViewById(R.id.batteryLife);
+        batteryLife = rootView.findViewById(R.id.rightMotorTempValue);
         BMSCharge = rootView.findViewById(R.id.BMSCharge);
         currentState = rootView.findViewById(R.id.currentState);
 
@@ -47,7 +44,7 @@ public class MainTab extends Fragment {
         setPowerGauges(display.widthPixels / 80f);
 
         // Battery
-        batteryGauge = rootView.findViewById(R.id.batteryGauge);
+        batteryGauge = rootView.findViewById(R.id.rightMotorTempGauge);
         setBatteryGauge(rootView);
 
         // BMS

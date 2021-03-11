@@ -154,7 +154,7 @@
             </LinearLayout>
 
             <LinearLayout
-                android:id="@+id/BatteryLayout"
+                android:id="@+id/rightMotorTempLayout"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
                 android:layout_marginEnd="13dp"
@@ -176,7 +176,7 @@
                     android:foregroundGravity="center">
 
                     <sae.iit.saedashboard.LinearGauge
-                        android:id="@+id/batteryGauge"
+                        android:id="@+id/rightMotorTempGauge"
                         android:layout_width="180dp"
                         android:layout_height="0dp"
                         android:scaleX="-1"
@@ -186,7 +186,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/batteryLife"
+                        android:id="@+id/rightMotorTempValue"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
@@ -195,15 +195,15 @@
                         android:textAlignment="textEnd"
                         android:textColor="@android:color/white"
                         android:textSize="50sp"
-                        app:layout_constraintBottom_toBottomOf="@id/batteryGauge"
-                        app:layout_constraintEnd_toEndOf="@id/batteryGauge"
-                        app:layout_constraintStart_toStartOf="@id/batteryGauge"
-                        app:layout_constraintTop_toTopOf="@id/batteryGauge" />
+                        app:layout_constraintBottom_toBottomOf="@id/rightMotorTempGauge"
+                        app:layout_constraintEnd_toEndOf="@id/rightMotorTempGauge"
+                        app:layout_constraintStart_toStartOf="@id/rightMotorTempGauge"
+                        app:layout_constraintTop_toTopOf="@id/rightMotorTempGauge" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <TextView
-                    android:id="@+id/BatteryText"
+                    android:id="@+id/rightMotorTempText"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:gravity="center"
@@ -220,7 +220,7 @@
                 android:gravity="center"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toStartOf="@+id/BatteryLayout"
+                app:layout_constraintEnd_toStartOf="@+id/rightMotorTempLayout"
                 app:layout_constraintStart_toEndOf="@+id/BMSLayout"
                 app:layout_constraintTop_toTopOf="@+id/linearLayout3"
                 app:layout_constraintVertical_bias="0.85">
