@@ -54,4 +54,11 @@
     <string name="_0">0</string>
     <string name="_0_w">0 W</string>
     <string name="_0Per">0 %</string>
+    <string name="export_data">Export Data</string>
+    <string name="left_mc_temp">Left MC Temp</string>
+    <string name="left_motor_temp">Left Motor Temp</string>
+    <string name="dc_bus_current">DC Bus Current</string>
+    <string name="right_motor_temp">Right Motor Temp</string>
+    <string name="right_mc_temp">Right MC Temp</string>
+    <string name="active_aero_pos">Active Aero Pos</string>
 </resources>
