@@ -4,6 +4,9 @@ import android.content.Context;
 import android.graphics.Path;
 import android.util.AttributeSet;
 
+import androidx.annotation.FloatRange;
+
+import com.sccomponents.gauges.library.ScFeature;
 import com.sccomponents.gauges.library.ScGauge;
 import com.sccomponents.gauges.library.ScNotches;
 
@@ -21,6 +24,24 @@ public class LinearGauge extends ScGauge {
 
     public LinearGauge(Context context, AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    public void initialize(float value, float startRange, float endRange, @FloatRange(from = 0.0, to = 1.0) float alpha, int repetitions, float width, float height, int BGColor, int... colors) {
+        this.removeAllFeatures();
+        this.setAlpha(alpha);
+
+        ScNotches base = (ScNotches) this.addFeature(ScNotches.class);
+        base.setTag(ScGauge.BASE_IDENTIFIER);
+        base.setPosition(ScFeature.Positions.MIDDLE);
+        base.setRepetitions(repetitions);
+        base.setWidths(width);
+        base.setHeights(height);
+        base.snapToNotches(1f);
+        base.setColors(BGColor);
+        ScNotches progress = (ScNotches) this.addFeature(ScNotches.class);
+        progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
+        progress.setColors(colors);
+        this.setHighValue(value, startRange, endRange);
     }
 
     private float DV(float x) {
