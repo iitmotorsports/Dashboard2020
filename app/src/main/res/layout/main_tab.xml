@@ -23,26 +23,13 @@
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_gravity="center">
+            android:layout_gravity="center"
+            android:clipToPadding="false">
 
             <TextView
-                android:id="@+id/speedometerLabel"
+                android:id="@+id/speedometerValue"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:gravity="center_horizontal"
-                android:text="@string/mph"
-                android:textAlignment="center"
-                android:textColor="@android:color/white"
-                android:textSize="24sp"
-                app:layout_constraintBottom_toBottomOf="parent"
-                app:layout_constraintEnd_toEndOf="@+id/speedometer"
-                app:layout_constraintStart_toStartOf="@+id/speedometer" />
-
-            <TextView
-                android:id="@+id/speedometer"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
                 android:gravity="center_horizontal"
                 android:includeFontPadding="false"
                 android:text="@string/_0"
@@ -52,6 +39,19 @@
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
                 app:layout_constraintTop_toTopOf="parent" />
+
+            <TextView
+                android:id="@+id/speedometerLabel"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:gravity="center_horizontal"
+                android:text="@string/mph"
+                android:textAlignment="center"
+                android:textColor="@android:color/white"
+                android:textSize="20sp"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintEnd_toEndOf="@+id/speedometerValue"
+                app:layout_constraintStart_toStartOf="@+id/speedometerValue" />
 
         </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -104,7 +104,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintStart_toStartOf="@+id/linearLayout3"
                 app:layout_constraintTop_toTopOf="@+id/linearLayout3"
-                app:layout_constraintVertical_bias="0.75">
+                app:layout_constraintVertical_bias="0.85">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="wrap_content"
@@ -125,7 +125,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/BMSCharge"
+                        android:id="@+id/BMSChargeValue"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
@@ -149,7 +149,7 @@
                     android:paddingTop="5dp"
                     android:text="@string/power_watts"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
 
@@ -165,7 +165,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="@+id/linearLayout3"
                 app:layout_constraintTop_toTopOf="@+id/linearLayout3"
-                app:layout_constraintVertical_bias="0.75">
+                app:layout_constraintVertical_bias="0.85">
 
                 <androidx.constraintlayout.widget.ConstraintLayout
                     android:layout_width="wrap_content"
@@ -210,13 +210,15 @@
                     android:paddingTop="5dp"
                     android:text="@string/battery"
                     android:textColor="@android:color/white"
-                    android:textSize="20sp" />
+                    android:textSize="14sp" />
 
             </LinearLayout>
 
             <LinearLayout
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
+                android:clipChildren="false"
+                android:clipToPadding="false"
                 android:gravity="center"
                 android:orientation="vertical"
                 app:layout_constraintBottom_toBottomOf="parent"
@@ -228,47 +230,47 @@
                 <RadioButton
                     android:id="@+id/FaultLight"
                     android:layout_width="wrap_content"
-                    android:layout_height="32dp"
+                    android:layout_height="24dp"
                     android:buttonTint="#3A3D4F"
                     android:checked="false"
                     android:clickable="false"
                     android:contextClickable="false"
                     android:text="@string/fault"
-                    android:textSize="18sp" />
+                    android:textSize="12sp" />
 
                 <RadioButton
                     android:id="@+id/waitingLight"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="24dp"
                     android:buttonTint="#3A3D4F"
                     android:checked="false"
                     android:clickable="false"
                     android:contextClickable="false"
                     android:text="@string/waiting"
-                    android:textSize="18sp" />
+                    android:textSize="12sp" />
 
                 <RadioButton
                     android:id="@+id/chargingLight"
                     android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
+                    android:layout_height="24dp"
                     android:buttonTint="#3A3D4F"
                     android:checked="false"
                     android:clickable="false"
                     android:contextClickable="false"
                     android:text="@string/charging"
-                    android:textSize="18sp" />
+                    android:textSize="12sp" />
 
                 <TextView
                     android:id="@+id/currentState"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:paddingStart="10dp"
-                    android:paddingTop="5dp"
+                    android:paddingTop="2dp"
                     android:paddingEnd="10dp"
                     android:paddingBottom="0dp"
                     android:text="@string/current_state"
                     android:textAlignment="center"
-                    android:textSize="18sp" />
+                    android:textSize="12sp" />
             </LinearLayout>
 
         </androidx.constraintlayout.widget.ConstraintLayout>

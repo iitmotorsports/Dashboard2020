@@ -17,7 +17,7 @@ import com.sccomponents.gauges.library.ScGauge;
 import com.sccomponents.gauges.library.ScNotches;
 
 public class MainTab extends Fragment {
-    private TextView speedometer, batteryLife, BMSCharge, currentState;
+    private TextView speedometer, batteryLife, BMSChargeValue, currentState;
     private RadioButton FaultLight, waitingLight, chargingLight;
     private ColorStateList BG, RED, YELLOW, GREEN;
     private LinearGauge powerGauge, powerGauge2, batteryGauge, BMSChargeGauge;
@@ -27,9 +27,9 @@ public class MainTab extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.main_tab, container, false);
         // Initializing Fields
-        speedometer = rootView.findViewById(R.id.speedometer);
+        speedometer = rootView.findViewById(R.id.speedometerValue);
         batteryLife = rootView.findViewById(R.id.rightMotorTempValue);
-        BMSCharge = rootView.findViewById(R.id.BMSCharge);
+        BMSChargeValue = rootView.findViewById(R.id.BMSChargeValue);
         currentState = rootView.findViewById(R.id.currentState);
 
         // checkEngine = rootView.findViewById(R.id.checkEngine);
@@ -41,7 +41,11 @@ public class MainTab extends Fragment {
         powerGauge.setLayoutParams(powerGauge.getLayoutParams());
         powerGauge2.getLayoutParams().width = (display.widthPixels / 2) - 1;
         powerGauge2.setLayoutParams(powerGauge2.getLayoutParams());
-        setPowerGauges(display.widthPixels / 80f);
+        setPowerGauges(display.widthPixels / (50f * display.scaledDensity), display.heightPixels / (3f * display.scaledDensity));
+
+        batteryLife.setTextSize(display.heightPixels / (10f * display.scaledDensity));
+        BMSChargeValue.setTextSize(display.heightPixels / (10f * display.scaledDensity));
+        speedometer.setTextSize(display.heightPixels / (2.5f * display.scaledDensity));
 
         // Battery
         batteryGauge = rootView.findViewById(R.id.rightMotorTempGauge);
@@ -65,7 +69,7 @@ public class MainTab extends Fragment {
         return rootView;
     }
 
-    private void setPowerGauges(float width) {
+    private void setPowerGauges(float width, float height) {
         // Clear all default features from the gauge
         powerGauge.removeAllFeatures();  // TODO: What should these gauges actually do
         powerGauge2.removeAllFeatures();
@@ -75,14 +79,14 @@ public class MainTab extends Fragment {
         base.setPosition(ScFeature.Positions.INSIDE);
         base.setRepetitions(30);
         base.setWidths(width, width * 0.6f, width * 0.8f);
-        base.setHeights(30, 150);
+        base.setHeights(height * 0.2f, height);
         base.setColors(Color.parseColor("#3A3D4F"));
         base = (ScNotches) powerGauge2.addFeature(ScNotches.class);
         base.setTag(ScGauge.BASE_IDENTIFIER);
         base.setPosition(ScFeature.Positions.INSIDE);
         base.setRepetitions(30);
         base.setWidths(width, width * 0.6f, width * 0.8f);
-        base.setHeights(30, 150);
+        base.setHeights(height * 0.2f, height);
         base.setColors(Color.parseColor("#3A3D4F"));
 
         // Create the progress notches.
@@ -214,7 +218,7 @@ public class MainTab extends Fragment {
     }
 
     public void setPowerDisplay(long power) {
-        BMSCharge.setText(String.valueOf(power).concat(" W"));
+        BMSChargeValue.setText(String.valueOf(power).concat(" W"));
         BMSChargeGauge.setHighValue(power);
     }
 
