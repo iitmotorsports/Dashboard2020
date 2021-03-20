@@ -152,6 +152,13 @@
                         android:textOff="@string/charge"
                         android:textOn="@string/charge" />
 
+                    <Button
+                        android:id="@+id/sendCAN"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:onClick="onClickCanMsg"
+                        android:text="@string/can_msg" />
+
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/ConsoleSwitch"
                         android:layout_width="match_parent"

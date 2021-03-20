@@ -61,4 +61,22 @@
     <string name="right_motor_temp">Right Motor Temp</string>
     <string name="right_mc_temp">Right MC Temp</string>
     <string name="active_aero_pos">Active Aero Pos</string>
+    <string name="can_msg">Can Msg</string>
+    <string name="enter_valid_canbus_values">Enter valid HEX values</string>
+    <string name="_0x">0x</string>
+    <string name="hex_only">HEX Only</string>
+    <string name="address">Address</string>
+    <string name="byteStr">Byte</string>
+    <string name="byte0">Byte0</string>
+    <string name="byte1">Byte1</string>
+    <string name="byte7">Byte7</string>
+    <string name="byte6">Byte6</string>
+    <string name="byte5">Byte5</string>
+    <string name="byte4">Byte4</string>
+    <string name="byte3">Byte3</string>
+    <string name="byte2">Byte2</string>
+    <string name="send">Send</string>
+    <string name="cancel">Cancel</string>
+    <string name="random">Random</string>
+    <string name="contStr">Continuous</string>
 </resources>

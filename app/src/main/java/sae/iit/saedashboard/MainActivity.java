@@ -77,7 +77,7 @@ public class MainActivity extends AppCompatActivity {
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
-        Toaster.setContext(this.getBaseContext());
+        Toaster.setContext(this);
 
         //Setting up ViewPager, Adapter, and TabLayout
 
@@ -248,6 +248,10 @@ public class MainActivity extends AppCompatActivity {
         } else {
             TStream.close();
         }
+    }
+
+    public void onClickCanMsg(View view) {
+        TStream.showCANDialog();
     }
 
     /**
