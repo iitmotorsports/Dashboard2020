@@ -1,19 +1,22 @@
 package sae.iit.saedashboard;
 
 import android.annotation.SuppressLint;
+import android.app.Activity;
 import android.content.Context;
 import android.view.Gravity;
 import android.widget.Toast;
 
+@SuppressLint("StaticFieldLeak")
 public class Toaster {
     static Toast wheat;
-    @SuppressLint("StaticFieldLeak")
     static Context main;
+    static Activity act;
 
     @SuppressLint("ShowToast")
-    public static void setContext(Context mainContext) {
-        main = mainContext;
-        wheat = Toast.makeText(mainContext, "nil", Toast.LENGTH_SHORT);
+    public static void setContext(Activity activity) {
+        main = activity.getBaseContext();
+        act = activity;
+        wheat = Toast.makeText(main, "nil", Toast.LENGTH_SHORT);
     }
 
     public static void showToast(String msg) {
@@ -29,12 +32,14 @@ public class Toaster {
         if (wheat == null)
             return;
         if (wheat.getView().isShown()) {
-            wheat.getView().setAlpha(0);
-            wheat.cancel();
-            wheat = Toast.makeText(main, msg, longLength ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
+            act.runOnUiThread(() -> {
+                wheat.getView().setAlpha(0);
+                wheat.cancel();
+                wheat = Toast.makeText(main, msg, longLength ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
+            });
         } else {
             wheat.setDuration(longLength ? Toast.LENGTH_LONG : Toast.LENGTH_SHORT);
-            wheat.setText(msg);
+            act.runOnUiThread(() -> wheat.setText(msg));
         }
         wheat.setGravity(Gravity.BOTTOM | (rightSide ? Gravity.END : Gravity.CENTER), 0, 32);
         wheat.show();
