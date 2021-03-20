@@ -47,7 +47,7 @@ public class TeensyStream {
     private HashMap<Integer, String> Teensy_LookUp_Str = new HashMap<>();
     private FileOutputStream logFile;
     private AlertDialog CAN_dialog;
-    private Timer CANMsgSend = new Timer();
+    private final Timer CANMsgSend = new Timer();
 
     private boolean enableLogCallback = true;
     private boolean enableLogFile;
@@ -244,11 +244,11 @@ public class TeensyStream {
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(activity);
         View mView = activity.getLayoutInflater().inflate(R.layout.canmsg_dialog_layout, null);
 
-        Button Send = (Button) mView.findViewById(R.id.btnSend);
-        Button Cancel = (Button) mView.findViewById(R.id.btnCancel);
-        Button Clear = (Button) mView.findViewById(R.id.btnClear);
-        Button Rand = (Button) mView.findViewById(R.id.btnRnd);
-        ToggleButton Cont = (ToggleButton) mView.findViewById(R.id.btnCont);
+        Button Send = mView.findViewById(R.id.btnSend);
+        Button Cancel = mView.findViewById(R.id.btnCancel);
+        Button Clear = mView.findViewById(R.id.btnClear);
+        Button Rand = mView.findViewById(R.id.btnRnd);
+        ToggleButton Cont = mView.findViewById(R.id.btnCont);
 
         EditText address = mView.findViewById(R.id.editTextAddress);
         EditText byte0 = mView.findViewById(R.id.editTextByte0);
@@ -337,7 +337,7 @@ public class TeensyStream {
         });
 
         mView.getViewTreeObserver().addOnGlobalLayoutListener(
-                () -> CAN_dialog.getWindow().setLayout((int) (address.getWidth() * 2 + (byte0.getWidth() * 8)), CAN_dialog.getWindow().getAttributes().height)
+                () -> CAN_dialog.getWindow().setLayout(Math.max(address.getWidth() * 2 + (byte0.getWidth() * 8), Cont.getWidth() * 5), CAN_dialog.getWindow().getAttributes().height)
         );
     }
 
