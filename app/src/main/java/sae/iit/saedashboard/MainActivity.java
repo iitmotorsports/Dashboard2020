@@ -10,6 +10,8 @@ import android.util.Log;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
 import android.widget.LinearLayout;
 import android.widget.ScrollView;
 import android.widget.TextView;
@@ -44,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private TeensyStream TStream;
     private MainTab mainTab;
     private SecondaryTab secondTab;
+    private SwitchCompat ConsoleSwitch;
     ToggleButton ChargingSetButton;
     ConstraintLayout ConsoleLayout;
     boolean Testing = false;
@@ -93,6 +96,7 @@ public class MainActivity extends AppCompatActivity {
         SerialLog = findViewById(R.id.SerialLog);
         ConsoleScroller = findViewById(R.id.SerialScroller);
         ConsoleLayout = findViewById(R.id.ConsoleLayout);
+        ConsoleSwitch = findViewById(R.id.ConsoleSwitch);
 
         findViewById(R.id.Clear).setOnLongClickListener(v -> {
             Toaster.showToast("Clearing console text", false, true);
@@ -283,11 +287,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void onConsoleSwitch(View view) {
         if (((SwitchCompat) view).isChecked()) {
-            ConsoleLayout.setVisibility(View.VISIBLE);
+            animView(ConsoleLayout, false, "fade");
             TStream.setEnableLogCallback(true);
             Toaster.showToast("Console Enabled", false, true);
         } else {
-            ConsoleLayout.setVisibility(View.INVISIBLE);
+            animView(ConsoleLayout, true, "fade");
             TStream.setEnableLogCallback(false);
             Toaster.showToast("Console Disabled", false, true);
         }
@@ -306,15 +310,173 @@ public class MainActivity extends AppCompatActivity {
         ChargingSetButton.setChecked(false);
     }
 
+    private void hideViewFade(final View view) {
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.fragment_fade_exit);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                view.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        view.startAnimation(animation);
+    }
+
+    private void showViewFade(final View view) {
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.fragment_fade_enter);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                view.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+            }
+        });
+
+        view.startAnimation(animation);
+    }
+
+    private void hideViewLeft(final View view) {
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_left);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                view.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        view.startAnimation(animation);
+    }
+
+    private void showViewLeft(final View view) {
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_left);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                view.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+            }
+        });
+
+        view.startAnimation(animation);
+    }
+
+    private void hideViewDown(final View view) {
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_in_down);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+                view.setVisibility(View.INVISIBLE);
+            }
+        });
+
+        view.startAnimation(animation);
+    }
+
+    void showViewDown(final View view) {
+        Animation animation = AnimationUtils.loadAnimation(this, R.anim.slide_out_down);
+        animation.setAnimationListener(new Animation.AnimationListener() {
+            @Override
+            public void onAnimationStart(Animation animation) {
+                view.setVisibility(View.VISIBLE);
+            }
+
+            @Override
+            public void onAnimationRepeat(Animation animation) {
+            }
+
+            @Override
+            public void onAnimationEnd(Animation animation) {
+            }
+        });
+
+        view.startAnimation(animation);
+    }
+
+    void animView(final View view, boolean hide, String direction) {
+        if (view.getAnimation() != null)
+            return;
+        if (hide) {
+            if (view.getVisibility() != View.VISIBLE)
+                return;
+            switch (direction) {
+                case "left":
+                    hideViewLeft(view);
+                    return;
+                case "down":
+                    hideViewDown(view);
+                    return;
+                case "fade":
+                    hideViewFade(view);
+            }
+        } else {
+            if (view.getVisibility() == View.VISIBLE)
+                return;
+            switch (direction) {
+                case "left":
+                    showViewLeft(view);
+                    return;
+                case "down":
+                    showViewDown(view);
+                    return;
+                case "fade":
+                    showViewFade(view);
+            }
+        }
+    }
+
     public void onClickSH(View view) {
+        if (FunctionSubTab.getAnimation() != null)
+            return;
         switch (FunctionSubTab.getVisibility()) {
             case View.VISIBLE:
                 Log.d(LOG_ID, "Hide functions");
-                FunctionSubTab.setVisibility(View.INVISIBLE);
+                animView(FunctionSubTab, true, "left");
+                if (ConsoleLayout.getVisibility() == View.VISIBLE) {
+                    ConsoleSwitch.setChecked(false);
+                    onConsoleSwitch(ConsoleSwitch);
+                }
                 break;
             case View.INVISIBLE:
                 Log.d(LOG_ID, "Show functions");
-                FunctionSubTab.setVisibility(View.VISIBLE);
+                animView(FunctionSubTab, false, "left");
                 break;
             case View.GONE:
                 break;
@@ -322,13 +484,20 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickLock(View view) {
-        LinearLayout MainFunctionTab = findViewById(R.id.MainFunctionTab);
+        LinearLayout MainUpperLayout = findViewById(R.id.MainUpperLayout);
         CustomSwipeViewPager MainPager = findViewById(R.id.MainPager);
-        if (MainFunctionTab.getVisibility() == View.VISIBLE) {
-            MainFunctionTab.setVisibility(View.INVISIBLE);
+        if (FunctionSubTab.getVisibility() == View.VISIBLE || MainUpperLayout.getVisibility() == View.VISIBLE) {
             MainPager.setLocked(true);
+            animView(MainUpperLayout, true, "down");
+            animView(FunctionSubTab, true, "left");
+            if (ConsoleLayout.getVisibility() == View.VISIBLE) {
+                ConsoleSwitch.setChecked(false);
+                onConsoleSwitch(ConsoleSwitch);
+            }
+            ((ToggleButton) view).setChecked(true);
         } else {
-            MainFunctionTab.setVisibility(View.VISIBLE);
+            animView(MainUpperLayout, false, "down");
+            ((ToggleButton) view).setChecked(false);
             MainPager.setLocked(false);
         }
     }
