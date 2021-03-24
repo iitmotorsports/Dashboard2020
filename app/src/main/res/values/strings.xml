@@ -79,4 +79,5 @@
     <string name="cancel">Cancel</string>
     <string name="random">Random</string>
     <string name="contStr">Continuous</string>
+    <string name="lag">Lag</string>
 </resources>
