@@ -2,7 +2,7 @@ package sae.iit.saedashboard;
 
 import android.content.Context;
 import android.net.ConnectivityManager;
-import android.net.Network;
+import android.net.NetworkCapabilities;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -15,7 +15,6 @@ import java.io.InputStreamReader;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.Hashtable;
-import java.util.Objects;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -48,16 +47,10 @@ public class PasteAPI {
     }
 
     public static boolean checkInternetConnection(Context context) {
-        ConnectivityManager connectivity = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
-        if (connectivity == null) {
-            return false;
-        } else {
-            Network[] info = connectivity.getAllNetworks();
-            for (Network network : info) {
-                if (network != null && Objects.requireNonNull(connectivity.getNetworkInfo(network)).isConnected()) {
-                    return true;
-                }
-            }
+        ConnectivityManager cm = (ConnectivityManager) context.getSystemService(Context.CONNECTIVITY_SERVICE);
+        if (cm != null) {
+            NetworkCapabilities capabilities = cm.getNetworkCapabilities(cm.getActiveNetwork());
+            return capabilities != null && (capabilities.hasTransport(NetworkCapabilities.TRANSPORT_WIFI) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_CELLULAR) || capabilities.hasTransport(NetworkCapabilities.TRANSPORT_VPN));
         }
         return false;
     }
