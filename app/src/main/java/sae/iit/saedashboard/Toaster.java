@@ -42,7 +42,7 @@ public class Toaster {
             act.runOnUiThread(() -> wheat.setText(msg));
         }
         wheat.setGravity(Gravity.BOTTOM | (rightSide ? Gravity.END : Gravity.CENTER), 0, 32);
-        wheat.show();
+        act.runOnUiThread(() -> wheat.show());
     }
 
 }
