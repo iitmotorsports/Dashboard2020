@@ -18,7 +18,7 @@ import com.sccomponents.gauges.library.ScNotches;
 
 public class MainTab extends Fragment {
     private TextView speedometer, batteryLife, BMSChargeValue, currentState;
-    private RadioButton FaultLight, waitingLight, chargingLight;
+    private RadioButton FaultLight, waitingLight, chargingLight, lagLight;
     private ColorStateList BG, RED, YELLOW, GREEN;
     private LinearGauge powerGauge, powerGauge2, batteryGauge, BMSChargeGauge;
 
@@ -59,6 +59,7 @@ public class MainTab extends Fragment {
         FaultLight = rootView.findViewById(R.id.FaultLight);
         waitingLight = rootView.findViewById(R.id.waitingLight);
         chargingLight = rootView.findViewById(R.id.chargingLight);
+        lagLight = rootView.findViewById(R.id.lagLight);
 
         // Colors
         RED = ColorStateList.valueOf(Color.parseColor("#EA0C01"));
@@ -201,6 +202,16 @@ public class MainTab extends Fragment {
         } else {
             chargingLight.setChecked(false);
             chargingLight.setButtonTintList(BG);
+        }
+    }
+
+    public void setLagLight(boolean state){
+        if (state) {
+            lagLight.setChecked(true);
+            lagLight.setButtonTintList(YELLOW);
+        } else {
+            lagLight.setChecked(false);
+            lagLight.setButtonTintList(BG);
         }
     }
 

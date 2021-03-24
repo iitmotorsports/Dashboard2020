@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     private long msgIDPowerGauge = -1;
     private long msgIDBatteryLife = -1;
     private long msgIDFault = -1;
+    private long msgIDLag = -1;
+    private long msgIDBeat = -1;
     private long speedDv = 0;
 
     @Override
@@ -190,6 +192,7 @@ public class MainActivity extends AppCompatActivity {
         long val = (long) (testVal + (Math.random() * testVal) / 10);
         mainTab.setSpeedometer(val);
         mainTab.setSpeedGauge(val);
+        mainTab.setLagLight(val > 25);
         mainTab.setFaultLight(val > 50);
         mainTab.setWaitingLight(val > 100);
         mainTab.setChargingLight(val > 150);
@@ -206,7 +209,10 @@ public class MainActivity extends AppCompatActivity {
     private void setupTeensyStream() {
         ToggleButton JSONToggle = findViewById(R.id.Load);
 
-        TStream = new TeensyStream(this, this::ConsoleLog, () -> SerialToggle.setChecked(true), () -> SerialToggle.setChecked(false), JSONToggle::setChecked);
+        TStream = new TeensyStream(this, this::ConsoleLog, () -> SerialToggle.setChecked(true), () -> {
+            SerialToggle.setChecked(false);
+            mainTab.setLagLight(false);
+        }, JSONToggle::setChecked);
 
         TStream.setEnableLogCallback(false);
 
@@ -223,6 +229,8 @@ public class MainActivity extends AppCompatActivity {
         msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Power Value:");
         msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[INFO]  BMS State Of Charge Value:");
         msgIDFault = TStream.requestMsgID("[Front Teensy]", "[INFO]  Fault State");
+        msgIDLag = TStream.requestMsgID("[HeartBeat]", "[WARN]  Heartbeat is taking too long");
+        msgIDBeat = TStream.requestMsgID("[HeartBeat]", "[INFO]  Beat");
         TStream.setStateIdentifier("[Front Teensy]", "[INFO]  Current State");
         TStream.setStateEnum("[Teensy Initialize]", TeensyStream.STATE.Probably_Initializing);
         TStream.setStateEnum("[PreCharge State]", TeensyStream.STATE.Precharge);
@@ -231,6 +239,9 @@ public class MainActivity extends AppCompatActivity {
         TStream.setStateEnum("[Button State]", TeensyStream.STATE.Button);
         TStream.setStateEnum("[Driving Mode State]", TeensyStream.STATE.Driving);
         TStream.setStateEnum("[Fault State]", TeensyStream.STATE.Fault);
+
+        TStream.setCallback(msgIDLag, num -> mainTab.setLagLight(true), TeensyStream.UPDATE.ON_RECEIVE);
+        TStream.setCallback(msgIDBeat, num -> mainTab.setLagLight(false), TeensyStream.UPDATE.ON_RECEIVE);
 
         Log.i(LOG_ID, "Teensy stream created");
     }
@@ -507,8 +518,12 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onClickLoad(View view) {
-        Toaster.showToast("Find log_lookup.json", true);
-        TStream.updateJsonMap();
+        if (PasteAPI.checkInternetConnection(getApplicationContext())) {
+            Toaster.showToast("Downloading JSON");
+            PasteAPI.getLastPaste(response -> TStream.updateJsonMap(response, this));
+        } else {
+            TStream.updateJsonMap();
+        }
     }
 
     public void onModeToggle(View view) {
