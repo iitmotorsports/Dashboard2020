@@ -434,6 +434,7 @@ public class TeensyStream {
     public void setCallback(long msgID, TeensyLongCallback callback, UPDATE when) {
         if (Teensy_Data.containsKey(msgID)) { // Only store value if it is needed
             msgBlock msg = Teensy_Data.get(msgID);
+            assert msg != null;
             msg.setCallback(callback);
             msg.setUpdate(when);
         } else {
@@ -499,7 +500,12 @@ public class TeensyStream {
             return;
         }
         Integer tagID = getKeyByValue(Teensy_LookUp_Tag, stringTag);
-        Teensy_State_Map.put(Long.valueOf(tagID), state);
+        if (tagID == null) {
+            Toaster.showToast("Failed to set Enum for " + stringTag);
+            return;
+        }
+        long a = Long.valueOf(tagID);
+        Teensy_State_Map.put(a, state);
     }
 
     /**
@@ -528,6 +534,7 @@ public class TeensyStream {
         long msgID = IDs[3];
         if (Teensy_Data.containsKey(msgID)) { // Only store value if it is needed
             msgBlock msg = Teensy_Data.get(msgID);
+            assert msg != null;
             msg.update(IDs[2]);
         }
         return IDs;
@@ -622,7 +629,15 @@ public class TeensyStream {
     // region File IO
 
     public void updateJsonMap() {
+        Toaster.showToast("Find log_lookup.json", true);
         loader.openFile();
+    }
+
+    public void updateJsonMap(String rawJSON, Activity activity) {
+        if (callOnLoad != null)
+            callOnLoad.callback(__localStringLookup(rawJSON, activity));
+        else
+            __localStringLookup(rawJSON, activity);
     }
 
     public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent resultData) {
@@ -632,14 +647,12 @@ public class TeensyStream {
 
     private void loadLookupTable(Activity activity) {
         if (callOnLoad != null)
-            callOnLoad.callback(__loadLookupTable(activity));
+            callOnLoad.callback(__localLoadLookup(activity));
         else
-            __loadLookupTable(activity);
+            __localLoadLookup(activity);
     }
 
-    private void saveMapToSystem(Activity activity) {
-        String loadedJsonStr = loader.getLoadedJsonStr();
-        loader.clearLoadedJsonStr();
+    private void saveMapToSystem(String loadedJsonStr, Activity activity) {
         if (loadedJsonStr != null) {
             File path = activity.getFilesDir();
             File file = new File(path, FILENAME_SAVE);
@@ -685,10 +698,20 @@ public class TeensyStream {
         return text.toString();
     }
 
-    private boolean __loadLookupTable(Activity activity) {
+    private boolean __localLoadLookup(Activity activity) {
+        boolean B = __loadLookupTable(loader.getLoadedJsonStr(), activity);
+        loader.clearLoadedJsonStr();
+        return B;
+    }
+
+    private boolean __localStringLookup(String raw, Activity activity) {
+        return __loadLookupTable(raw, activity);
+    }
+
+    private boolean __loadLookupTable(String raw, Activity activity) {
         Log.i(LOG_TAG, "Loading lookup table");
 
-        String JSON_INPUT = loader.getLoadedJsonStr();
+        String JSON_INPUT = raw;
         if (JSON_INPUT == null) {
             if (JSONLoaded) {
                 Toaster.showToast("Teensy map unchanged");
@@ -701,8 +724,8 @@ public class TeensyStream {
                 return false;
             }
         }
-        JSONArray json;
 
+        JSONArray json;
         HashMap<Integer, String> NEW_Teensy_LookUp_Tag = new HashMap<>();
         HashMap<Integer, String> NEW_Teensy_LookUp_Str = new HashMap<>();
 
@@ -736,12 +759,14 @@ public class TeensyStream {
             Toaster.showToast("Teensy map updated");
         else
             Toaster.showToast("Loaded Teensy map");
-        saveMapToSystem(activity);
+
+        saveMapToSystem(raw, activity);
         Teensy_LookUp_Tag = NEW_Teensy_LookUp_Tag;
         Teensy_LookUp_Str = NEW_Teensy_LookUp_Str;
         JSONLoaded = true;
         return true;
     }
+
     // endregion
 
     /**
