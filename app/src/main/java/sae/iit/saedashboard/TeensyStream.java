@@ -432,9 +432,8 @@ public class TeensyStream {
      * @param when     When the callback should be called
      */
     public void setCallback(long msgID, TeensyLongCallback callback, UPDATE when) {
-        if (Teensy_Data.containsKey(msgID)) { // Only store value if it is needed
-            msgBlock msg = Teensy_Data.get(msgID);
-            assert msg != null;
+        msgBlock msg = Teensy_Data.get(msgID);
+        if (msg != null) { // Only store value if it is needed
             msg.setCallback(callback);
             msg.setUpdate(when);
         } else {
@@ -532,9 +531,8 @@ public class TeensyStream {
     private long[] updateData(byte[] data_block) {
         long[] IDs = ByteSplit.getTeensyMsg(data_block);
         long msgID = IDs[3];
-        if (Teensy_Data.containsKey(msgID)) { // Only store value if it is needed
-            msgBlock msg = Teensy_Data.get(msgID);
-            assert msg != null;
+        msgBlock msg = Teensy_Data.get(msgID);
+        if (msg != null) { // Only store value if it is needed
             msg.update(IDs[2]);
         }
         return IDs;
