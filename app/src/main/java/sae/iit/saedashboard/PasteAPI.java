@@ -13,8 +13,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.URL;
-import java.util.Enumeration;
-import java.util.Hashtable;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 
@@ -30,20 +28,6 @@ public class PasteAPI {
 
     public interface responseCallback {
         void run(String response);
-    }
-
-    private static String getPostParamString(Hashtable<String, String> params) {
-        if (params.size() == 0)
-            return "";
-
-        StringBuilder buf = new StringBuilder();
-        Enumeration<String> keys = params.keys();
-        while (keys.hasMoreElements()) {
-            buf.append(buf.length() == 0 ? "" : "&");
-            String key = keys.nextElement();
-            buf.append(key).append("=").append(params.get(key));
-        }
-        return buf.toString();
     }
 
     public static boolean checkInternetConnection(Context context) {
