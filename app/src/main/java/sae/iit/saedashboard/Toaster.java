@@ -3,6 +3,7 @@ package sae.iit.saedashboard;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Context;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -43,6 +44,7 @@ public class Toaster {
         }
         wheat.setGravity(Gravity.BOTTOM | (rightSide ? Gravity.END : Gravity.CENTER), 0, 32);
         act.runOnUiThread(() -> wheat.show());
+        Log.i("Toaster", msg);
     }
 
 }
