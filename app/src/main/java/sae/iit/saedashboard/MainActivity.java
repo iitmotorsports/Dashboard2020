@@ -212,36 +212,34 @@ public class MainActivity extends AppCompatActivity {
         TStream = new TeensyStream(this, this::ConsoleLog, () -> SerialToggle.setChecked(true), () -> {
             SerialToggle.setChecked(false);
             mainTab.setLagLight(false);
-        }, JSONToggle::setChecked);
-
+        }, JSONToggle::setChecked, (TStream) -> {
+            // Teensy value mapping
+            // TODO: option to set these values afterwards, as there might not be a JSON mapping to start
+            msgIDMC0Voltage = TStream.requestMsgID("[Front Teensy]", "[INFO]  MC0 Voltage:");
+            msgIDMC1Voltage = TStream.requestMsgID("[Front Teensy]", "[INFO]  MC1 Voltage:");
+            msgIDSpeedometer = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Motor Speed:");
+            msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Power Value:");
+            msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[INFO]  BMS State Of Charge Value:");
+            msgIDFault = TStream.requestMsgID("[Front Teensy]", "[INFO]  Fault State");
+            msgIDLag = TStream.requestMsgID("[HeartBeat]", "[WARN]  Heartbeat is taking too long");
+            msgIDBeat = TStream.requestMsgID("[HeartBeat]", "[INFO]  Beat");
+            TStream.setStateIdentifier("[Front Teensy]", "[INFO]  Current State");
+            TStream.setStateEnum("[Teensy Initialize]", TeensyStream.STATE.Probably_Initializing);
+            TStream.setStateEnum("[PreCharge State]", TeensyStream.STATE.Precharge);
+            TStream.setStateEnum("[Idle State]", TeensyStream.STATE.Idle);
+            TStream.setStateEnum("[Charging State]", TeensyStream.STATE.Charging);
+            TStream.setStateEnum("[Button State]", TeensyStream.STATE.Button);
+            TStream.setStateEnum("[Driving Mode State]", TeensyStream.STATE.Driving);
+            TStream.setStateEnum("[Fault State]", TeensyStream.STATE.Fault);
+            TStream.setCallback(msgIDLag, num -> mainTab.setLagLight(true), TeensyStream.UPDATE.ON_RECEIVE);
+            TStream.setCallback(msgIDBeat, num -> mainTab.setLagLight(false), TeensyStream.UPDATE.ON_RECEIVE);
+        }
+        );
         TStream.setEnableLogCallback(false);
-
         JSONToggle.setOnLongClickListener(v -> {
             TStream.clearMapData(this);
             return true;
         });
-
-        // Teensy value mapping
-        // TODO: option to set these values afterwards, as there might not be a JSON mapping to start
-        msgIDMC0Voltage = TStream.requestMsgID("[Front Teensy]", "[INFO]  MC0 Voltage:");
-        msgIDMC1Voltage = TStream.requestMsgID("[Front Teensy]", "[INFO]  MC1 Voltage:");
-        msgIDSpeedometer = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Motor Speed:");
-        msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Power Value:");
-        msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[INFO]  BMS State Of Charge Value:");
-        msgIDFault = TStream.requestMsgID("[Front Teensy]", "[INFO]  Fault State");
-        msgIDLag = TStream.requestMsgID("[HeartBeat]", "[WARN]  Heartbeat is taking too long");
-        msgIDBeat = TStream.requestMsgID("[HeartBeat]", "[INFO]  Beat");
-        TStream.setStateIdentifier("[Front Teensy]", "[INFO]  Current State");
-        TStream.setStateEnum("[Teensy Initialize]", TeensyStream.STATE.Probably_Initializing);
-        TStream.setStateEnum("[PreCharge State]", TeensyStream.STATE.Precharge);
-        TStream.setStateEnum("[Idle State]", TeensyStream.STATE.Idle);
-        TStream.setStateEnum("[Charging State]", TeensyStream.STATE.Charging);
-        TStream.setStateEnum("[Button State]", TeensyStream.STATE.Button);
-        TStream.setStateEnum("[Driving Mode State]", TeensyStream.STATE.Driving);
-        TStream.setStateEnum("[Fault State]", TeensyStream.STATE.Fault);
-
-        TStream.setCallback(msgIDLag, num -> mainTab.setLagLight(true), TeensyStream.UPDATE.ON_RECEIVE);
-        TStream.setCallback(msgIDBeat, num -> mainTab.setLagLight(false), TeensyStream.UPDATE.ON_RECEIVE);
 
         Log.i(LOG_ID, "Teensy stream created");
     }

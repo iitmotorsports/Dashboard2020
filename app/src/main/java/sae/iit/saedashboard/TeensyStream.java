@@ -48,6 +48,7 @@ public class TeensyStream {
     private FileOutputStream logFile;
     private AlertDialog CAN_dialog;
     private final Timer CANMsgSend = new Timer();
+    private final TeensyInitialize runOnMapLoad;
 
     private boolean enableLogCallback = true;
     private boolean enableLogFile;
@@ -69,21 +70,28 @@ public class TeensyStream {
      * Callback class which accepts a long, typically the value of a message
      */
     public interface TeensyLongCallback {
-        void callback(long num);
+        void run(long num);
     }
 
     /**
      * Callback class which accepts a string, typically the string interpretation of a value
      */
     public interface TeensyLogCallback {
-        void callback(String msg);
+        void run(String msg);
+    }
+
+    /**
+     * Callback class which is run whenever the JSON Map is updated
+     */
+    public interface TeensyInitialize {
+        void run(TeensyStream TStream);
     }
 
     /**
      * Callback class which accepts a boolean, typically whether a JSON map was successfully loaded
      */
     public interface TeensyLogBooleanCallback {
-        void callback(boolean jsonLoaded);
+        void run(boolean jsonLoaded);
     }
 
     // endregion
@@ -182,7 +190,7 @@ public class TeensyStream {
      * @param deviceDetach The callback to be called when a device is detached
      * @param callOnLoad   The callback to be called when a new JSON map has been updated
      */
-    public TeensyStream(Activity activity, TeensyLogCallback logMessage, TeensyCallback deviceAttach, TeensyCallback deviceDetach, TeensyLogBooleanCallback callOnLoad) {
+    public TeensyStream(Activity activity, TeensyLogCallback logMessage, TeensyCallback deviceAttach, TeensyCallback deviceDetach, TeensyLogBooleanCallback callOnLoad, TeensyInitialize runOnMapLoad) {
         Log.i(LOG_TAG, "Making teensy stream");
         this.callOnLoad = callOnLoad;
         loader = new JSONLoad(activity);
@@ -211,7 +219,7 @@ public class TeensyStream {
             if (enableLogCallback) {
                 String msg = processData(arg0);
                 if (msg.length() > 0) {
-                    logMessage.callback(msg);
+                    logMessage.run(msg);
                 }
             } else {
                 consumeData(arg0);
@@ -225,10 +233,13 @@ public class TeensyStream {
 
         serialConnection = new USBSerial(activity, streamCallback, deviceAttach, detach);
 
-        loadLookupTable(activity);
+        boolean b = loadLookupTable(activity);
 
         new android.os.Handler().postDelayed(serialConnection::open, 2000);
         setupCANDialog(activity, this);
+        this.runOnMapLoad = runOnMapLoad;
+        if (b)
+            runOnMapLoad.run(this);
     }
 
     private void clearValues() {
@@ -373,19 +384,19 @@ public class TeensyStream {
             if (callbackFunc != null)
                 switch (updateWhen) {
                     case ON_RECEIVE:
-                        callbackFunc.callback(val);
+                        callbackFunc.run(val);
                         break;
                     case ON_VALUE_CHANGE:
                         if (prevValue != value)
-                            callbackFunc.callback(val);
+                            callbackFunc.run(val);
                         break;
                     case ON_VALUE_DECREASE:
                         if (prevValue > value)
-                            callbackFunc.callback(val);
+                            callbackFunc.run(val);
                         break;
                     case ON_VALUE_INCREASE:
                         if (prevValue < value)
-                            callbackFunc.callback(val);
+                            callbackFunc.run(val);
                 }
         }
 
@@ -633,7 +644,7 @@ public class TeensyStream {
 
     public void updateJsonMap(String rawJSON, Activity activity) {
         if (callOnLoad != null)
-            callOnLoad.callback(__localStringLookup(rawJSON, activity));
+            callOnLoad.run(__localStringLookup(rawJSON, activity));
         else
             __localStringLookup(rawJSON, activity);
     }
@@ -643,11 +654,11 @@ public class TeensyStream {
         loadLookupTable(activity);
     }
 
-    private void loadLookupTable(Activity activity) {
+    private boolean loadLookupTable(Activity activity) {
+        boolean b = __localLoadLookup(activity);
         if (callOnLoad != null)
-            callOnLoad.callback(__localLoadLookup(activity));
-        else
-            __localLoadLookup(activity);
+            callOnLoad.run(b);
+        return b;
     }
 
     private void saveMapToSystem(String loadedJsonStr, Activity activity) {
@@ -673,9 +684,11 @@ public class TeensyStream {
         if (file.delete()) {
             Teensy_LookUp_Tag = new HashMap<>();
             Teensy_LookUp_Str = new HashMap<>();
-            callOnLoad.callback(false);
+            callOnLoad.run(false);
             loader.clearLoadedJsonStr();
             JSONLoaded = false;
+            if (runOnMapLoad != null)
+                runOnMapLoad.run(this);
             Toaster.showToast("Map data deleted");
         } else {
             Toaster.showToast("Failed to delete map data");
@@ -757,11 +770,12 @@ public class TeensyStream {
             Toaster.showToast("Teensy map updated");
         else
             Toaster.showToast("Loaded Teensy map");
-
         saveMapToSystem(raw, activity);
         Teensy_LookUp_Tag = NEW_Teensy_LookUp_Tag;
         Teensy_LookUp_Str = NEW_Teensy_LookUp_Str;
         JSONLoaded = true;
+        if (runOnMapLoad != null)
+            runOnMapLoad.run(this);
         return true;
     }
 
