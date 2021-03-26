@@ -44,6 +44,7 @@
             android:id="@+id/MainUpperLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:background="#1A000000"
             android:orientation="horizontal">
 
             <ImageButton
@@ -76,6 +77,12 @@
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:text="@string/secondaryTabName" />
+
+                <com.google.android.material.tabs.TabItem
+                    android:id="@+id/DataLogTab"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/data_logs" />
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/troubleshootTab"

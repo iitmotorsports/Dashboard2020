@@ -80,4 +80,5 @@
     <string name="random">Random</string>
     <string name="contStr">Continuous</string>
     <string name="lag">Lag</string>
+    <string name="data_logs">Data Logs</string>
 </resources>

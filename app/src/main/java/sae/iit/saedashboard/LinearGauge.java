@@ -57,13 +57,17 @@ public class LinearGauge extends ScGauge {
 
     @Override
     protected void onSizeChanged(int xNew, int yNew, int xOld, int yOld) {
-        ScNotches base = (ScNotches) this.findFeature(ScGauge.BASE_IDENTIFIER);
-        if (base.getHeights().length == 1) {
-            base.setHeights(yNew * 2);
-            ScNotches progress = (ScNotches) this.findFeature(ScGauge.PROGRESS_IDENTIFIER);
-            progress.setHeights(yNew * 2);
+        try {
+            ScNotches base = (ScNotches) this.findFeature(ScGauge.BASE_IDENTIFIER);
+            if (base.getHeights().length == 1) {
+                base.setHeights(yNew * 2);
+                ScNotches progress = (ScNotches) this.findFeature(ScGauge.PROGRESS_IDENTIFIER);
+                progress.setHeights(yNew * 2);
+            }
+            super.onSizeChanged(xNew, yNew, xOld, yOld);
+        } catch (ClassCastException e) {
+            e.printStackTrace();
         }
-        super.onSizeChanged(xNew, yNew, xOld, yOld);
     }
 
     @Override

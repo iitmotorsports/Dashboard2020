@@ -16,7 +16,7 @@ public class MyPagerAdapter extends FragmentStatePagerAdapter {
 
     public MyPagerAdapter(FragmentManager fm) {
         super(fm, FragmentStatePagerAdapter.BEHAVIOR_RESUME_ONLY_CURRENT_FRAGMENT);
-        list.add(new Pair<>(new MainTab(), "Main"));
+        list.add(new Pair<>(new MainTab(), "Drive"));
         list.add(new Pair<>(new SecondaryTab(), "Secondary"));
         list.add(new Pair<>(new DataLogTab(), "Data Logs"));
         list.add(new Pair<>(new TroubleshootTab(), "Troubleshooting"));
