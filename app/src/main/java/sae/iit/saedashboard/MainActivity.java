@@ -182,7 +182,7 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setFaultLight(TStream.requestData(msgIDFault) > 0);
         mainTab.setWaitingLight(TStream.getState() == TeensyStream.STATE.Idle);
         mainTab.setChargingLight(TStream.getState() == TeensyStream.STATE.Charging);
-        mainTab.setCurrentState(TStream.getState().name().replace('_', ' '));
+        mainTab.setCurrentState(TStream.isConnected() ? TStream.getState().name().replace('_', ' ') : "");
         ChargingSetButton.setChecked(TStream.getState() == TeensyStream.STATE.Charging);
 
     }
@@ -206,6 +206,7 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setStartLight(val % 50 <= 5);
         mainTab.setWaitingLight(val > 100);
         mainTab.setChargingLight(val > 150);
+        mainTab.setCurrentState(TStream.getState().name().replace('_', ' '));
     }
 
     private void updateLPTestTabs() {

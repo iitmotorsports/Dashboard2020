@@ -620,6 +620,10 @@ public class TeensyStream {
 
     // region Serial IO
 
+    public boolean isConnected() {
+        return serialConnection.isConnected();
+    }
+
     public boolean open() {
         return serialConnection.open();
     }
