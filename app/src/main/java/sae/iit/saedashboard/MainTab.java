@@ -21,7 +21,7 @@ import java.util.Locale;
 public class MainTab extends Fragment {
     private TextView speedometer, batteryLife, BMSChargeValue, currentState, lagLightText;
     private RadioButton FaultLight, waitingLight, chargingLight, lagLight, startLight;
-    private ColorStateList BG, RED, YELLOW, GREEN;
+    private ColorStateList BG, RED, YELLOW, GREEN, WHITE;
     private LinearGauge powerGauge, powerGauge2, batteryGauge, BMSChargeGauge;
 
     // Creates a view that is compatible with ViewPager
@@ -70,7 +70,7 @@ public class MainTab extends Fragment {
         YELLOW = ColorStateList.valueOf(Color.parseColor("#FEF301"));
         GREEN = ColorStateList.valueOf(Color.parseColor("#0BA60A"));
         BG = ColorStateList.valueOf(Color.parseColor("#3A3D4F"));
-
+        WHITE = ColorStateList.valueOf(Color.parseColor("#c1c1c1"));
         return rootView;
     }
 
@@ -181,30 +181,42 @@ public class MainTab extends Fragment {
     // Updates field info
     public void setFaultLight(boolean state) {
         if (state) {
-            FaultLight.setChecked(true);
+//            FaultLight.setChecked(true);
+            FaultLight.setTextColor(WHITE);
             FaultLight.setButtonTintList(RED);
+            FaultLight.setVisibility(View.VISIBLE);
         } else {
-            FaultLight.setChecked(false);
+//            FaultLight.setChecked(false);
+            FaultLight.setVisibility(View.GONE);
+            FaultLight.setTextColor(BG);
             FaultLight.setButtonTintList(BG);
         }
     }
 
     public void setWaitingLight(boolean state) {
         if (state) {
-            waitingLight.setChecked(true);
+//            waitingLight.setChecked(true);
+            waitingLight.setVisibility(View.VISIBLE);
+            waitingLight.setTextColor(WHITE);
             waitingLight.setButtonTintList(YELLOW);
         } else {
-            waitingLight.setChecked(false);
+//            waitingLight.setChecked(false);
+            waitingLight.setVisibility(View.GONE);
+            waitingLight.setTextColor(BG);
             waitingLight.setButtonTintList(BG);
         }
     }
 
     public void setChargingLight(boolean state) {
         if (state) {
-            chargingLight.setChecked(true);
+//            chargingLight.setChecked(true);
+            chargingLight.setVisibility(View.VISIBLE);
+            chargingLight.setTextColor(WHITE);
             chargingLight.setButtonTintList(GREEN);
         } else {
-            chargingLight.setChecked(false);
+//            chargingLight.setChecked(false);
+            chargingLight.setVisibility(View.GONE);
+            chargingLight.setTextColor(BG);
             chargingLight.setButtonTintList(BG);
         }
     }
@@ -215,15 +227,19 @@ public class MainTab extends Fragment {
 
     public void setLagLight(boolean state, long time) {
         if (state) {
-            lagLight.setChecked(true);
+//            lagLight.setChecked(true);
+            lagLight.setTextColor(WHITE);
             lagLight.setButtonTintList(YELLOW);
+            lagLight.setVisibility(View.VISIBLE);
             if (time == 0)
                 lagLightText.setText("");
             else
                 lagLightText.setText(String.format(Locale.US,"%dms", time));
         } else {
-            lagLight.setChecked(false);
+//            lagLight.setChecked(false);
+            lagLight.setTextColor(BG);
             lagLight.setButtonTintList(BG);
+            lagLight.setVisibility(View.GONE);
             lagLightText.setText("");
         }
     }
