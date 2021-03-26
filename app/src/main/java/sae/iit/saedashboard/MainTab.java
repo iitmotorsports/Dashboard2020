@@ -16,9 +16,11 @@ import com.sccomponents.gauges.library.ScFeature;
 import com.sccomponents.gauges.library.ScGauge;
 import com.sccomponents.gauges.library.ScNotches;
 
+import java.util.Locale;
+
 public class MainTab extends Fragment {
-    private TextView speedometer, batteryLife, BMSChargeValue, currentState;
-    private RadioButton FaultLight, waitingLight, chargingLight, lagLight;
+    private TextView speedometer, batteryLife, BMSChargeValue, currentState, lagLightText;
+    private RadioButton FaultLight, waitingLight, chargingLight, lagLight, startLight;
     private ColorStateList BG, RED, YELLOW, GREEN;
     private LinearGauge powerGauge, powerGauge2, batteryGauge, BMSChargeGauge;
 
@@ -60,6 +62,8 @@ public class MainTab extends Fragment {
         waitingLight = rootView.findViewById(R.id.waitingLight);
         chargingLight = rootView.findViewById(R.id.chargingLight);
         lagLight = rootView.findViewById(R.id.lagLight);
+        lagLightText = rootView.findViewById(R.id.lagLightText);
+        startLight = rootView.findViewById(R.id.startLight);
 
         // Colors
         RED = ColorStateList.valueOf(Color.parseColor("#EA0C01"));
@@ -205,13 +209,32 @@ public class MainTab extends Fragment {
         }
     }
 
-    public void setLagLight(boolean state){
+    public void setLagLight(boolean state) {
+        setLagLight(state, 0);
+    }
+
+    public void setLagLight(boolean state, long time) {
         if (state) {
             lagLight.setChecked(true);
             lagLight.setButtonTintList(YELLOW);
+            if (time == 0)
+                lagLightText.setText("");
+            else
+                lagLightText.setText(String.format(Locale.US,"%dms", time));
         } else {
             lagLight.setChecked(false);
             lagLight.setButtonTintList(BG);
+            lagLightText.setText("");
+        }
+    }
+
+    public void setStartLight(boolean state) {
+        if (state) {
+//            startLight.setChecked(true);
+            startLight.setButtonTintList(GREEN);
+        } else {
+//            startLight.setChecked(false);
+            startLight.setButtonTintList(BG);
         }
     }
 

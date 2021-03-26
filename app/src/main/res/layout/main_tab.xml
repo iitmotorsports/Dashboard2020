@@ -53,6 +53,16 @@
                 app:layout_constraintEnd_toEndOf="@+id/speedometerValue"
                 app:layout_constraintStart_toStartOf="@+id/speedometerValue" />
 
+            <RadioButton
+                android:id="@+id/startLight"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginTop="16dp"
+                android:layout_marginEnd="16dp"
+                android:buttonTint="#3A3D4F"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent" />
+
         </androidx.constraintlayout.widget.ConstraintLayout>
 
         <androidx.constraintlayout.widget.ConstraintLayout
@@ -90,6 +100,7 @@
                     android:layout_marginBottom="32dp"
                     android:padding="20dp"
                     android:scaleX="1" />
+
             </LinearLayout>
 
             <LinearLayout
@@ -227,16 +238,42 @@
                 app:layout_constraintTop_toTopOf="@+id/linearLayout3"
                 app:layout_constraintVertical_bias="0.85">
 
-                <RadioButton
-                    android:id="@+id/lagLight"
-                    android:layout_width="wrap_content"
-                    android:layout_height="24dp"
-                    android:buttonTint="#3A3D4F"
-                    android:checked="false"
-                    android:clickable="false"
-                    android:contextClickable="false"
-                    android:text="@string/lag"
-                    android:textSize="12sp" />
+                <androidx.constraintlayout.widget.ConstraintLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:clipChildren="false"
+                    android:clipToPadding="false">
+
+                    <RadioButton
+                        android:id="@+id/lagLight"
+                        android:layout_width="wrap_content"
+                        android:layout_height="24dp"
+                        android:buttonTint="#3A3D4F"
+                        android:checked="false"
+                        android:clickable="false"
+                        android:contextClickable="false"
+                        android:gravity="center"
+                        android:text="@string/lag"
+                        android:textSize="12sp"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
+
+                    <TextView
+                        android:id="@+id/lagLightText"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_alignParentTop="true"
+                        android:layout_toEndOf="@+id/lagLight"
+                        android:layout_weight="1"
+                        android:paddingStart="5dp"
+                        android:paddingEnd="5dp"
+                        android:textColor="#3A3D4F"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintStart_toEndOf="@+id/lagLight"
+                        app:layout_constraintTop_toTopOf="parent" />
+                </androidx.constraintlayout.widget.ConstraintLayout>
 
                 <RadioButton
                     android:id="@+id/FaultLight"

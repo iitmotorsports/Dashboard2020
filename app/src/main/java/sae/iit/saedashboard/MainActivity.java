@@ -60,6 +60,7 @@ public class MainActivity extends AppCompatActivity {
     private long msgIDFault = -1;
     private long msgIDLag = -1;
     private long msgIDBeat = -1;
+    private long msgIDStartLight = -1;
     private long speedDv = 0;
 
     private void hideSystemUI() {
@@ -200,11 +201,11 @@ public class MainActivity extends AppCompatActivity {
         long val = (long) (testVal + (Math.random() * testVal) / 10);
         mainTab.setSpeedometer(val);
         mainTab.setSpeedGauge(val);
-        mainTab.setLagLight(val > 25);
+        mainTab.setLagLight(val > 25, val);
         mainTab.setFaultLight(val > 50);
+        mainTab.setStartLight(val % 50 <= 5);
         mainTab.setWaitingLight(val > 100);
         mainTab.setChargingLight(val > 150);
-
     }
 
     private void updateLPTestTabs() {
@@ -219,7 +220,10 @@ public class MainActivity extends AppCompatActivity {
 
         TStream = new TeensyStream(this, this::ConsoleLog, () -> SerialToggle.setChecked(true), () -> {
             SerialToggle.setChecked(false);
-            mainTab.setLagLight(false);
+            runOnUiThread(() -> {
+                mainTab.setLagLight(false);
+                mainTab.setStartLight(false);
+            });
         }, JSONToggle::setChecked, (TStream) -> {
             // Teensy value mapping
             // TODO: option to set these values afterwards, as there might not be a JSON mapping to start
@@ -231,6 +235,7 @@ public class MainActivity extends AppCompatActivity {
             msgIDFault = TStream.requestMsgID("[Front Teensy]", "[INFO]  Fault State");
             msgIDLag = TStream.requestMsgID("[HeartBeat]", "[WARN]  Heartbeat is taking too long");
             msgIDBeat = TStream.requestMsgID("[HeartBeat]", "[INFO]  Beat");
+            msgIDStartLight = TStream.requestMsgID("[Front Teensy]", "[INFO]  Start Light");
             TStream.setStateIdentifier("[Front Teensy]", "[INFO]  Current State");
             TStream.setStateEnum("[Teensy Initialize]", TeensyStream.STATE.Probably_Initializing);
             TStream.setStateEnum("[PreCharge State]", TeensyStream.STATE.Precharge);
@@ -239,8 +244,9 @@ public class MainActivity extends AppCompatActivity {
             TStream.setStateEnum("[Button State]", TeensyStream.STATE.Button);
             TStream.setStateEnum("[Driving Mode State]", TeensyStream.STATE.Driving);
             TStream.setStateEnum("[Fault State]", TeensyStream.STATE.Fault);
-            TStream.setCallback(msgIDLag, num -> mainTab.setLagLight(true), TeensyStream.UPDATE.ON_RECEIVE);
-            TStream.setCallback(msgIDBeat, num -> mainTab.setLagLight(false), TeensyStream.UPDATE.ON_RECEIVE);
+            TStream.setCallback(msgIDStartLight, num -> runOnUiThread(() -> mainTab.setStartLight(num == 1)), TeensyStream.UPDATE.ON_VALUE_CHANGE);
+            TStream.setCallback(msgIDLag, num -> runOnUiThread(() -> mainTab.setLagLight(true, num)), TeensyStream.UPDATE.ON_RECEIVE);
+            TStream.setCallback(msgIDBeat, num -> runOnUiThread(() -> mainTab.setLagLight(false)), TeensyStream.UPDATE.ON_RECEIVE);
         }
         );
         TStream.setEnableLogCallback(false);
@@ -316,6 +322,8 @@ public class MainActivity extends AppCompatActivity {
 
     public void onTestSwitch(View view) {
         Testing = ((SwitchCompat) view).isChecked();
+        mainTab.setLagLight(Testing);
+        mainTab.setStartLight(Testing);
     }
 
     public void onClickFault(View view) {
