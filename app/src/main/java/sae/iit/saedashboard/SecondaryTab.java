@@ -15,8 +15,7 @@ public class SecondaryTab extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(
-                R.layout.secondary_tab, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.secondary_tab, container, false);
 
         //Initializing Fields
         rightMotorTempValue = rootView.findViewById(R.id.rightMotorTempValue);
