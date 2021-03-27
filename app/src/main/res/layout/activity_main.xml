@@ -221,7 +221,8 @@
                         android:scrollbars="vertical"
                         android:text=""
                         android:textAlignment="viewStart"
-                        android:textColor="@color/black" />
+                        android:textColor="@color/black"
+                        android:textSize="12sp" />
                 </ScrollView>
 
                 <TextView
