@@ -46,6 +46,7 @@ public class MainActivity extends AppCompatActivity {
     private TeensyStream TStream;
     private MainTab mainTab;
     private SecondaryTab secondTab;
+    private DataLogTab dataTab;
     private SwitchCompat ConsoleSwitch;
     ToggleButton ChargingSetButton;
     ConstraintLayout ConsoleLayout;
@@ -118,6 +119,7 @@ public class MainActivity extends AppCompatActivity {
         ChargingSetButton = findViewById(R.id.chargeSet);
         mainTab = (MainTab) pagerAdapter.getItem(0);
         secondTab = (SecondaryTab) pagerAdapter.getItem(1);
+        dataTab = (DataLogTab) pagerAdapter.getItem(2);
 
         // UI update timers
         Timer LPUITimer = new Timer();
@@ -172,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
         UITimer.schedule(UI_task, 0, 60);// TODO: How much of a delay do we really need?
         LPUITimer.schedule(LPUI_task, 0, 200);
         setupTeensyStream();
+        dataTab.setTeensyStream(TStream, this);
     }
 
     private void updateTabs() { // TODO: set appropriate UI values

@@ -81,4 +81,13 @@
     <string name="contStr">Continuous</string>
     <string name="lag">Lag</string>
     <string name="data_logs">Data Logs</string>
+    <string name="up">↑</string>
+    <string name="down">↓</string>
+    <string name="show">Show</string>
+    <string name="hide">Hide</string>
+    <string name="delete">Delete</string>
+    <string name="delete_all">Delete All</string>
+    <string name="update">Update</string>
+    <string name="minus">-</string>
+    <string name="plus">+</string>
 </resources>
