@@ -2,6 +2,7 @@ package sae.iit.saedashboard;
 
 import android.content.Context;
 import android.util.AttributeSet;
+import android.view.DragEvent;
 import android.view.MotionEvent;
 
 import androidx.annotation.NonNull;
@@ -36,6 +37,11 @@ public class CustomSwipeViewPager extends ViewPager {
     public boolean onTouchEvent(MotionEvent event) {
         performClick();
         return super.onTouchEvent(event) && !lock;
+    }
+
+    @Override
+    public boolean onDragEvent(DragEvent event) {
+        return super.onDragEvent(event) && !lock;
     }
 
     @Override
