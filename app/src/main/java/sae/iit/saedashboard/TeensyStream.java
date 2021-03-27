@@ -3,7 +3,13 @@ package sae.iit.saedashboard;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.content.Intent;
+import android.graphics.Color;
+import android.text.Spannable;
+import android.text.SpannableString;
+import android.text.SpannableStringBuilder;
+import android.text.style.ForegroundColorSpan;
 import android.util.Log;
+import android.util.Pair;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -22,12 +28,15 @@ import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.StringReader;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
 import java.util.Calendar;
 import java.util.HashMap;
 import java.util.Iterator;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.Objects;
@@ -45,7 +54,8 @@ public class TeensyStream {
 
     private HashMap<Integer, String> Teensy_LookUp_Tag = new HashMap<>();
     private HashMap<Integer, String> Teensy_LookUp_Str = new HashMap<>();
-    private FileOutputStream logFile;
+    private File logFile;
+    private FileOutputStream logFileStream;
     private AlertDialog CAN_dialog;
     private final Timer CANMsgSend = new Timer();
     private final TeensyInitialize runOnMapLoad;
@@ -195,31 +205,30 @@ public class TeensyStream {
         this.callOnLoad = callOnLoad;
         loader = new JSONLoad(activity);
 
-        try { // Set logging file
-            File path = activity.getFilesDir();
-            String FILENAME_LOG = "TEENSY_LOG-%s.log";
-            Calendar calendar = Calendar.getInstance();
-            String date = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.US).format(calendar.getTime());
-            File file = new File(path, String.format(FILENAME_LOG, date));
-            logFile = new FileOutputStream(file);
-            Log.i(LOG_TAG, file.getAbsolutePath());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Toaster.showToast("Failed to open new file for teensy logging", true);
-        }
+        openLogFile(activity);
 
-        enableLogFile = logFile != null;
+        enableLogFile = logFileStream != null;
 
         UsbSerialInterface.UsbReadCallback streamCallback = arg0 -> {
-            if (enableLogFile)
-                try {
-                    logFile.write(arg0);
-                } catch (Exception ignored) {
-                }
-            if (enableLogCallback) {
+            if (enableLogCallback | enableLogFile) {
                 String msg = processData(arg0);
-                if (msg.length() > 0) {
+                if (enableLogCallback && msg.length() > 0) {
                     logMessage.run(msg);
+                }
+                if (enableLogFile) {
+                    try {
+                        logFileStream.write(msg.getBytes());
+                    } catch (IOException e) {
+                        if (!logFile.exists()) {
+                            openLogFile(activity);
+                            try {
+                                logFileStream.write(msg.getBytes());
+                            } catch (IOException ioException) {
+                                ioException.printStackTrace();
+                            }
+
+                        }
+                    }
                 }
             } else {
                 consumeData(arg0);
@@ -240,6 +249,27 @@ public class TeensyStream {
         this.runOnMapLoad = runOnMapLoad;
         if (b)
             runOnMapLoad.run(this);
+    }
+
+    public File getLogFile() {
+        return logFile;
+    }
+
+    private void openLogFile(Activity activity) {
+//        if (Teensy_LookUp_Str.size() == 0)
+//            Log.w(LOG_TAG, "No mapped values loaded, unable to decipher log file");
+        try { // Set logging file
+            File path = activity.getFilesDir();
+            String FILENAME_LOG = "TEENSY_LOG-%s.log";
+            Calendar calendar = Calendar.getInstance();
+            String date = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.US).format(calendar.getTime());
+            logFile = new File(path, String.format(FILENAME_LOG, date));
+            logFileStream = new FileOutputStream(logFile);
+            Log.i(LOG_TAG, logFile.getAbsolutePath());
+        } catch (FileNotFoundException e) {
+            e.printStackTrace();
+            Toaster.showToast("Failed to open new file for teensy logging", true);
+        }
     }
 
     private void clearValues() {
@@ -569,6 +599,41 @@ public class TeensyStream {
         }
     }
 
+    /***
+     *
+     * @param mString this will setup to your textView
+     * @param colorId  text will fill with this color.
+     * @return string with color, it will append to textView.
+     */
+    public static Spannable getColoredString(String mString, int colorId) {
+        Spannable spannable = new SpannableString(mString);
+        spannable.setSpan(new ForegroundColorSpan(colorId), 0, spannable.length(), Spannable.SPAN_EXCLUSIVE_EXCLUSIVE);
+        return spannable;
+    }
+
+    private final static List<Pair<String, Integer>> msgColors = Arrays.asList(
+            new Pair<>("[INFO] ", Color.WHITE),
+            new Pair<>("[DEBUG]", Color.DKGRAY),
+            new Pair<>("[ERROR]", Color.RED),
+            new Pair<>("[WARN] ", Color.YELLOW),
+            new Pair<>("[FATAL]", Color.MAGENTA),
+            new Pair<>("[ LOG ]", Color.LTGRAY)
+    );
+
+    public static int getMsgColor(String msg) {
+        for (Pair<String, Integer> p : msgColors) {
+            if (msg.contains(p.first))
+                return p.second;
+        }
+        return Color.LTGRAY;
+    }
+
+    public static Spannable colorMsgString(String msg) {
+        SpannableStringBuilder spannable = new SpannableStringBuilder();
+        new BufferedReader(new StringReader(msg)).lines().forEachOrdered((line) -> spannable.append(getColoredString(line + "\n", getMsgColor(line))));
+        return spannable;
+    }
+
     /**
      * Both Consume and interpret raw data that has been received
      *
@@ -800,4 +865,22 @@ public class TeensyStream {
         return str.toString();
     }
 
+//    @Override
+//    protected void finalize() throws Throwable {
+//        if (logFileStream != null) {
+//            logFileStream.close();
+//            StringBuilder text = new StringBuilder();
+//            BufferedReader br = new BufferedReader(new FileReader(logFile));
+//            String line;
+//            while ((line = br.readLine()) != null) {
+//                text.append(line);
+//            }
+//            br.close();
+//            if (line == null) {
+//                if (logFile.delete()) {
+//                    Log.d(LOG_TAG, "Last log was empty, Deleting");
+//                }
+//            }
+//        }
+//    }
 }
