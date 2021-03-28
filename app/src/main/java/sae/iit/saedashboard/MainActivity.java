@@ -255,7 +255,7 @@ public class MainActivity extends AppCompatActivity {
         );
         TStream.setEnableLogCallback(false);
         JSONToggle.setOnLongClickListener(v -> {
-            TStream.clearMapData(this);
+            TStream.clear();
             return true;
         });
 
@@ -265,7 +265,7 @@ public class MainActivity extends AppCompatActivity {
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
         super.onActivityResult(requestCode, resultCode, resultData);
-        TStream.onActivityResult(this, requestCode, resultCode, resultData);
+        TStream.onActivityResult(requestCode, resultCode, resultData);
     }
 
     public void onSerialToggle(View view) {
@@ -538,7 +538,7 @@ public class MainActivity extends AppCompatActivity {
     public void onClickLoad(View view) {
         if (PasteAPI.checkInternetConnection(getApplicationContext())) {
             Toaster.showToast("Downloading JSON");
-            PasteAPI.getLastPaste(response -> TStream.updateJsonMap(response, this));
+            PasteAPI.getLastPaste(response -> TStream.updateJsonMap(response));
         } else {
             TStream.updateJsonMap();
         }

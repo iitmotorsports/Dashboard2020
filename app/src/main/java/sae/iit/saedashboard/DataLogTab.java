@@ -21,11 +21,6 @@ import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
-import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Locale;
 
@@ -34,8 +29,9 @@ public class DataLogTab extends Fragment {
     private ScrollView fileListScroller, logScroller;
     private LinearLayout fileLayout;
     private TeensyStream stream;
+    private LogFileIO loggingIO;
     private Activity activity;
-    private final ArrayList<Pair<File, TextView>> fileList = new ArrayList<>();
+    private final ArrayList<Pair<LogFileIO.LogFile, TextView>> fileList = new ArrayList<>();
     private int selectedFile = -1;
     private TextView LogViewer;
     private Thread colorThread;
@@ -85,7 +81,7 @@ public class DataLogTab extends Fragment {
     }
 
     public void onClickShowFile() {
-        if (colorThread.isAlive()) {
+        if (colorThread != null && colorThread.isAlive()) {
             Toaster.showToast("Must wait for previous query");
             return;
         }
@@ -136,8 +132,8 @@ public class DataLogTab extends Fragment {
             return;
         }
         if (confirm()) {
-            Pair<File, TextView> p = fileList.get(selectedFile);
-            if (fileDelete(p.first)) {
+            Pair<LogFileIO.LogFile, TextView> p = fileList.get(selectedFile);
+            if (p.first.delete()) {
                 fileList.remove(selectedFile);
                 fileLayout.removeView(p.second);
                 onClickDown();
@@ -154,8 +150,8 @@ public class DataLogTab extends Fragment {
             return;
         }
         if (confirm()) {
-            for (Pair<File, TextView> p : fileList) {
-                if (!fileDelete(p.first))
+            for (Pair<LogFileIO.LogFile, TextView> p : fileList) {
+                if (!p.first.delete())
                     Log.w("Data", "Failed to delete file" + p.first.getName());
                 else
                     fileLayout.removeView(p.second);
@@ -169,7 +165,7 @@ public class DataLogTab extends Fragment {
         return true;
     }
 
-    private TextView listFile(File file, int pos) {
+    private TextView listFile(LogFileIO.LogFile file, int pos) {
         String name = file.getName();
         TextView textView = new TextView(getContext());
         textView.setPadding(10, 10, 10, 10);
@@ -177,7 +173,7 @@ public class DataLogTab extends Fragment {
         textView.setOnClickListener(v -> selectFile(file));
         SpannableStringBuilder sb = new SpannableStringBuilder();
         String KB = String.valueOf(file.length() / 1000);
-        int color = file.equals(stream.getLogFile()) ? Color.parseColor("#FEF301") : Color.parseColor("#3A3D4F");
+        int color = loggingIO.isActiveFile(file) ? Color.parseColor("#FEF301") : Color.parseColor("#3A3D4F");
         sb.append(TeensyStream.getColoredString(String.format(Locale.US, "%1$3s  ", pos).replace(" ", "  "), color));
         sb.append(name);
         sb.append(TeensyStream.getColoredString("  -  " + KB + " kb", color));
@@ -189,10 +185,10 @@ public class DataLogTab extends Fragment {
         return textView;
     }
 
-    private void selectFile(File file) {
+    private void selectFile(LogFileIO.LogFile file) {
         int i = 0;
         int b = -1;
-        for (Pair<File, TextView> ignored : fileList) {
+        for (Pair<LogFileIO.LogFile, TextView> ignored : fileList) {
             if (fileList.get(i).first.equals(file)) {
                 b = i;
             } else {
@@ -226,8 +222,8 @@ public class DataLogTab extends Fragment {
         fileListScroller.postDelayed(() -> fileListScroller.smoothScrollTo(0, (selectedFile * height) + (height * (selectedFile < finalPos ? 4 : -4))), 10);
     }
 
-    private void showFile(File file) {
-        String a = getFileString(file);
+    private void showFile(LogFileIO.LogFile file) {
+        String a = LogFileIO.getString(file);
         if (colorThread == null || !colorThread.isAlive()) {
             activity.runOnUiThread(() -> logWait.setVisibility(View.VISIBLE));
             colorThread = new Thread(() -> {
@@ -245,22 +241,6 @@ public class DataLogTab extends Fragment {
         }
     }
 
-    private String getFileString(File file) {
-        StringBuilder sb = new StringBuilder();
-        String line;
-        BufferedReader reader;
-        try {
-            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
-            while ((line = reader.readLine()) != null) {
-                sb.append(line).append("\n");
-            }
-            reader.close();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return sb.toString();
-    }
-
     private void updateFiles() {
         if (logScroller.getVisibility() != View.GONE) {
             Toaster.showToast("Can't update while viewing log");
@@ -268,34 +248,15 @@ public class DataLogTab extends Fragment {
         }
         fileLayout.removeAllViewsInLayout();
         fileList.clear();
-        String path = activity.getFilesDir().toString();
-        File directory = new File(path);
-        File[] files = directory.listFiles();
         int i = 0;
-        if (files != null) {
-            for (File file : files) {
-                if (file.length() == 0) {
-                    if (!fileDelete(file)) {
-                        Log.w("Data", "Failed to delete empty file");
-                    }
-                } else {
-                    String name = file.getName();
-                    if (name.endsWith(".log")) {
-                        fileList.add(new Pair<>(file, listFile(file, i++)));
-                    }
-                }
-            }
+        for (LogFileIO.LogFile file : loggingIO.listFiles()) {
+            fileList.add(new Pair<>(file, listFile(file, i++)));
         }
-    }
-
-    private boolean fileDelete(File file) {
-        if (stream != null && stream.getLogFile().equals(file))
-            return false;
-        return file.delete();
     }
 
     public void setTeensyStream(TeensyStream stream, Activity activity) {
         this.stream = stream;
+        this.loggingIO = stream.getLoggingIO();
         this.activity = activity;
     }
 }

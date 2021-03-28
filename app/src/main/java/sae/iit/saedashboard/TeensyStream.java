@@ -17,54 +17,28 @@ import android.widget.ToggleButton;
 
 import com.felhr.usbserial.UsbSerialInterface;
 
-import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
-
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
-import java.io.FileReader;
-import java.io.IOException;
-import java.io.PrintWriter;
 import java.io.StringReader;
-import java.nio.ByteBuffer;
-import java.nio.ByteOrder;
-import java.text.SimpleDateFormat;
 import java.util.Arrays;
-import java.util.Calendar;
 import java.util.HashMap;
-import java.util.Iterator;
 import java.util.List;
-import java.util.Locale;
 import java.util.Map;
-import java.util.Objects;
 import java.util.Random;
 import java.util.Timer;
 import java.util.TimerTask;
 
 public class TeensyStream {
     private final HashMap<Long, msgBlock> Teensy_Data = new HashMap<>();
-    private final String FILENAME_SAVE = "TEENSY_JSON_MAP.json";
     private final TeensyLogBooleanCallback callOnLoad;
     private final String LOG_TAG = "Teensy Stream";
     private final USBSerial serialConnection;
-    private final JSONLoad loader;
-
-    private HashMap<Integer, String> Teensy_LookUp_Tag = new HashMap<>();
-    private HashMap<Integer, String> Teensy_LookUp_Str = new HashMap<>();
-    private File logFile;
-    private FileOutputStream logFileStream;
+    private final LogFileIO loggingIO;
+    private final JSONMap jsonMap;
     private AlertDialog CAN_dialog;
     private final Timer CANMsgSend = new Timer();
-    private final TeensyInitialize runOnMapLoad;
-
     private boolean enableLogCallback = true;
     private boolean enableLogFile;
-    private boolean JSONLoaded = false;
     private boolean hexMode = false;
-
     private final HashMap<Long, STATE> Teensy_State_Map = new HashMap<>();
     private long currentState = 0;
 
@@ -203,11 +177,10 @@ public class TeensyStream {
     public TeensyStream(Activity activity, TeensyLogCallback logMessage, TeensyCallback deviceAttach, TeensyCallback deviceDetach, TeensyLogBooleanCallback callOnLoad, TeensyInitialize runOnMapLoad) {
         Log.i(LOG_TAG, "Making teensy stream");
         this.callOnLoad = callOnLoad;
-        loader = new JSONLoad(activity);
+        loggingIO = new LogFileIO(activity);
+        jsonMap = new JSONMap(activity, () -> runOnMapLoad.run(this));
 
-        openLogFile(activity);
-
-        enableLogFile = logFileStream != null;
+        enableLogFile = loggingIO.isOpen();
 
         UsbSerialInterface.UsbReadCallback streamCallback = arg0 -> {
             if (enableLogCallback | enableLogFile) {
@@ -216,19 +189,7 @@ public class TeensyStream {
                     logMessage.run(msg);
                 }
                 if (enableLogFile) {
-                    try {
-                        logFileStream.write(msg.getBytes());
-                    } catch (IOException e) {
-                        if (!logFile.exists()) {
-                            openLogFile(activity);
-                            try {
-                                logFileStream.write(msg.getBytes());
-                            } catch (IOException ioException) {
-                                ioException.printStackTrace();
-                            }
-
-                        }
-                    }
+                    loggingIO.write(msg.getBytes());
                 }
             } else {
                 consumeData(arg0);
@@ -242,34 +203,18 @@ public class TeensyStream {
 
         serialConnection = new USBSerial(activity, streamCallback, deviceAttach, detach);
 
-        boolean b = loadLookupTable(activity);
+        boolean b = jsonMap.update();
+        if (callOnLoad != null)
+            callOnLoad.run(b);
 
         new android.os.Handler().postDelayed(serialConnection::open, 2000);
         setupCANDialog(activity, this);
-        this.runOnMapLoad = runOnMapLoad;
         if (b)
             runOnMapLoad.run(this);
     }
 
-    public File getLogFile() {
-        return logFile;
-    }
-
-    private void openLogFile(Activity activity) {
-//        if (Teensy_LookUp_Str.size() == 0)
-//            Log.w(LOG_TAG, "No mapped values loaded, unable to decipher log file");
-        try { // Set logging file
-            File path = activity.getFilesDir();
-            String FILENAME_LOG = "TEENSY_LOG-%s.log";
-            Calendar calendar = Calendar.getInstance();
-            String date = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.US).format(calendar.getTime());
-            logFile = new File(path, String.format(FILENAME_LOG, date));
-            logFileStream = new FileOutputStream(logFile);
-            Log.i(LOG_TAG, logFile.getAbsolutePath());
-        } catch (FileNotFoundException e) {
-            e.printStackTrace();
-            Toaster.showToast("Failed to open new file for teensy logging", true);
-        }
+    public LogFileIO getLoggingIO() {
+        return loggingIO;
     }
 
     private void clearValues() {
@@ -433,26 +378,6 @@ public class TeensyStream {
     }
 
     /**
-     * Helper function to get the key from a map using a value
-     * <p>
-     * Must be a 1:1 map
-     *
-     * @param map   The 1:1 map to look in
-     * @param value Value to find
-     * @param <T>   Map key type
-     * @param <E>   Map value type
-     * @return type T value
-     */
-    private static <T, E> T getKeyByValue(Map<T, E> map, E value) {
-        for (Map.Entry<T, E> entry : map.entrySet()) {
-            if (Objects.equals(value, entry.getValue())) {
-                return entry.getKey();
-            }
-        }
-        return null;
-    }
-
-    /**
      * Return the value of a message
      *
      * @param msgID Runtime specific ID of a message
@@ -461,6 +386,12 @@ public class TeensyStream {
     public long requestData(long msgID) {
         msgBlock msg = Teensy_Data.get(msgID);
         return msg == null ? -1 : msg.value;
+    }
+
+    public void clear() {
+        if (jsonMap.clear()) {
+            callOnLoad.run(false);
+        }
     }
 
     /**
@@ -478,40 +409,17 @@ public class TeensyStream {
             msg.setCallback(callback);
             msg.setUpdate(when);
         } else {
-            Log.w(LOG_TAG, "Msg ID: " + msgID + " does not exist yet, no callback set");
+            Toaster.showToast("Msg ID: " + msgID + " does not exist yet, no callback set");
         }
     }
 
-    /**
-     * Get the runtime specific ID of a message that will be received
-     *
-     * @param stringTag The exact tag that the message has
-     * @param stringMsg The exact string that the message has
-     * @return ID of the given message, -1 if not found
-     */
     public long requestMsgID(String stringTag, String stringMsg) {
-        if (!JSONLoaded) {
-            Log.w(LOG_TAG, "JSON has not been loaded, unable to process request");
-            Toaster.showToast("JSON has not been loaded, unable to process request");
-            return -1;
-        }
-        Integer tagID = getKeyByValue(Teensy_LookUp_Tag, stringTag);
-        Integer strID = getKeyByValue(Teensy_LookUp_Str, stringMsg);
-
-        if (tagID != null && strID != null) {
-            ByteBuffer mapping = ByteBuffer.allocate(4);
-            mapping.order(ByteOrder.LITTLE_ENDIAN);
-            mapping.putShort(tagID.shortValue());
-            mapping.putShort(strID.shortValue());
-            long msgID = mapping.getInt(0);
-            Teensy_Data.put(msgID, new msgBlock());
-            return msgID;
-        } else {
-            Log.w(LOG_TAG, "Unable to match string " + stringTag + " " + stringMsg);
-            Toaster.showToast("Unable to match string " + stringTag + " " + stringMsg);
-        }
-
-        return -1;
+        long msgID = jsonMap.requestMsgID(stringTag, stringMsg);
+        if (msgID >= 0)
+            Teensy_Data.put(msgID, new TeensyStream.msgBlock());
+        else
+            Toaster.showToast("Failed to request id for" + stringTag + " " + stringMsg);
+        return msgID;
     }
 
     /**
@@ -524,7 +432,8 @@ public class TeensyStream {
         long msgID = requestMsgID(stringTag, stringMsg);
         if (msgID != -1) {
             setCallback(msgID, num -> currentState = num, UPDATE.ON_VALUE_CHANGE);
-        }
+        } else
+            Toaster.showToast("Failed to set state id for " + stringTag + " " + stringMsg);
     }
 
     /**
@@ -534,12 +443,11 @@ public class TeensyStream {
      * @param stringTag The exact tag of the state
      */
     public void setStateEnum(String stringTag, STATE state) {
-        if (!JSONLoaded) {
-            Log.w(LOG_TAG, "JSON has not been loaded, unable to set STATE ENUM");
+        if (!jsonMap.loaded()) {
             Toaster.showToast("JSON has not been loaded, unable to set STATE ENUM");
             return;
         }
-        Integer tagID = getKeyByValue(Teensy_LookUp_Tag, stringTag);
+        Integer tagID = jsonMap.getTagID(stringTag);
         if (tagID == null) {
             Toaster.showToast("Failed to set Enum for " + stringTag);
             return;
@@ -672,7 +580,7 @@ public class TeensyStream {
             int callerID = (int) IDs[0];
             int stringID = (int) IDs[1];
 
-            output.append(Teensy_LookUp_Tag.get(callerID)).append(' ').append(Teensy_LookUp_Str.get(stringID)).append(' ').append(IDs[2]).append('\n');
+            output.append(jsonMap.getTag(callerID)).append(' ').append(jsonMap.getStr(stringID)).append(' ').append(IDs[2]).append('\n');
         }
         if (output.length() == 0) {
             Log.w(LOG_TAG, "USB serial might be overwhelmed!");
@@ -708,144 +616,18 @@ public class TeensyStream {
 
     public void updateJsonMap() {
         Toaster.showToast("Find log_lookup.json", true);
-        loader.openFile();
+        jsonMap.openFile();
     }
 
-    public void updateJsonMap(String rawJSON, Activity activity) {
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        jsonMap.onActivityResult(requestCode, resultCode, resultData);
+    }
+
+    public void updateJsonMap(String rawJSON) {
         if (callOnLoad != null)
-            callOnLoad.run(__localStringLookup(rawJSON, activity));
+            callOnLoad.run(jsonMap.update(rawJSON));
         else
-            __localStringLookup(rawJSON, activity);
-    }
-
-    public void onActivityResult(Activity activity, int requestCode, int resultCode, Intent resultData) {
-        loader.onActivityResult(requestCode, resultCode, resultData);
-        loadLookupTable(activity);
-    }
-
-    private boolean loadLookupTable(Activity activity) {
-        boolean b = __localLoadLookup(activity);
-        if (callOnLoad != null)
-            callOnLoad.run(b);
-        return b;
-    }
-
-    private void saveMapToSystem(String loadedJsonStr, Activity activity) {
-        if (loadedJsonStr != null) {
-            File path = activity.getFilesDir();
-            File file = new File(path, FILENAME_SAVE);
-            PrintWriter writer;
-            try {
-                writer = new PrintWriter(file);
-            } catch (FileNotFoundException e) {
-                e.printStackTrace();
-                Toaster.showToast("Failed to save map data", true);
-                return;
-            }
-            writer.print(loadedJsonStr);
-            writer.close();
-        }
-    }
-
-    public void clearMapData(Activity activity) {
-        File path = activity.getFilesDir();
-        File file = new File(path, FILENAME_SAVE);
-        if (file.delete()) {
-            Teensy_LookUp_Tag = new HashMap<>();
-            Teensy_LookUp_Str = new HashMap<>();
-            callOnLoad.run(false);
-            loader.clearLoadedJsonStr();
-            JSONLoaded = false;
-            if (runOnMapLoad != null)
-                runOnMapLoad.run(this);
-            Toaster.showToast("Map data deleted");
-        } else {
-            Toaster.showToast("Failed to delete map data");
-        }
-    }
-
-    private String loadMapFromSystem(Activity activity) throws IOException {
-        File path = activity.getFilesDir();
-        File file = new File(path, FILENAME_SAVE);
-        StringBuilder text = new StringBuilder();
-        BufferedReader br = new BufferedReader(new FileReader(file));
-        String line;
-        while ((line = br.readLine()) != null) {
-            text.append(line);
-            text.append('\n');
-        }
-        br.close();
-        return text.toString();
-    }
-
-    private boolean __localLoadLookup(Activity activity) {
-        boolean B = __loadLookupTable(loader.getLoadedJsonStr(), activity);
-        loader.clearLoadedJsonStr();
-        return B;
-    }
-
-    private boolean __localStringLookup(String raw, Activity activity) {
-        return __loadLookupTable(raw, activity);
-    }
-
-    private boolean __loadLookupTable(String raw, Activity activity) {
-        Log.i(LOG_TAG, "Loading lookup table");
-
-        String JSON_INPUT = raw;
-        if (JSON_INPUT == null) {
-            if (JSONLoaded) {
-                Toaster.showToast("Teensy map unchanged");
-                return true;
-            }
-            try {
-                JSON_INPUT = loadMapFromSystem(activity);
-            } catch (IOException e) {
-                Toaster.showToast("No Teensy map has been loaded", true);
-                return false;
-            }
-        }
-
-        JSONArray json;
-        HashMap<Integer, String> NEW_Teensy_LookUp_Tag = new HashMap<>();
-        HashMap<Integer, String> NEW_Teensy_LookUp_Str = new HashMap<>();
-
-        try {
-            json = new JSONArray(JSON_INPUT);
-
-            JSONObject entry = json.getJSONObject(0);
-            Iterator<String> keys = entry.keys();
-
-            while (keys.hasNext()) {
-                String key = keys.next();
-                NEW_Teensy_LookUp_Tag.put(entry.getInt(key), key);
-            }
-
-            entry = json.getJSONObject(1);
-            keys = entry.keys();
-
-            while (keys.hasNext()) {
-                String key = keys.next();
-                NEW_Teensy_LookUp_Str.put(entry.getInt(key), key);
-            }
-
-        } catch (JSONException e) {
-            e.printStackTrace();
-            Toaster.showToast("Json does not match correct format", true);
-            return JSONLoaded;
-        }
-
-        Log.i(LOG_TAG, "Json array loaded");
-        if (JSONLoaded)
-            Toaster.showToast("Teensy map updated");
-        else
-            Toaster.showToast("Loaded Teensy map");
-        saveMapToSystem(raw, activity);
-        Teensy_LookUp_Tag = NEW_Teensy_LookUp_Tag;
-        Teensy_LookUp_Str = NEW_Teensy_LookUp_Str;
-        JSONLoaded = true;
-        if (runOnMapLoad != null)
-            runOnMapLoad.run(this);
-        return true;
+            jsonMap.update(rawJSON);
     }
 
     // endregion
@@ -865,22 +647,4 @@ public class TeensyStream {
         return str.toString();
     }
 
-//    @Override
-//    protected void finalize() throws Throwable {
-//        if (logFileStream != null) {
-//            logFileStream.close();
-//            StringBuilder text = new StringBuilder();
-//            BufferedReader br = new BufferedReader(new FileReader(logFile));
-//            String line;
-//            while ((line = br.readLine()) != null) {
-//                text.append(line);
-//            }
-//            br.close();
-//            if (line == null) {
-//                if (logFile.delete()) {
-//                    Log.d(LOG_TAG, "Last log was empty, Deleting");
-//                }
-//            }
-//        }
-//    }
 }
