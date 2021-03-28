@@ -139,6 +139,10 @@ public class TeensyStream {
 
     }
 
+    public void log(String message) {
+        loggingIO.write(message.getBytes());
+    }
+
     /**
      * When to update enums for message callbacks
      */

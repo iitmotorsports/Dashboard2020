@@ -217,6 +217,7 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setBatteryLife(val);
         mainTab.setPowerDisplay(val);
         secondTab.setValues(val, val, val, val, val, val);
+        TStream.log("whwhahahaha\n");
     }
 
     private void setupTeensyStream() {

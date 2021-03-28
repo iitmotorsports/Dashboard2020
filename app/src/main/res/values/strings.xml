@@ -90,4 +90,8 @@
     <string name="update">Update</string>
     <string name="minus">-</string>
     <string name="plus">+</string>
+    <string name="are_you_sure">Are you sure?</string>
+    <string name="yes">Yes</string>
+    <string name="no">No</string>
+    <string name="long_press_yes_to_confirm">Hold yes to confirm</string>
 </resources>

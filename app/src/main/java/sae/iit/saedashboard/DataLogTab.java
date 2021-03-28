@@ -1,6 +1,7 @@
 package sae.iit.saedashboard;
 
 import android.app.Activity;
+import android.app.AlertDialog;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -29,6 +30,8 @@ public class DataLogTab extends Fragment {
     private ScrollView fileListScroller, logScroller;
     private LinearLayout fileLayout;
     private TeensyStream stream;
+    private Runnable confirm_run;
+    private AlertDialog confirm_dialog;
     private LogFileIO loggingIO;
     private Activity activity;
     private final ArrayList<Pair<LogFileIO.LogFile, TextView>> fileList = new ArrayList<>();
@@ -76,8 +79,31 @@ public class DataLogTab extends Fragment {
             }
         });
 
+        createConfirmDialog();
+
         updateFiles();
         return rootView;
+    }
+
+    private void createConfirmDialog() {
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(activity);
+        View mView = activity.getLayoutInflater().inflate(R.layout.confirm_delete_dialog, null);
+
+        Button yes = mView.findViewById(R.id.Yesbtn);
+        Button no = mView.findViewById(R.id.Nobtn);
+
+        mBuilder.setView(mView);
+        confirm_dialog = mBuilder.create();
+
+        yes.setOnClickListener(v -> Toaster.showToast("Hold to confirm"));
+        yes.setOnLongClickListener(v -> {
+            confirm_run.run();
+            confirm_dialog.dismiss();
+            return true;
+        });
+
+        no.setOnClickListener(v -> confirm_dialog.dismiss());
+
     }
 
     public void onClickShowFile() {
@@ -131,16 +157,18 @@ public class DataLogTab extends Fragment {
             Toaster.showToast("No file selected");
             return;
         }
-        if (confirm()) {
-            Pair<LogFileIO.LogFile, TextView> p = fileList.get(selectedFile);
-            if (p.first.delete()) {
-                fileList.remove(selectedFile);
-                fileLayout.removeView(p.second);
-                onClickDown();
-            } else {
-                Toaster.showToast("Failed to delete file");
-                updateFiles();
-            }
+        confirm(this::deleteSelected);
+    }
+
+    private void deleteSelected() {
+        Pair<LogFileIO.LogFile, TextView> p = fileList.get(selectedFile);
+        if (p.first.delete()) {
+            fileList.remove(selectedFile);
+            fileLayout.removeView(p.second);
+            onClickDown();
+        } else {
+            Toaster.showToast("Failed to delete file");
+            updateFiles();
         }
     }
 
@@ -149,20 +177,24 @@ public class DataLogTab extends Fragment {
             Toaster.showToast("Can't delete while viewing log");
             return;
         }
-        if (confirm()) {
-            for (Pair<LogFileIO.LogFile, TextView> p : fileList) {
-                if (!p.first.delete())
-                    Log.w("Data", "Failed to delete file" + p.first.getName());
-                else
-                    fileLayout.removeView(p.second);
-            }
-            fileList.clear();
-            updateFiles();
-        }
+        confirm(this::deleteAll);
     }
 
-    private boolean confirm() {
-        return true;
+    private void deleteAll() {
+        for (Pair<LogFileIO.LogFile, TextView> p : fileList) {
+            if (!p.first.delete())
+                Log.w("Data", "Failed to delete file" + p.first.getName());
+            else
+                fileLayout.removeView(p.second);
+        }
+        fileList.clear();
+        updateFiles();
+    }
+
+    private void confirm(Runnable run) {
+        confirm_run = run;
+        if (!confirm_dialog.isShowing())
+            confirm_dialog.show();
     }
 
     private TextView listFile(LogFileIO.LogFile file, int pos) {
@@ -252,6 +284,7 @@ public class DataLogTab extends Fragment {
         for (LogFileIO.LogFile file : loggingIO.listFiles()) {
             fileList.add(new Pair<>(file, listFile(file, i++)));
         }
+        selectFile(selectedFile);
     }
 
     public void setTeensyStream(TeensyStream stream, Activity activity) {
