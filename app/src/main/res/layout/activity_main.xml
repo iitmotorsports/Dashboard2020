@@ -115,27 +115,33 @@
 
                 <LinearLayout
                     android:id="@+id/FunctionSubButtons"
-                    android:layout_width="match_parent"
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:layout_marginStart="4dp"
+                    android:gravity="center"
                     android:keepScreenOn="true"
                     android:orientation="vertical">
+
+                    <TextView
+                        android:id="@+id/textView15"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
+                        android:text="@string/usb_serial"
+                        android:textAlignment="center"
+                        android:textColor="@color/foregroundText"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                     <ToggleButton
                         android:id="@+id/SerialToggle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:onClick="onSerialToggle" />
-
-                    <Button
-                        android:id="@+id/Clear"
-                        android:layout_width="wrap_content"
-                        android:layout_height="wrap_content"
-                        android:contentDescription="@string/clear_the_serial_log"
-                        android:keepScreenOn="true"
-                        android:longClickable="true"
-                        android:onClick="onClickClear"
-                        android:text="@string/clear" />
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
+                        android:onClick="onSerialToggle"
+                        android:textSize="12sp" />
 
                     <ToggleButton
                         android:id="@+id/Load"
@@ -144,56 +150,100 @@
                         android:checked="true"
                         android:keepScreenOn="true"
                         android:longClickable="true"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
                         android:onClick="onClickLoad"
                         android:textOff="@string/json"
-                        android:textOn="@string/json" />
-
-                    <ToggleButton
-                        android:id="@+id/modeToggle"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:checked="false"
-                        android:onClick="onModeToggle"
-                        android:text="@string/modetoggle"
-                        android:textOff="@string/ascii"
-                        android:textOn="@string/hex" />
+                        android:textOn="@string/json"
+                        android:textSize="12sp" />
 
                     <ToggleButton
                         android:id="@+id/chargeSet"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:checked="false"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
                         android:onClick="onClickCharge"
                         android:textOff="@string/charge"
-                        android:textOn="@string/charge" />
+                        android:textOn="@string/charge"
+                        android:textSize="12sp" />
 
-                    <Button
-                        android:id="@+id/sendCAN"
-                        android:layout_width="match_parent"
+                    <TextView
+                        android:id="@+id/textView"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="onClickCanMsg"
-                        android:text="@string/can_msg" />
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
+                        android:text="@string/console"
+                        android:textAlignment="center"
+                        android:textColor="@color/foregroundText"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/ConsoleSwitch"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
+                        android:onClick="onConsoleSwitch" />
+
+                    <Button
+                        android:id="@+id/Clear"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
-                        android:onClick="onConsoleSwitch"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="0dp"
-                        android:text="@string/con"
-                        android:textSize="18sp"
-                        app:switchMinWidth="1dp" />
+                        android:contentDescription="@string/clear_the_serial_log"
+                        android:keepScreenOn="true"
+                        android:longClickable="true"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
+                        android:onClick="onClickClear"
+                        android:text="@string/clear"
+                        android:textSize="12sp" />
+
+                    <ToggleButton
+                        android:id="@+id/modeToggle"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:checked="false"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
+                        android:onClick="onModeToggle"
+                        android:text="@string/modetoggle"
+                        android:textOff="@string/ascii"
+                        android:textOn="@string/hex"
+                        android:textSize="12sp" />
+
+                    <TextView
+                        android:id="@+id/textView16"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
+                        android:text="@string/testing"
+                        android:textAlignment="center"
+                        android:textColor="@color/foregroundText"
+                        android:textSize="12sp"
+                        android:textStyle="bold" />
 
                     <androidx.appcompat.widget.SwitchCompat
                         android:id="@+id/TestSwitch"
-                        android:layout_width="match_parent"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:onClick="onTestSwitch"
-                        android:paddingStart="5dp"
-                        android:paddingEnd="0dp"
-                        android:text="@string/test"
-                        android:textSize="18sp" />
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
+                        android:onClick="onTestSwitch" />
+
+                    <Button
+                        android:id="@+id/sendCAN"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
+                        android:onClick="onClickCanMsg"
+                        android:text="@string/can_msg"
+                        android:textSize="12sp" />
 
                 </LinearLayout>
             </ScrollView>

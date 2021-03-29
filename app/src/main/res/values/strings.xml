@@ -61,7 +61,7 @@
     <string name="right_motor_temp">Right Motor Temp</string>
     <string name="right_mc_temp">Right MC Temp</string>
     <string name="active_aero_pos">Active Aero Pos</string>
-    <string name="can_msg">Can Msg</string>
+    <string name="can_msg">CanMsg</string>
     <string name="enter_valid_canbus_values">Enter valid HEX values</string>
     <string name="_0x">0x</string>
     <string name="hex_only">HEX Only</string>
@@ -95,4 +95,8 @@
     <string name="no">No</string>
     <string name="long_press_yes_to_confirm">Hold yes to confirm</string>
     <string name="raw">Raw</string>
+    <string name="usb_serial">USB Serial</string>
+    <string name="console">Console</string>
+    <string name="misc">Misc</string>
+    <string name="testing">Testing</string>
 </resources>
