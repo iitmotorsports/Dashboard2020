@@ -50,11 +50,13 @@
             <ImageButton
                 android:id="@+id/Show"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
+                android:layout_height="match_parent"
                 android:layout_marginStart="4dp"
                 android:layout_marginTop="4dp"
                 android:contentDescription="@string/show_app_functions"
                 android:keepScreenOn="true"
+                android:minWidth="0dp"
+                android:minHeight="0dp"
                 android:onClick="onClickSH"
                 app:srcCompat="@android:drawable/ic_menu_manage" />
 
@@ -62,32 +64,38 @@
                 android:id="@+id/tabLayout"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:minHeight="5dp"
                 app:tabIndicatorColor="#ff80cbc4"
                 app:tabSelectedTextColor="@android:color/white"
+                app:tabTextAppearance="@style/MineCustomTabText"
                 app:tabTextColor="@android:color/white">
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/mainTab"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="0dp"
                     android:text="@string/mainTabName" />
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/secondaryTab"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="0dp"
                     android:text="@string/secondaryTabName" />
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/DataLogTab"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="0dp"
                     android:text="@string/data_logs" />
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/troubleshootTab"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
+                    android:minHeight="0dp"
                     android:text="@string/troubleshootTabName" />
             </com.google.android.material.tabs.TabLayout>
 
