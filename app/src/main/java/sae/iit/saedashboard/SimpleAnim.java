@@ -171,6 +171,8 @@ public class SimpleAnim {
         if (view.getAnimation() != null)
             return;
         if (visibility != View.VISIBLE) {
+            if (view.getVisibility() == visibility)
+                return;
             if ((visibility & (View.INVISIBLE | View.GONE)) != 0)
                 switch (direction) {
                     case "left":
