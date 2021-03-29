@@ -23,6 +23,8 @@ import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
+import java.util.Comparator;
+import java.util.List;
 import java.util.Locale;
 
 public class DataLogTab extends Fragment {
@@ -115,13 +117,13 @@ public class DataLogTab extends Fragment {
             activity.runOnUiThread(() -> {
                 showButton.setText(R.string.show);
                 LogViewer.setText("");
-                logScroller.setVisibility(View.GONE);
+                SimpleAnim.animView(activity, logScroller, View.GONE, "fade");
             });
         } else {
             if (selectedFile >= 0 && selectedFile < fileList.size()) {
                 showFile(fileList.get(selectedFile).first);
                 activity.runOnUiThread(() -> {
-                    logScroller.setVisibility(View.VISIBLE);
+                    SimpleAnim.animView(activity, logScroller, View.VISIBLE, "fade");
                     showButton.setText(R.string.hide);
                 });
             } else {
@@ -198,7 +200,7 @@ public class DataLogTab extends Fragment {
     }
 
     private TextView listFile(LogFileIO.LogFile file, int pos) {
-        String name = file.getName();
+        String name = file.getFormattedName();
         TextView textView = new TextView(getContext());
         textView.setPadding(10, 10, 10, 10);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
@@ -255,11 +257,10 @@ public class DataLogTab extends Fragment {
     }
 
     private void showFile(LogFileIO.LogFile file) {
-        String a = LogFileIO.getString(file);
         if (colorThread == null || !colorThread.isAlive()) {
             activity.runOnUiThread(() -> logWait.setVisibility(View.VISIBLE));
             colorThread = new Thread(() -> {
-                Spannable b = TeensyStream.colorMsgString(a);
+                Spannable b = TeensyStream.colorMsgString(TeensyStream.interpretLogFile(file));
                 activity.runOnUiThread(() -> {
                     LogViewer.setText(b);
                     logWait.setVisibility(View.GONE);
@@ -281,10 +282,12 @@ public class DataLogTab extends Fragment {
         fileLayout.removeAllViewsInLayout();
         fileList.clear();
         int i = 0;
-        for (LogFileIO.LogFile file : loggingIO.listFiles()) {
+        List<LogFileIO.LogFile> filesList = loggingIO.listFiles();
+        filesList.sort(Comparator.comparingLong(LogFileIO.LogFile::lastModified).reversed());
+        for (LogFileIO.LogFile file : filesList) {
             fileList.add(new Pair<>(file, listFile(file, i++)));
         }
-        selectFile(selectedFile);
+        selectFile(Math.max(selectedFile, 0));
     }
 
     public void setTeensyStream(TeensyStream stream, Activity activity) {
