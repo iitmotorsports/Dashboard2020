@@ -1,7 +1,6 @@
 package sae.iit.saedashboard;
 
 import android.content.res.ColorStateList;
-import android.graphics.Color;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
@@ -66,11 +65,11 @@ public class MainTab extends Fragment {
         startLight = rootView.findViewById(R.id.startLight);
 
         // Colors
-        RED = ColorStateList.valueOf(Color.parseColor("#EA0C01"));
-        YELLOW = ColorStateList.valueOf(Color.parseColor("#FEF301"));
-        GREEN = ColorStateList.valueOf(Color.parseColor("#0BA60A"));
-        BG = ColorStateList.valueOf(Color.parseColor("#3A3D4F"));
-        WHITE = ColorStateList.valueOf(Color.parseColor("#c1c1c1"));
+        RED = ColorStateList.valueOf(getContext().getColor(R.color.red));
+        YELLOW = ColorStateList.valueOf(getContext().getColor(R.color.yellow));
+        GREEN = ColorStateList.valueOf(getContext().getColor(R.color.green));
+        BG = ColorStateList.valueOf(getContext().getColor(R.color.backgroundText));
+        WHITE = ColorStateList.valueOf(getContext().getColor(R.color.foregroundText));
         return rootView;
     }
 
@@ -85,31 +84,31 @@ public class MainTab extends Fragment {
         base.setRepetitions(30);
         base.setWidths(width, width * 0.6f, width * 0.8f);
         base.setHeights(height * 0.2f, height);
-        base.setColors(Color.parseColor("#3A3D4F"));
+        base.setColors(getContext().getColor(R.color.backgroundText));
         base = (ScNotches) powerGauge2.addFeature(ScNotches.class);
         base.setTag(ScGauge.BASE_IDENTIFIER);
         base.setPosition(ScFeature.Positions.INSIDE);
         base.setRepetitions(30);
         base.setWidths(width, width * 0.6f, width * 0.8f);
         base.setHeights(height * 0.2f, height);
-        base.setColors(Color.parseColor("#3A3D4F"));
+        base.setColors(getContext().getColor(R.color.backgroundText));
 
         // Create the progress notches.
         ScNotches progress = (ScNotches) powerGauge.addFeature(ScNotches.class);
         progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
         progress.setColorsMode(ScFeature.ColorsMode.SOLID);
         progress.setColors(
-                Color.parseColor("#0BA60A"),
-                Color.parseColor("#FEF301"),
-                Color.parseColor("#EA0C01")
+                getContext().getColor(R.color.green),
+                getContext().getColor(R.color.yellow),
+                getContext().getColor(R.color.red)
         );
         progress = (ScNotches) powerGauge2.addFeature(ScNotches.class);
         progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
         progress.setColorsMode(ScFeature.ColorsMode.SOLID);
         progress.setColors(
-                Color.parseColor("#0BA60A"),
-                Color.parseColor("#FEF301"),
-                Color.parseColor("#EA0C01")
+                getContext().getColor(R.color.green),
+                getContext().getColor(R.color.yellow),
+                getContext().getColor(R.color.red)
         );
 
         // Set the value
@@ -130,20 +129,20 @@ public class MainTab extends Fragment {
         base.setWidths(5);
         base.setHeights(250);
         base.snapToNotches(1f);
-        base.setColors(Color.parseColor("#3A3D4F"));
+        base.setColors(getContext().getColor(R.color.backgroundText));
 
         // Create the progress notches.
         ScNotches progress = (ScNotches) batteryGauge.addFeature(ScNotches.class);
         progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
         progress.setColors(
-                Color.parseColor("#EA0C01"),
-                Color.parseColor("#EA0C01"),
-                Color.parseColor("#FEF301"),
-                Color.parseColor("#FEF301"),
-                Color.parseColor("#0BA60A"),
-                Color.parseColor("#0BA60A"),
-                Color.parseColor("#0BA60A"),
-                Color.parseColor("#0BA60A")
+                getContext().getColor(R.color.red),
+                getContext().getColor(R.color.red),
+                getContext().getColor(R.color.yellow),
+                getContext().getColor(R.color.yellow),
+                getContext().getColor(R.color.green),
+                getContext().getColor(R.color.green),
+                getContext().getColor(R.color.green),
+                getContext().getColor(R.color.green)
 
         );
 
@@ -164,14 +163,14 @@ public class MainTab extends Fragment {
         base.setWidths(5);
         base.setHeights(250);
         base.snapToNotches(1f);
-        base.setColors(Color.parseColor("#3A3D4F"));
+        base.setColors(getContext().getColor(R.color.backgroundText));
 
         // Create the progress notches.
         ScNotches progress = (ScNotches) BMSChargeGauge.addFeature(ScNotches.class);
         progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
         progress.setColors(
-                Color.parseColor("#bcbdbf"),
-                Color.parseColor("#0067aa")
+                getContext().getColor(R.color.foregroundText),
+                getContext().getColor(R.color.blue)
         );
 
         // Set the value

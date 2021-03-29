@@ -44,30 +44,20 @@
                     android:clipToPadding="false"
                     android:foregroundGravity="center">
 
-                    <sae.iit.saedashboard.LinearGauge
-                        android:id="@+id/leftMCTempGauge"
-                        android:layout_width="180dp"
-                        android:layout_height="0dp"
-                        android:scaleX="-1"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
-
                     <TextView
                         android:id="@+id/leftMCTempValue"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
                         android:text="@string/_0"
                         android:textAlignment="textEnd"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/foregroundText"
                         android:textSize="50sp"
-                        app:layout_constraintBottom_toBottomOf="@id/leftMCTempGauge"
-                        app:layout_constraintEnd_toEndOf="@id/leftMCTempGauge"
-                        app:layout_constraintStart_toStartOf="@id/leftMCTempGauge"
-                        app:layout_constraintTop_toTopOf="@id/leftMCTempGauge" />
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -78,7 +68,7 @@
                     android:gravity="center"
                     android:paddingTop="5dp"
                     android:text="@string/left_mc_temp"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 
             </LinearLayout>
@@ -104,30 +94,21 @@
                     android:clipToPadding="false"
                     android:foregroundGravity="center">
 
-                    <sae.iit.saedashboard.LinearGauge
-                        android:id="@+id/leftMotorTempGauge"
-                        android:layout_width="180dp"
-                        android:layout_height="0dp"
-                        android:scaleX="-1"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
                         android:id="@+id/leftMotorTempValue"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
                         android:text="@string/_0"
                         android:textAlignment="textEnd"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/foregroundText"
                         android:textSize="50sp"
-                        app:layout_constraintBottom_toBottomOf="@id/leftMotorTempGauge"
-                        app:layout_constraintEnd_toEndOf="@id/leftMotorTempGauge"
-                        app:layout_constraintStart_toStartOf="@id/leftMotorTempGauge"
-                        app:layout_constraintTop_toTopOf="@id/leftMotorTempGauge" />
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -138,7 +119,7 @@
                     android:gravity="center"
                     android:paddingTop="5dp"
                     android:text="@string/left_motor_temp"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 
             </LinearLayout>
@@ -174,31 +155,22 @@
                     android:clipToPadding="false"
                     android:foregroundGravity="center">
 
-                    <sae.iit.saedashboard.LinearGauge
-                        android:id="@+id/rightMCTempGauge"
-                        android:layout_width="180dp"
-                        android:layout_height="0dp"
-                        android:scaleX="-1"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
                         android:id="@+id/rightMCTempValue"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
                         android:text="@string/_0"
                         android:textAlignment="textEnd"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/foregroundText"
                         android:textSize="50sp"
-                        app:layout_constraintBottom_toBottomOf="@id/rightMCTempGauge"
-                        app:layout_constraintEnd_toEndOf="@id/rightMCTempGauge"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="1.0"
-                        app:layout_constraintStart_toStartOf="@id/rightMCTempGauge"
-                        app:layout_constraintTop_toTopOf="@id/rightMCTempGauge"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="1.0" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -210,7 +182,7 @@
                     android:gravity="center"
                     android:paddingTop="5dp"
                     android:text="@string/right_mc_temp"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 
             </LinearLayout>
@@ -236,31 +208,22 @@
                     android:clipToPadding="false"
                     android:foregroundGravity="center">
 
-                    <sae.iit.saedashboard.LinearGauge
-                        android:id="@+id/rightMotorTempGauge"
-                        android:layout_width="180dp"
-                        android:layout_height="0dp"
-                        android:scaleX="-1"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
                         android:id="@+id/rightMotorTempValue"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
                         android:text="@string/_0"
                         android:textAlignment="textEnd"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/foregroundText"
                         android:textSize="50sp"
-                        app:layout_constraintBottom_toBottomOf="@id/rightMotorTempGauge"
-                        app:layout_constraintEnd_toEndOf="@id/rightMotorTempGauge"
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
                         app:layout_constraintHorizontal_bias="1.0"
-                        app:layout_constraintStart_toStartOf="@id/rightMotorTempGauge"
-                        app:layout_constraintTop_toTopOf="@id/rightMotorTempGauge"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent"
                         app:layout_constraintVertical_bias="1.0" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
@@ -272,7 +235,7 @@
                     android:gravity="center"
                     android:paddingTop="5dp"
                     android:text="@string/right_motor_temp"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 
             </LinearLayout>
@@ -308,30 +271,21 @@
                     android:clipToPadding="false"
                     android:foregroundGravity="center">
 
-                    <sae.iit.saedashboard.LinearGauge
-                        android:id="@+id/DCBusCurrentGauge"
-                        android:layout_width="180dp"
-                        android:layout_height="0dp"
-                        android:scaleX="-1"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
                         android:id="@+id/DCBusCurrentValue"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
                         android:text="@string/_0"
                         android:textAlignment="textEnd"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/foregroundText"
                         android:textSize="50sp"
-                        app:layout_constraintBottom_toBottomOf="@id/DCBusCurrentGauge"
-                        app:layout_constraintEnd_toEndOf="@id/DCBusCurrentGauge"
-                        app:layout_constraintStart_toStartOf="@id/DCBusCurrentGauge"
-                        app:layout_constraintTop_toTopOf="@id/DCBusCurrentGauge" />
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -342,7 +296,7 @@
                     android:gravity="center"
                     android:paddingTop="5dp"
                     android:text="@string/dc_bus_current"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 
             </LinearLayout>
@@ -368,30 +322,21 @@
                     android:clipToPadding="false"
                     android:foregroundGravity="center">
 
-                    <sae.iit.saedashboard.LinearGauge
-                        android:id="@+id/activeAeroPosGauge"
-                        android:layout_width="180dp"
-                        android:layout_height="0dp"
-                        android:scaleX="-1"
-                        app:layout_constraintBottom_toBottomOf="parent"
-                        app:layout_constraintEnd_toEndOf="parent"
-                        app:layout_constraintStart_toStartOf="parent"
-                        app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
                         android:id="@+id/activeAeroPosValue"
-                        android:layout_width="0dp"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
                         android:text="@string/_0"
                         android:textAlignment="textEnd"
-                        android:textColor="@android:color/white"
+                        android:textColor="@color/foregroundText"
                         android:textSize="50sp"
-                        app:layout_constraintBottom_toBottomOf="@id/activeAeroPosGauge"
-                        app:layout_constraintEnd_toEndOf="@id/activeAeroPosGauge"
-                        app:layout_constraintStart_toStartOf="@id/activeAeroPosGauge"
-                        app:layout_constraintTop_toTopOf="@id/activeAeroPosGauge" />
+                        app:layout_constraintBottom_toBottomOf="parent"
+                        app:layout_constraintEnd_toEndOf="parent"
+                        app:layout_constraintStart_toStartOf="parent"
+                        app:layout_constraintTop_toTopOf="parent" />
 
                 </androidx.constraintlayout.widget.ConstraintLayout>
 
@@ -402,7 +347,7 @@
                     android:gravity="center"
                     android:paddingTop="5dp"
                     android:text="@string/active_aero_pos"
-                    android:textColor="@android:color/white"
+                    android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 
             </LinearLayout>

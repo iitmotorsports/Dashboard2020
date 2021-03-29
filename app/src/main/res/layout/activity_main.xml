@@ -4,7 +4,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#121527"
+    android:background="@color/background"
     android:clickable="false"
     tools:context=".MainActivity">
 
@@ -44,7 +44,7 @@
             android:id="@+id/MainUpperLayout"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="#1A000000"
+            android:background="@color/foregroundTranslucent"
             android:orientation="horizontal">
 
             <ImageButton
@@ -203,14 +203,15 @@
                 android:id="@+id/ConsoleLayout"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:visibility="invisible">
+                android:visibility="invisible"
+                tools:visibility="visible">
 
                 <ScrollView
                     android:id="@+id/SerialScroller"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:layout_margin="4dp"
-                    android:background="#73FFFFFF"
+                    android:background="@color/translucentWhite"
                     android:overScrollMode="always"
                     tools:layout_editor_absoluteX="4dp"
                     tools:layout_editor_absoluteY="-40dp">

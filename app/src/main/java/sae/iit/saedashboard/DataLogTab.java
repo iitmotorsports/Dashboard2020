@@ -28,10 +28,9 @@ import java.util.List;
 import java.util.Locale;
 
 public class DataLogTab extends Fragment {
-    private Button showButton, upButton, downButton, deleteButton, exportButton, updateButton, minBtn, plsBtn;
+    private Button showButton;
     private ScrollView fileListScroller, logScroller;
     private LinearLayout fileLayout;
-    private TeensyStream stream;
     private Runnable confirm_run;
     private AlertDialog confirm_dialog;
     private TextView confirm_text;
@@ -54,13 +53,13 @@ public class DataLogTab extends Fragment {
         fileListScroller = rootView.findViewById(R.id.FileListScroller);
         logScroller = rootView.findViewById(R.id.logScroller);
         showButton = rootView.findViewById(R.id.showButton);
-        upButton = rootView.findViewById(R.id.upButton);
-        downButton = rootView.findViewById(R.id.downButton);
-        deleteButton = rootView.findViewById(R.id.deleteButton);
-        exportButton = rootView.findViewById(R.id.exportButton);
-        updateButton = rootView.findViewById(R.id.updateButton);
-        minBtn = rootView.findViewById(R.id.minBtn);
-        plsBtn = rootView.findViewById(R.id.plsBtn);
+        Button upButton = rootView.findViewById(R.id.upButton);
+        Button downButton = rootView.findViewById(R.id.downButton);
+        Button deleteButton = rootView.findViewById(R.id.deleteButton);
+        Button exportButton = rootView.findViewById(R.id.exportButton);
+        Button updateButton = rootView.findViewById(R.id.updateButton);
+        Button minBtn = rootView.findViewById(R.id.minBtn);
+        Button plsBtn = rootView.findViewById(R.id.plsBtn);
         logWait = rootView.findViewById(R.id.logWait);
 
         showButton.setOnClickListener(v -> onClickShowFile());
@@ -223,7 +222,7 @@ public class DataLogTab extends Fragment {
         textView.setOnClickListener(v -> selectFile(file));
         SpannableStringBuilder sb = new SpannableStringBuilder();
         String KB = String.valueOf(file.length() / 1000);
-        int color = loggingIO.isActiveFile(file) ? Color.parseColor("#FEF301") : Color.parseColor("#3A3D4F");
+        int color = loggingIO.isActiveFile(file) ? getContext().getColor(R.color.yellow) : getContext().getColor(R.color.backgroundText);
         sb.append(TeensyStream.getColoredString(String.format(Locale.US, "%1$3s  ", pos).replace(" ", "  "), color));
         sb.append(name);
         sb.append(TeensyStream.getColoredString("  -  " + KB + " kb", color));
@@ -265,7 +264,7 @@ public class DataLogTab extends Fragment {
         if (selectedFile > -1 && selectedFile < size)
             fileList.get(selectedFile).second.setBackgroundColor(Color.TRANSPARENT);
         TextView view = fileList.get(pos).second;
-        view.setBackgroundColor(Color.BLACK);
+        view.setBackgroundColor(getContext().getColor(R.color.translucentBlack));
         int finalPos = pos;
         int height = view.getHeight();
         selectedFile = pos;
@@ -307,7 +306,6 @@ public class DataLogTab extends Fragment {
     }
 
     public void setTeensyStream(TeensyStream stream, Activity activity) {
-        this.stream = stream;
         this.loggingIO = stream.getLoggingIO();
         this.activity = activity;
     }

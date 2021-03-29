@@ -39,7 +39,6 @@ public class MainActivity extends AppCompatActivity {
     private TeensyStream TStream;
     private MainTab mainTab;
     private SecondaryTab secondTab;
-    private DataLogTab dataTab;
     private SwitchCompat ConsoleSwitch;
     ToggleButton ChargingSetButton;
     ConstraintLayout ConsoleLayout;
@@ -112,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         ChargingSetButton = findViewById(R.id.chargeSet);
         mainTab = (MainTab) pagerAdapter.getItem(0);
         secondTab = (SecondaryTab) pagerAdapter.getItem(1);
-        dataTab = (DataLogTab) pagerAdapter.getItem(2);
+        DataLogTab dataTab = (DataLogTab) pagerAdapter.getItem(2);
 
         // UI update timers
         Timer LPUITimer = new Timer();
