@@ -94,4 +94,5 @@
     <string name="yes">Yes</string>
     <string name="no">No</string>
     <string name="long_press_yes_to_confirm">Hold yes to confirm</string>
+    <string name="raw">Raw</string>
 </resources>

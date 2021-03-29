@@ -65,10 +65,9 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:minHeight="5dp"
-                app:tabIndicatorColor="#ff80cbc4"
-                app:tabSelectedTextColor="@android:color/white"
+                app:tabSelectedTextColor="@color/foregroundText"
                 app:tabTextAppearance="@style/MineCustomTabText"
-                app:tabTextColor="@android:color/white">
+                app:tabTextColor="@color/backgroundText">
 
                 <com.google.android.material.tabs.TabItem
                     android:id="@+id/mainTab"
