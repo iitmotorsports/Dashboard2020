@@ -1,9 +1,7 @@
 package sae.iit.saedashboard;
 
-import android.content.Context;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
-import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -18,13 +16,10 @@ import android.widget.ToggleButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
-import androidx.core.content.FileProvider;
 
 import com.google.android.material.tabs.TabLayout;
 
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileOutputStream;
 import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
@@ -394,27 +389,5 @@ public class MainActivity extends AppCompatActivity {
     public void onModeToggle(View view) {
         Toaster.showToast("Changing console mode", false, true);
         TStream.setHexMode(!TStream.isHexMode());
-    }
-
-    //CSV File Writer
-    public void export(View view) {
-        try {
-            //saving the file into device
-            FileOutputStream out = openFileOutput("data.csv", Context.MODE_PRIVATE);
-            out.write((TStream.toString()).getBytes());
-            out.close();
-            //exporting
-            Context context = getApplicationContext();
-            File fileLocation = new File(getFilesDir(), "data.csv");
-            Uri path = FileProvider.getUriForFile(context, "com.example.exportcsv.fileprovider", fileLocation);
-            Intent fileIntent = new Intent(Intent.ACTION_SEND);
-            fileIntent.setType("text/csv");
-            fileIntent.putExtra(Intent.EXTRA_SUBJECT, "Data");
-            fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            fileIntent.putExtra(Intent.EXTRA_STREAM, path);
-            startActivity(Intent.createChooser(fileIntent, "Send mail"));
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
     }
 }

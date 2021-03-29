@@ -1,10 +1,14 @@
 package sae.iit.saedashboard;
 
 import android.app.Activity;
+import android.content.Context;
+import android.content.Intent;
+import android.net.Uri;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.content.FileProvider;
 
 import java.io.BufferedInputStream;
 import java.io.BufferedReader;
@@ -182,5 +186,30 @@ public class LogFileIO {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+    }
+
+    //CSV File Writer
+    public void export(String data) {
+        try {
+            //saving the file into device
+            FileOutputStream out = activity.openFileOutput("data.csv", Context.MODE_PRIVATE);
+            if (data.length() == 0)
+                throw new IOException();
+            out.write(data.getBytes());
+            out.close();
+            //exporting
+            Context context = activity.getApplicationContext();
+            File fileLocation = new File(activity.getFilesDir(), "data.csv");
+            Uri path = FileProvider.getUriForFile(context, "com.example.exportcsv.fileprovider", fileLocation);
+            Intent fileIntent = new Intent(Intent.ACTION_SEND);
+            fileIntent.setType("text/csv");
+            fileIntent.putExtra(Intent.EXTRA_SUBJECT, "Data");
+            fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            fileIntent.putExtra(Intent.EXTRA_STREAM, path);
+            activity.startActivity(Intent.createChooser(fileIntent, "Send mail"));
+        } catch (Exception e) {
+            e.printStackTrace();
+            Toaster.showToast("Failed to export file");
+        }
     }
 }

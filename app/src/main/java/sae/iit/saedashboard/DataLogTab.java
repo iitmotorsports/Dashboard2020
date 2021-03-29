@@ -28,12 +28,13 @@ import java.util.List;
 import java.util.Locale;
 
 public class DataLogTab extends Fragment {
-    private Button showButton, upButton, downButton, deleteButton, deleteAllButton, updateButton, minBtn, plsBtn;
+    private Button showButton, upButton, downButton, deleteButton, exportButton, updateButton, minBtn, plsBtn;
     private ScrollView fileListScroller, logScroller;
     private LinearLayout fileLayout;
     private TeensyStream stream;
     private Runnable confirm_run;
     private AlertDialog confirm_dialog;
+    private TextView confirm_text;
     private LogFileIO loggingIO;
     private Activity activity;
     private final ArrayList<Pair<LogFileIO.LogFile, TextView>> fileList = new ArrayList<>();
@@ -56,7 +57,7 @@ public class DataLogTab extends Fragment {
         upButton = rootView.findViewById(R.id.upButton);
         downButton = rootView.findViewById(R.id.downButton);
         deleteButton = rootView.findViewById(R.id.deleteButton);
-        deleteAllButton = rootView.findViewById(R.id.deleteAllButton);
+        exportButton = rootView.findViewById(R.id.exportButton);
         updateButton = rootView.findViewById(R.id.updateButton);
         minBtn = rootView.findViewById(R.id.minBtn);
         plsBtn = rootView.findViewById(R.id.plsBtn);
@@ -66,7 +67,8 @@ public class DataLogTab extends Fragment {
         upButton.setOnClickListener(v -> onClickUp());
         downButton.setOnClickListener(v -> onClickDown());
         deleteButton.setOnClickListener(v -> onClickDelete());
-        deleteAllButton.setOnClickListener(v -> onClickDeleteAll());
+        deleteButton.setOnLongClickListener(v -> onLongClickDelete());
+        exportButton.setOnClickListener(v -> onClickExport());
         updateButton.setOnClickListener(v -> updateFiles());
         minBtn.setOnClickListener(v -> {
             if (logScroller.getVisibility() != View.GONE) {
@@ -87,12 +89,21 @@ public class DataLogTab extends Fragment {
         return rootView;
     }
 
+    private void onClickExport() {
+        if (selectedFile < 0 || selectedFile >= fileList.size()) {
+            Toaster.showToast("No file selected");
+            return;
+        }
+        loggingIO.export(TeensyStream.interpretLogFile(fileList.get(selectedFile).first));
+    }
+
     private void createConfirmDialog() {
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(activity);
         View mView = activity.getLayoutInflater().inflate(R.layout.confirm_delete_dialog, null);
 
         Button yes = mView.findViewById(R.id.Yesbtn);
         Button no = mView.findViewById(R.id.Nobtn);
+        confirm_text = mView.findViewById(R.id.confirmText);
 
         mBuilder.setView(mView);
         confirm_dialog = mBuilder.create();
@@ -159,7 +170,16 @@ public class DataLogTab extends Fragment {
             Toaster.showToast("No file selected");
             return;
         }
-        confirm(this::deleteSelected);
+        confirm(this::deleteSelected, "Delete File?");
+    }
+
+    public boolean onLongClickDelete() {
+        if (logScroller.getVisibility() != View.GONE) {
+            Toaster.showToast("Can't delete while viewing log");
+            return true;
+        }
+        confirm(this::deleteAll, "Delete All Files?");
+        return true;
     }
 
     private void deleteSelected() {
@@ -174,14 +194,6 @@ public class DataLogTab extends Fragment {
         }
     }
 
-    public void onClickDeleteAll() {
-        if (logScroller.getVisibility() != View.GONE) {
-            Toaster.showToast("Can't delete while viewing log");
-            return;
-        }
-        confirm(this::deleteAll);
-    }
-
     private void deleteAll() {
         for (Pair<LogFileIO.LogFile, TextView> p : fileList) {
             if (!p.first.delete())
@@ -193,10 +205,14 @@ public class DataLogTab extends Fragment {
         updateFiles();
     }
 
-    private void confirm(Runnable run) {
+    private void confirm(Runnable run, String confirmText) {
         confirm_run = run;
-        if (!confirm_dialog.isShowing())
-            confirm_dialog.show();
+        if (!confirm_dialog.isShowing()) {
+            activity.runOnUiThread(() -> {
+                confirm_text.setText(confirmText);
+                confirm_dialog.show();
+            });
+        }
     }
 
     private TextView listFile(LogFileIO.LogFile file, int pos) {
