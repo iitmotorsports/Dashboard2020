@@ -25,12 +25,13 @@ public class JSONMap {
 
     private final String FILENAME_SAVE = "TEENSY_JSON_MAP.json";
     private final String LOG_TAG = "JSON MAP";
-    private final JSONLoad loader;
+    private JSONLoad loader;
     private HashMap<Integer, String> Teensy_LookUp_Tag = new HashMap<>();
     private HashMap<Integer, String> Teensy_LookUp_Str = new HashMap<>();
     private boolean JSONLoaded = false;
-    private final Runnable runOnMapLoad;
-    private final Activity activity;
+    private MapUpdate runOnSuccessfulMapChange;
+    private MapChange runOnMapChange;
+    private Activity activity;
 
     /**
      * Helper function to get the key from a map using a value
@@ -52,10 +53,22 @@ public class JSONMap {
         return null;
     }
 
-    JSONMap(Activity activity, Runnable runOnMapLoad) {
+    public interface MapChange {
+        void run(boolean jsonLoaded);
+    }
+
+    public interface MapUpdate {
+        void run(String jsonMap);
+    }
+
+    public JSONMap(Activity activity, MapUpdate runOnSuccessfulMapChange, MapChange runOnMapChange) {
         this.activity = activity;
         loader = new JSONLoad(activity);
-        this.runOnMapLoad = runOnMapLoad;
+        this.runOnSuccessfulMapChange = runOnSuccessfulMapChange;
+        this.runOnMapChange = runOnMapChange;
+    }
+
+    public JSONMap() {
     }
 
     public boolean loaded() {
@@ -108,7 +121,7 @@ public class JSONMap {
     }
 
     private void saveMapToSystem(String loadedJsonStr) {
-        if (loadedJsonStr != null) {
+        if (loadedJsonStr != null && activity != null) {
             File path = activity.getFilesDir();
             File file = new File(path, FILENAME_SAVE);
             PrintWriter writer;
@@ -125,25 +138,32 @@ public class JSONMap {
     }
 
     public void openFile() {
-        loader.openFile();
+        if (loader != null)
+            loader.openFile();
+        else
+            Toaster.showToast("Not initialized with activity");
     }
 
     public boolean clear() {
         File path = activity.getFilesDir();
         File file = new File(path, FILENAME_SAVE);
+        boolean status = false;
         if (file.delete()) {
             Teensy_LookUp_Tag = new HashMap<>();
             Teensy_LookUp_Str = new HashMap<>();
             JSONLoaded = false;
-            loader.clearLoadedJsonStr();
-            if (runOnMapLoad != null)
-                runOnMapLoad.run();
+            if (loader != null)
+                loader.clearLoadedJsonStr();
+            if (runOnSuccessfulMapChange != null)
+                runOnSuccessfulMapChange.run(null);
             Toaster.showToast("Map data deleted");
-            return true;
+            status = true;
         } else {
             Toaster.showToast("Failed to delete map data");
         }
-        return false;
+        if (runOnMapChange != null)
+            runOnMapChange.run(status);
+        return status;
     }
 
     private String loadMapFromSystem() throws IOException {
@@ -161,17 +181,30 @@ public class JSONMap {
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        loader.onActivityResult(requestCode, resultCode, resultData);
+        if (loader != null)
+            loader.onActivityResult(requestCode, resultCode, resultData);
         update();
     }
 
     public boolean update() {
+        if (loader == null)
+            return false;
         boolean B = update(loader.getLoadedJsonStr());
         loader.clearLoadedJsonStr();
+        if (runOnMapChange != null)
+            runOnMapChange.run(B);
         return B;
     }
 
+
     public boolean update(String raw) {
+        boolean status = _update(raw);
+        if (runOnMapChange != null)
+            runOnMapChange.run(status);
+        return status;
+    }
+
+    private boolean _update(String raw) {
         Log.i(LOG_TAG, "Loading lookup table");
 
         String JSON_INPUT = raw;
@@ -226,8 +259,8 @@ public class JSONMap {
         Teensy_LookUp_Tag = NEW_Teensy_LookUp_Tag;
         Teensy_LookUp_Str = NEW_Teensy_LookUp_Str;
         JSONLoaded = true;
-        if (runOnMapLoad != null)
-            runOnMapLoad.run();
+        if (runOnSuccessfulMapChange != null)
+            runOnSuccessfulMapChange.run(JSON_INPUT);
         return true;
     }
 }

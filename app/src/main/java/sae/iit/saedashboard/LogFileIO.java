@@ -6,16 +6,20 @@ import android.util.Log;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 
+import java.io.BufferedInputStream;
 import java.io.BufferedReader;
+import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Calendar;
+import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
@@ -24,6 +28,9 @@ public class LogFileIO {
     private FileOutputStream activeFileStream;
     private final Activity activity;
     private boolean opened = false;
+    private static final String PREFIX = "TEENSY_LOG-";
+    private static final String SUFFIX = ".log";
+    private static final String simpleDataFormatString = "yyyy-MM-dd-HH-mm-ss";
 
     public class LogFile extends File {
 
@@ -42,6 +49,19 @@ public class LogFileIO {
             return super.delete();
         }
 
+        public String getFormattedName() {
+            String name = getName();
+            name = name.substring(PREFIX.length(), name.length() - SUFFIX.length());
+            try {
+                Date date = new SimpleDateFormat(simpleDataFormatString, Locale.US).parse(name);
+                if (date != null)
+                    name = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a", Locale.US).format(date);
+            } catch (ParseException e) {
+                e.printStackTrace();
+            }
+            return name;
+        }
+
         @Nullable
         @Override
         public LogFile[] listFiles() {
@@ -57,13 +77,16 @@ public class LogFileIO {
         }
     }
 
-    LogFileIO(Activity activity) {
+    public LogFileIO(Activity activity) {
         this.activity = activity;
+    }
+
+    public void newLog() {
         try {
             File path = activity.getFilesDir();
-            String FILENAME_LOG = "TEENSY_LOG-%s.log";
+            String FILENAME_LOG = PREFIX + "%s" + SUFFIX;
             Calendar calendar = Calendar.getInstance();
-            String date = new SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.US).format(calendar.getTime());
+            String date = new SimpleDateFormat(simpleDataFormatString, Locale.US).format(calendar.getTime());
             activeFile = new File(path, String.format(FILENAME_LOG, date));
             activeFileStream = new FileOutputStream(activeFile);
             opened = true;
@@ -118,6 +141,38 @@ public class LogFileIO {
             e.printStackTrace();
         }
         return sb.toString();
+    }
+
+    public static String getString(File file, String lineStop) {
+        StringBuilder sb = new StringBuilder();
+        String line;
+        BufferedReader reader;
+        try {
+            reader = new BufferedReader(new InputStreamReader(new FileInputStream(file)));
+            while ((line = reader.readLine()) != null) {
+                sb.append(line).append("\n");
+                if (line.trim().equals(lineStop.trim()))
+                    break;
+            }
+            reader.close();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        return sb.toString();
+    }
+
+    public static byte[] getBytes(File file) {
+        byte[] bytes = new byte[(int) file.length()];
+        BufferedInputStream bis;
+        try {
+            bis = new BufferedInputStream(new FileInputStream(file));
+            DataInputStream dis = new DataInputStream(bis);
+            dis.readFully(bytes);
+        } catch (IOException e) {
+            e.printStackTrace();
+            Toaster.showToast("Failed to read file bytes");
+        }
+        return bytes;
     }
 
     public void write(byte[] bytes) {

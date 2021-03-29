@@ -18,6 +18,7 @@ import android.widget.ToggleButton;
 import com.felhr.usbserial.UsbSerialInterface;
 
 import java.io.BufferedReader;
+import java.io.File;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.HashMap;
@@ -29,7 +30,6 @@ import java.util.TimerTask;
 
 public class TeensyStream {
     private final HashMap<Long, msgBlock> Teensy_Data = new HashMap<>();
-    private final TeensyLogBooleanCallback callOnLoad;
     private final String LOG_TAG = "Teensy Stream";
     private final USBSerial serialConnection;
     private final LogFileIO loggingIO;
@@ -41,6 +41,9 @@ public class TeensyStream {
     private boolean hexMode = false;
     private final HashMap<Long, STATE> Teensy_State_Map = new HashMap<>();
     private long currentState = 0;
+    private final Activity activity;
+    private static final String LOG_MAP_START = "---[ LOG MAP START ]---\n";
+    private static final String LOG_MAP_END = "---[ LOG MAP END ]---\n";
 
     // region Interfaces
 
@@ -69,13 +72,6 @@ public class TeensyStream {
      */
     public interface TeensyInitialize {
         void run(TeensyStream TStream);
-    }
-
-    /**
-     * Callback class which accepts a boolean, typically whether a JSON map was successfully loaded
-     */
-    public interface TeensyLogBooleanCallback {
-        void run(boolean jsonLoaded);
     }
 
     // endregion
@@ -172,28 +168,37 @@ public class TeensyStream {
      * <p>
      * TeensyStream mainly uses callbacks as a way of communication
      *
-     * @param activity     The main activity
-     * @param logMessage   The callback to be used for logging a value's string interpretation to UI
-     * @param deviceAttach The callback to be called when a device is attached
-     * @param deviceDetach The callback to be called when a device is detached
-     * @param callOnLoad   The callback to be called when a new JSON map has been updated
+     * @param activity       The main activity
+     * @param logMessage     The callback to be used for logging a value's string interpretation to UI
+     * @param deviceAttach   The callback to be called when a device is attached
+     * @param deviceDetach   The callback to be called when a device is detached
+     * @param runOnMapChange The callback to be called when a new JSON map has been updated
      */
-    public TeensyStream(Activity activity, TeensyLogCallback logMessage, TeensyCallback deviceAttach, TeensyCallback deviceDetach, TeensyLogBooleanCallback callOnLoad, TeensyInitialize runOnMapLoad) {
+    public TeensyStream(Activity activity, TeensyLogCallback logMessage, TeensyCallback deviceAttach, TeensyCallback deviceDetach, JSONMap.MapChange runOnMapChange, TeensyInitialize runOnSuccessfulMapChange) {
         Log.i(LOG_TAG, "Making teensy stream");
-        this.callOnLoad = callOnLoad;
         loggingIO = new LogFileIO(activity);
-        jsonMap = new JSONMap(activity, () -> runOnMapLoad.run(this));
+        this.activity = activity;
 
-        enableLogFile = loggingIO.isOpen();
+        jsonMap = new JSONMap(activity, rawJson -> {
+            loggingIO.newLog();
+            enableLogFile = loggingIO.isOpen();
+            if (rawJson != null && enableLogFile) {
+                loggingIO.write(LOG_MAP_START.getBytes());
+                loggingIO.write(rawJson.getBytes());
+                loggingIO.write("\n".getBytes());
+                loggingIO.write(LOG_MAP_END.getBytes());
+            }
+            runOnSuccessfulMapChange.run(this);
+        }, runOnMapChange);
 
         UsbSerialInterface.UsbReadCallback streamCallback = arg0 -> {
-            if (enableLogCallback | enableLogFile) {
+            if (enableLogFile) {
+                loggingIO.write(arg0);
+            }
+            if (enableLogCallback) {
                 String msg = processData(arg0);
                 if (enableLogCallback && msg.length() > 0) {
                     logMessage.run(msg);
-                }
-                if (enableLogFile) {
-                    loggingIO.write(msg.getBytes());
                 }
             } else {
                 consumeData(arg0);
@@ -208,13 +213,11 @@ public class TeensyStream {
         serialConnection = new USBSerial(activity, streamCallback, deviceAttach, detach);
 
         boolean b = jsonMap.update();
-        if (callOnLoad != null)
-            callOnLoad.run(b);
 
         new android.os.Handler().postDelayed(serialConnection::open, 2000);
-        setupCANDialog(activity, this);
+        setupCANDialog(this);
         if (b)
-            runOnMapLoad.run(this);
+            runOnSuccessfulMapChange.run(this);
     }
 
     public LogFileIO getLoggingIO() {
@@ -230,7 +233,7 @@ public class TeensyStream {
 
     // region Messaging
 
-    private void setupCANDialog(Activity activity, TeensyStream stream) {
+    private void setupCANDialog(TeensyStream stream) {
         AlertDialog.Builder mBuilder = new AlertDialog.Builder(activity);
         View mView = activity.getLayoutInflater().inflate(R.layout.canmsg_dialog_layout, null);
 
@@ -393,9 +396,7 @@ public class TeensyStream {
     }
 
     public void clear() {
-        if (jsonMap.clear()) {
-            callOnLoad.run(false);
-        }
+        jsonMap.clear();
     }
 
     /**
@@ -546,6 +547,40 @@ public class TeensyStream {
         return spannable;
     }
 
+    public static String interpretLogFile(File file) {
+        byte[] bytes = LogFileIO.getBytes(file);
+        JSONMap tempMap = new JSONMap();
+        String jsonStr = LogFileIO.getString(file, LOG_MAP_END);
+        int logStart = jsonStr.getBytes().length;
+        StringBuilder stringFnl = new StringBuilder();
+        if (tempMap.update(jsonStr.substring(LOG_MAP_START.length()))) {
+            for (int i = logStart; i < file.length(); i += 8) {
+                byte[] msg = new byte[8];
+                try {
+                    System.arraycopy(bytes, i, msg, 0, 8);
+                } catch (IndexOutOfBoundsException e) {
+                    e.printStackTrace();
+                    Toaster.showToast("Warning: log file has leftover bytes");
+                    break;
+                }
+                long[] IDs = ByteSplit.getTeensyMsg(msg);
+                stringFnl.append(formatMsg(tempMap.getTag((int) IDs[0]), tempMap.getStr((int) IDs[1]), IDs[2]));
+            }
+            String fnl = stringFnl.toString();
+            if (fnl.length() != 0) {
+                return fnl;
+            }
+        }
+        Toaster.showToast("Returning string interpretation");
+        return LogFileIO.getString(file);
+    }
+
+    private static String formatMsg(String tagString, String msgString, long number) {
+        if (tagString == null || msgString == null)
+            return "";
+        return tagString + ' ' + msgString + ' ' + number + '\n';
+    }
+
     /**
      * Both Consume and interpret raw data that has been received
      *
@@ -583,8 +618,7 @@ public class TeensyStream {
             long[] IDs = updateData(data_block);
             int callerID = (int) IDs[0];
             int stringID = (int) IDs[1];
-
-            output.append(jsonMap.getTag(callerID)).append(' ').append(jsonMap.getStr(stringID)).append(' ').append(IDs[2]).append('\n');
+            output.append(formatMsg(jsonMap.getTag(callerID), jsonMap.getStr(stringID), IDs[2]));
         }
         if (output.length() == 0) {
             Log.w(LOG_TAG, "USB serial might be overwhelmed!");
@@ -628,10 +662,7 @@ public class TeensyStream {
     }
 
     public void updateJsonMap(String rawJSON) {
-        if (callOnLoad != null)
-            callOnLoad.run(jsonMap.update(rawJSON));
-        else
-            jsonMap.update(rawJSON);
+        jsonMap.update(rawJSON);
     }
 
     // endregion
