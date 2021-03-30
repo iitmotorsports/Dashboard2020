@@ -318,6 +318,7 @@ public class DataLogTab extends Fragment {
     }
 
     private void updateFileLayout(){
+        fileLayout.removeAllViewsInLayout();
         for (Pair<LogFileIO.LogFile, TextView> file : fileList) {
             fileLayout.addView(file.second);
         }
