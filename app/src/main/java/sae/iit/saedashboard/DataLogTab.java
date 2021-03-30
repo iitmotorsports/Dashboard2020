@@ -144,8 +144,7 @@ public class DataLogTab extends Fragment {
 
     public void onClickUp() {
         if (logScroller.getVisibility() != View.GONE) {
-            double v = 24 * viewTextSize[0];
-            logScroller.smoothScrollBy(0, (int) (-TypedValue.COMPLEX_UNIT_SP * v));
+            logScroller.smoothScrollBy(0, (int) (LogViewer.getHeight() / -8d));
             return;
         }
         selectFile(selectedFile - 1);
@@ -153,8 +152,7 @@ public class DataLogTab extends Fragment {
 
     public void onClickDown() {
         if (logScroller.getVisibility() != View.GONE) {
-            double v = 24 * viewTextSize[0];
-            logScroller.smoothScrollBy(0, (int) (TypedValue.COMPLEX_UNIT_SP * v));
+            logScroller.smoothScrollBy(0, (int) (LogViewer.getHeight() / 8d));
             return;
         }
         selectFile(selectedFile + 1);
@@ -284,7 +282,8 @@ public class DataLogTab extends Fragment {
             colorThread.start();
         } else {
             Toaster.showToast("Canceling previous selection");
-            colorThread.interrupt();
+            if (colorThread.isAlive())
+                colorThread.interrupt();
             showFile(file);
         }
     }
