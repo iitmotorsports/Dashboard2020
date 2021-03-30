@@ -18,8 +18,10 @@ import android.widget.ToggleButton;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
+import com.google.android.material.tabs.TabLayoutMediator;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
@@ -90,14 +92,16 @@ public class MainActivity extends AppCompatActivity {
         Toaster.setContext(this);
 
         //Setting up ViewPager, Adapter, and TabLayout
-
-        CustomSwipeViewPager MainPager = findViewById(R.id.MainPager);
+//        CustomSwipeViewPager MainPager = findViewById(R.id.MainPager);
+        ViewPager2 MainPager = findViewById(R.id.MainPager);
         MyPagerAdapter pagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         TabLayout tabLayout = findViewById(R.id.tabLayout);
 
         MainPager.setKeepScreenOn(true);
         MainPager.setAdapter(pagerAdapter);
-        tabLayout.setupWithViewPager(MainPager);
+        MainPager.setOffscreenPageLimit(3);
+
+        new TabLayoutMediator(tabLayout, MainPager, (tab, position) -> tab.setText(pagerAdapter.list.get(position).second)).attach();
         FunctionSubTab = findViewById(R.id.FunctionSubTab);
         SerialToggle = findViewById(R.id.SerialToggle);
         SerialLog = findViewById(R.id.SerialLog);
@@ -113,9 +117,9 @@ public class MainActivity extends AppCompatActivity {
         });
 
         ChargingSetButton = findViewById(R.id.chargeSet);
-        mainTab = (MainTab) pagerAdapter.getItem(0);
-        secondTab = (SecondaryTab) pagerAdapter.getItem(1);
-        DataLogTab dataTab = (DataLogTab) pagerAdapter.getItem(2);
+        mainTab = (MainTab) pagerAdapter.list.get(0).first;
+        secondTab = (SecondaryTab) pagerAdapter.list.get(1).first;
+        DataLogTab dataTab = (DataLogTab) pagerAdapter.list.get(2).first;
 
         // UI update timers
         Timer LPUITimer = new Timer();
@@ -359,9 +363,9 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickLock(View view) {
         LinearLayout MainUpperLayout = findViewById(R.id.MainUpperLayout);
-        CustomSwipeViewPager MainPager = findViewById(R.id.MainPager);
+        ViewPager2 MainPager = findViewById(R.id.MainPager);
         if (FunctionSubTab.getVisibility() == View.VISIBLE || MainUpperLayout.getVisibility() == View.VISIBLE) {
-            MainPager.setLocked(true);
+            MainPager.setUserInputEnabled(false);
             SimpleAnim.animView(this, MainUpperLayout, View.INVISIBLE, "down");
             SimpleAnim.animView(this, FunctionSubTab, View.INVISIBLE, "left");
             if (ConsoleLayout.getVisibility() == View.VISIBLE) {
@@ -372,7 +376,7 @@ public class MainActivity extends AppCompatActivity {
         } else {
             SimpleAnim.animView(this, MainUpperLayout, View.VISIBLE, "down");
             ((ToggleButton) view).setChecked(false);
-            MainPager.setLocked(false);
+            MainPager.setUserInputEnabled(true);
         }
     }
 
