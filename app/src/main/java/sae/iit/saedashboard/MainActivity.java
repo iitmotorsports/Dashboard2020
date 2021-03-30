@@ -174,6 +174,7 @@ public class MainActivity extends AppCompatActivity {
         UITimer.schedule(UI_task, 0, 60);// TODO: How much of a delay do we really need?
         LPUITimer.schedule(LPUI_task, 0, 200);
         setupTeensyStream();
+        assert dataTab != null;
         dataTab.setTeensyStream(TStream, this);
     }
 
@@ -232,16 +233,16 @@ public class MainActivity extends AppCompatActivity {
         }, JSONToggle::setChecked, (TStream) -> {
             // Teensy value mapping
             // TODO: option to set these values afterwards, as there might not be a JSON mapping to start
-            msgIDMC0Voltage = TStream.requestMsgID("[Front Teensy]", "[INFO]  MC0 Voltage:");
-            msgIDMC1Voltage = TStream.requestMsgID("[Front Teensy]", "[INFO]  MC1 Voltage:");
-            msgIDSpeedometer = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Motor Speed:");
-            msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[INFO]  Current Power Value:");
-            msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[INFO]  BMS State Of Charge Value:");
-            msgIDFault = TStream.requestMsgID("[Front Teensy]", "[INFO]  Fault State");
+            msgIDMC0Voltage = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC0 Voltage:");
+            msgIDMC1Voltage = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC1 Voltage:");
+            msgIDSpeedometer = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Current Motor Speed:");
+            msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Current Power Value:");
+            msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS State Of Charge Value:");
+            msgIDFault = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Fault State");
             msgIDLag = TStream.requestMsgID("[HeartBeat]", "[WARN]  Heartbeat is taking too long");
-            msgIDBeat = TStream.requestMsgID("[HeartBeat]", "[INFO]  Beat");
-            msgIDStartLight = TStream.requestMsgID("[Front Teensy]", "[INFO]  Start Light");
-            TStream.setStateIdentifier("[Front Teensy]", "[INFO]  Current State");
+            msgIDBeat = TStream.requestMsgID("[HeartBeat]", "[ LOG ] Beat");
+            msgIDStartLight = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Start Light");
+            TStream.setStateIdentifier("[Front Teensy]", "[ LOG ] Current State");
             TStream.setStateEnum("[Teensy Initialize]", TeensyStream.STATE.Probably_Initializing);
             TStream.setStateEnum("[PreCharge State]", TeensyStream.STATE.Precharge);
             TStream.setStateEnum("[Idle State]", TeensyStream.STATE.Idle);
