@@ -9,6 +9,8 @@ import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
 import android.widget.LinearLayout;
+import android.widget.RadioButton;
+import android.widget.RadioGroup;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
@@ -40,6 +42,7 @@ public class MainActivity extends AppCompatActivity {
     private MainTab mainTab;
     private SecondaryTab secondTab;
     private SwitchCompat ConsoleSwitch;
+    private RadioGroup conRadioGroup;
     ToggleButton ChargingSetButton;
     ConstraintLayout ConsoleLayout;
     boolean Testing = false;
@@ -101,6 +104,7 @@ public class MainActivity extends AppCompatActivity {
         ConsoleScroller = findViewById(R.id.SerialScroller);
         ConsoleLayout = findViewById(R.id.ConsoleLayout);
         ConsoleSwitch = findViewById(R.id.ConsoleSwitch);
+        conRadioGroup = findViewById(R.id.conRadioGroup);
 
         findViewById(R.id.Clear).setOnLongClickListener(v -> {
             Toaster.showToast("Clearing console text", false, true);
@@ -386,7 +390,13 @@ public class MainActivity extends AppCompatActivity {
     }
 
     public void onModeToggle(View view) {
-        Toaster.showToast("Changing console mode", false, true);
-        TStream.setHexMode(!TStream.isHexMode());
+        int clickedRadioButton = conRadioGroup.getCheckedRadioButtonId();
+        RadioButton radioButton = findViewById(clickedRadioButton);
+        if (clickedRadioButton == -1) {
+            Toaster.showToast("Failed to make selection");
+        }
+        String mode = radioButton.getText().toString();
+        Toaster.showToast(mode + " mode", false, true);
+        TStream.setOutputMode(TeensyStream.MODE.valueOf(mode.toUpperCase()));
     }
 }

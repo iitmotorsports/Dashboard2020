@@ -202,18 +202,43 @@
                         android:text="@string/clear"
                         android:textSize="12sp" />
 
-                    <ToggleButton
-                        android:id="@+id/modeToggle"
-                        android:layout_width="match_parent"
+                    <RadioGroup
+                        android:id="@+id/conRadioGroup"
+                        android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:checked="false"
                         android:minWidth="0dp"
-                        android:minHeight="0dp"
-                        android:onClick="onModeToggle"
-                        android:text="@string/modetoggle"
-                        android:textOff="@string/ascii"
-                        android:textOn="@string/hex"
-                        android:textSize="12sp" />
+                        android:minHeight="0dp">
+
+                        <RadioButton
+                            android:id="@+id/asciiRadio"
+                            android:layout_width="wrap_content"
+                            android:layout_height="24dp"
+                            android:checked="true"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp"
+                            android:onClick="onModeToggle"
+                            android:text="@string/ascii" />
+
+                        <RadioButton
+                            android:id="@+id/hexRadio"
+                            android:layout_width="wrap_content"
+                            android:layout_height="24dp"
+                            android:checked="false"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp"
+                            android:onClick="onModeToggle"
+                            android:text="@string/hex" />
+
+                        <RadioButton
+                            android:id="@+id/rawRadio"
+                            android:layout_width="wrap_content"
+                            android:layout_height="24dp"
+                            android:checked="false"
+                            android:minWidth="0dp"
+                            android:minHeight="0dp"
+                            android:onClick="onModeToggle"
+                            android:text="@string/raw" />
+                    </RadioGroup>
 
                     <TextView
                         android:id="@+id/textView16"

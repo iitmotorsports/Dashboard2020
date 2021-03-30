@@ -38,7 +38,7 @@ public class TeensyStream {
     private final Timer CANMsgSend = new Timer();
     private boolean enableLogCallback = true;
     private boolean enableLogFile;
-    private boolean hexMode = false;
+    private MODE outputMode = MODE.ASCII;
     private final HashMap<Long, STATE> Teensy_State_Map = new HashMap<>();
     private long currentState = 0;
     private final Activity activity;
@@ -106,18 +106,13 @@ public class TeensyStream {
         this.enableLogFile = enableLogFile;
     }
 
-    /**
-     * @return Whether the logging callback should be given a hex representation of data instead
-     */
-    public boolean isHexMode() {
-        return hexMode;
+
+    public MODE getOutputMode(){
+        return outputMode;
     }
 
-    /**
-     * @param hexMode Set whether the logging callback should be given a hex representation of data instead
-     */
-    public void setHexMode(boolean hexMode) {
-        this.hexMode = hexMode;
+    public void setOutputMode(MODE outputMode) {
+        this.outputMode = outputMode;
     }
 
     // endregion
@@ -157,6 +152,12 @@ public class TeensyStream {
         Button,
         Driving,
         Fault,
+    }
+
+    public enum MODE {
+        ASCII,
+        HEX,
+        RAW
     }
 
     // endregion
@@ -590,7 +591,7 @@ public class TeensyStream {
     private String processData(byte[] raw_data) { // Improve: run this on separate thread
         StringBuilder output = new StringBuilder(32);
 
-        if (hexMode) {
+        if (outputMode == MODE.HEX) {
             for (int i = 0; i < raw_data.length; i += 8) {
                 byte[] data_block = new byte[8];
                 try {
@@ -605,26 +606,28 @@ public class TeensyStream {
             if (output.length() == 0)
                 return "";
             return output.substring(0, output.length() - 1);
-        }
+        } else if (outputMode == MODE.ASCII){
+            for (int i = 0; i < raw_data.length; i += 8) {
+                byte[] data_block = new byte[8];
+                try {
+                    System.arraycopy(raw_data, i, data_block, 0, 8);
+                } catch (ArrayIndexOutOfBoundsException e) {
+                    continue;
+                }
 
-        for (int i = 0; i < raw_data.length; i += 8) {
-            byte[] data_block = new byte[8];
-            try {
-                System.arraycopy(raw_data, i, data_block, 0, 8);
-            } catch (ArrayIndexOutOfBoundsException e) {
-                continue;
+                long[] IDs = updateData(data_block);
+                int callerID = (int) IDs[0];
+                int stringID = (int) IDs[1];
+                output.append(formatMsg(jsonMap.getTag(callerID), jsonMap.getStr(stringID), IDs[2]));
             }
-
-            long[] IDs = updateData(data_block);
-            int callerID = (int) IDs[0];
-            int stringID = (int) IDs[1];
-            output.append(formatMsg(jsonMap.getTag(callerID), jsonMap.getStr(stringID), IDs[2]));
+            if (output.length() == 0) {
+                Log.w(LOG_TAG, "USB serial might be overwhelmed!");
+                return output.toString();
+            }
+            return output.substring(0, output.length() - 1);
+        } else { // TODO: process data in ascii format
+            return new String(raw_data);
         }
-        if (output.length() == 0) {
-            Log.w(LOG_TAG, "USB serial might be overwhelmed!");
-            return output.toString();
-        }
-        return output.substring(0, output.length() - 1);
     }
 
     // endregion
