@@ -50,13 +50,6 @@ public class DataLogTab extends Fragment {
     private ProgressBar logWait;
     private final float[] viewTextSize = {12};
 
-    @Override
-    public void onCreate(@Nullable Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        createConfirmDialog();
-        updateFiles();
-    }
-
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -93,7 +86,8 @@ public class DataLogTab extends Fragment {
                 LogViewer.setTextSize(viewTextSize[0]);
             }
         });
-        updateFileLayout();
+        createConfirmDialog();
+        updateFiles();
         return rootView;
     }
 
