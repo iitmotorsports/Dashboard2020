@@ -29,6 +29,13 @@ import java.util.Locale;
 
 public class DataLogTab extends Fragment {
     private Button showButton;
+    private Button upButton;
+    private Button downButton;
+    private Button deleteButton;
+    private Button exportButton;
+    private Button updateButton;
+    private Button minBtn;
+    private Button plsBtn;
     private ScrollView fileListScroller, logScroller;
     private LinearLayout fileLayout;
     private Runnable confirm_run;
@@ -43,25 +50,30 @@ public class DataLogTab extends Fragment {
     private ProgressBar logWait;
     private final float[] viewTextSize = {12};
 
+    @Override
+    public void onCreate(@Nullable Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        createConfirmDialog();
+        updateFiles();
+    }
+
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.data_tab, container, false);
-
         LogViewer = rootView.findViewById(R.id.LogViewer);
         fileLayout = rootView.findViewById(R.id.FileListLayout);
         fileListScroller = rootView.findViewById(R.id.FileListScroller);
         logScroller = rootView.findViewById(R.id.logScroller);
         showButton = rootView.findViewById(R.id.showButton);
-        Button upButton = rootView.findViewById(R.id.upButton);
-        Button downButton = rootView.findViewById(R.id.downButton);
-        Button deleteButton = rootView.findViewById(R.id.deleteButton);
-        Button exportButton = rootView.findViewById(R.id.exportButton);
-        Button updateButton = rootView.findViewById(R.id.updateButton);
-        Button minBtn = rootView.findViewById(R.id.minBtn);
-        Button plsBtn = rootView.findViewById(R.id.plsBtn);
+        upButton = rootView.findViewById(R.id.upButton);
+        downButton = rootView.findViewById(R.id.downButton);
+        deleteButton = rootView.findViewById(R.id.deleteButton);
+        exportButton = rootView.findViewById(R.id.exportButton);
+        updateButton = rootView.findViewById(R.id.updateButton);
+        minBtn = rootView.findViewById(R.id.minBtn);
+        plsBtn = rootView.findViewById(R.id.plsBtn);
         logWait = rootView.findViewById(R.id.logWait);
-
         showButton.setOnClickListener(v -> onClickShowFile());
         upButton.setOnClickListener(v -> onClickUp());
         downButton.setOnClickListener(v -> onClickDown());
@@ -81,10 +93,7 @@ public class DataLogTab extends Fragment {
                 LogViewer.setTextSize(viewTextSize[0]);
             }
         });
-
-        createConfirmDialog();
-
-        updateFiles();
+        updateFileLayout();
         return rootView;
     }
 
@@ -183,7 +192,8 @@ public class DataLogTab extends Fragment {
         Pair<LogFileIO.LogFile, TextView> p = fileList.get(selectedFile);
         if (p.first.delete()) {
             fileList.remove(selectedFile);
-            fileLayout.removeView(p.second);
+            if (fileLayout != null)
+                fileLayout.removeView(p.second);
             onClickDown();
         } else {
             Toaster.showToast("Failed to delete file");
@@ -195,7 +205,7 @@ public class DataLogTab extends Fragment {
         for (Pair<LogFileIO.LogFile, TextView> p : fileList) {
             if (!p.first.delete())
                 Log.w("Data", "Failed to delete file" + p.first.getName());
-            else
+            else if (fileLayout != null)
                 fileLayout.removeView(p.second);
         }
         fileList.clear();
@@ -226,7 +236,8 @@ public class DataLogTab extends Fragment {
         sb.append(TeensyStream.getColoredString("  -  " + KB + " kb", color));
         activity.runOnUiThread(() -> {
                     textView.setText(sb);
-                    fileLayout.addView(textView);
+                    if (fileLayout != null)
+                        fileLayout.addView(textView);
                 }
         );
         return textView;
@@ -266,7 +277,8 @@ public class DataLogTab extends Fragment {
         int finalPos = pos;
         int height = view.getHeight();
         selectedFile = pos;
-        fileListScroller.postDelayed(() -> fileListScroller.smoothScrollTo(0, (selectedFile * height) + (height * (selectedFile < finalPos ? 4 : -4))), 10);
+        if (fileListScroller != null)
+            fileListScroller.postDelayed(() -> fileListScroller.smoothScrollTo(0, (selectedFile * height) + (height * (selectedFile < finalPos ? 4 : -4))), 10);
     }
 
     private void showFile(LogFileIO.LogFile file) {
@@ -289,11 +301,12 @@ public class DataLogTab extends Fragment {
     }
 
     private void updateFiles() {
-        if (logScroller.getVisibility() != View.GONE) {
+        if (logScroller != null && logScroller.getVisibility() != View.GONE) {
             Toaster.showToast("Can't update while viewing log");
             return;
         }
-        fileLayout.removeAllViewsInLayout();
+        if (fileLayout != null)
+            fileLayout.removeAllViewsInLayout();
         fileList.clear();
         int i = 0;
         List<LogFileIO.LogFile> filesList = loggingIO.listFiles();
@@ -302,6 +315,12 @@ public class DataLogTab extends Fragment {
             fileList.add(new Pair<>(file, listFile(file, i++)));
         }
         selectFile(Math.max(selectedFile, 0));
+    }
+
+    private void updateFileLayout(){
+        for (Pair<LogFileIO.LogFile, TextView> file : fileList) {
+            fileLayout.addView(file.second);
+        }
     }
 
     public void setTeensyStream(TeensyStream stream, Activity activity) {

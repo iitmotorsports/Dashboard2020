@@ -14,7 +14,6 @@ public class SecondaryTab extends Fragment {
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.secondary_tab, container, false);
-
         //Initializing Fields
         rightMotorTempValue = rootView.findViewById(R.id.rightMotorTempValue);
         leftMotorTempValue = rootView.findViewById(R.id.leftMotorTempValue);
@@ -22,7 +21,6 @@ public class SecondaryTab extends Fragment {
         leftMCTempValue = rootView.findViewById(R.id.leftMCTempValue);
         activeAeroPosValue = rootView.findViewById(R.id.activeAeroPosValue);
         DCBusCurrentValue = rootView.findViewById(R.id.DCBusCurrentValue);
-
         return rootView;
     }
 
