@@ -59,7 +59,7 @@ public class LogFileIO {
             try {
                 Date date = new SimpleDateFormat(simpleDataFormatString, Locale.US).parse(name);
                 if (date != null)
-                    name = new SimpleDateFormat("dd/MM/yyyy hh:mm:ss a", Locale.US).format(date);
+                    name = new SimpleDateFormat("MM/dd/yyyy hh:mm:ss a", Locale.US).format(date);
             } catch (ParseException e) {
                 e.printStackTrace();
             }
