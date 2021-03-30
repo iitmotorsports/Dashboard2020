@@ -224,7 +224,7 @@ public class DataLogTab extends Fragment {
         textView.setOnClickListener(v -> selectFile(file));
         SpannableStringBuilder sb = new SpannableStringBuilder();
         String KB = String.valueOf(file.length() / 1000);
-        int color = loggingIO.isActiveFile(file) ? getContext().getColor(R.color.yellow) : getContext().getColor(R.color.backgroundText);
+        int color = loggingIO.isActiveFile(file) ? getContext().getColor(R.color.colorAccent) : getContext().getColor(R.color.backgroundText);
         sb.append(TeensyStream.getColoredString(String.format(Locale.US, "%1$3s  ", pos).replace(" ", "  "), color));
         sb.append(name);
         sb.append(TeensyStream.getColoredString("  -  " + KB + " kb", color));
