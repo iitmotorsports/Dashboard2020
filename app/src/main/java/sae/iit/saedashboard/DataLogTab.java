@@ -3,6 +3,7 @@ package sae.iit.saedashboard;
 import android.app.Activity;
 import android.app.AlertDialog;
 import android.graphics.Color;
+import android.os.Build;
 import android.os.Bundle;
 import android.text.Spannable;
 import android.text.SpannableStringBuilder;
@@ -20,6 +21,7 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.annotation.RequiresApi;
 import androidx.fragment.app.Fragment;
 
 import java.util.ArrayList;
@@ -50,6 +52,7 @@ public class DataLogTab extends Fragment {
     private ProgressBar logWait;
     private final float[] viewTextSize = {12};
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
@@ -84,6 +87,12 @@ public class DataLogTab extends Fragment {
             if (logScroller.getVisibility() != View.GONE) {
                 viewTextSize[0] = viewTextSize[0] + 1;
                 LogViewer.setTextSize(viewTextSize[0]);
+            }
+        });
+
+        logScroller.setOnScrollChangeListener((v, scrollX, scrollY, oldScrollX, oldScrollY) -> {
+            if (scrollY % LogViewer.getLineHeight() <= 1) {
+                showLine();
             }
         });
 
@@ -276,16 +285,36 @@ public class DataLogTab extends Fragment {
             fileListScroller.postDelayed(() -> fileListScroller.smoothScrollTo(0, (selectedFile * height) + (height * (selectedFile < finalPos ? 4 : -4))), 10);
     }
 
+    private static final List<Spannable> loadedLines = new ArrayList<>();
+
+    private void showLine() {
+        activity.runOnUiThread(() -> {
+            for (int i = 0; i < 25; i++) {
+                if (!loadedLines.isEmpty()) {
+                    LogViewer.append(loadedLines.get(0));
+                    loadedLines.remove(0);
+                }
+            }
+        });
+    }
+
     private void showFile(LogFileIO.LogFile file) {
         if (colorThread == null || !colorThread.isAlive()) {
             activity.runOnUiThread(() -> logWait.setVisibility(View.VISIBLE));
             colorThread = new Thread(() -> {
-                Spannable b = TeensyStream.colorMsgString(TeensyStream.interpretLogFile(file));
+                String[] strLines = TeensyStream.interpretLogFile(file).split("\n");
+                loadedLines.clear();
+                for (String line : strLines) {
+                    loadedLines.add(TeensyStream.colorMsgString(line));
+                }
                 Toaster.showToast("Done interpreting");
                 activity.runOnUiThread(() -> {
-                    LogViewer.setText(b);
+                    LogViewer.setText("");
                     logWait.setVisibility(View.GONE);
                 });
+                for (int i = 0; i < 4; i++) {
+                    showLine();
+                }
             });
             colorThread.start();
         } else {
