@@ -272,10 +272,10 @@ public class TeensyStream {
                     ByteSplit.hexToBytes(byte7.getText().toString()));
 
             if (bytes.length != 8 || add.length == 0 || add.length > 4) {
-                Toaster.showToast("Message Not Sent");
+                Toaster.showToast("Message Not Sent", Toaster.STATUS.WARNING);
                 return;
             }
-            Toaster.showToast((ByteSplit.bytesToHex(add) + " : " + ByteSplit.bytesToHex(bytes).replaceAll("(.{2})", "$1 ")));
+            Toaster.showToast((ByteSplit.bytesToHex(add) + " : " + ByteSplit.bytesToHex(bytes).replaceAll("(.{2})", "$1 ")), Toaster.STATUS.INFO);
             stream.write(COMMAND.SEND_CANBUS_MESSAGE);
             stream.write(add);
             stream.write(bytes);
@@ -323,11 +323,11 @@ public class TeensyStream {
                     }
                 };
                 CANMsgSend.schedule(CAN_Task[0], 0, 1100); // Not exactly a second just in case
-                Toaster.showToast("Sending message every second");
+                Toaster.showToast("Sending message every second", Toaster.STATUS.INFO);
             } else {
                 CAN_Task[0].cancel();
                 CANMsgSend.purge();
-                Toaster.showToast("Stopping CAN Messages");
+                Toaster.showToast("Stopping CAN Messages", Toaster.STATUS.INFO);
             }
         });
 
@@ -416,7 +416,7 @@ public class TeensyStream {
             msg.setCallback(callback);
             msg.setUpdate(when);
         } else {
-            Toaster.showToast("Msg ID: " + msgID + " does not exist yet, no callback set");
+            Toaster.showToast("Msg ID: " + msgID + " does not exist yet, no callback set", Toaster.STATUS.WARNING);
         }
     }
 
@@ -425,7 +425,7 @@ public class TeensyStream {
         if (msgID >= 0)
             Teensy_Data.put(msgID, new TeensyStream.msgBlock());
         else
-            Toaster.showToast("Failed to request id for" + stringTag + " " + stringMsg);
+            Toaster.showToast("Failed to request id for" + stringTag + " " + stringMsg, Toaster.STATUS.WARNING);
         return msgID;
     }
 
@@ -440,7 +440,7 @@ public class TeensyStream {
         if (msgID != -1) {
             setCallback(msgID, num -> currentState = num, UPDATE.ON_VALUE_CHANGE);
         } else
-            Toaster.showToast("Failed to set state id for " + stringTag + " " + stringMsg);
+            Toaster.showToast("Failed to set state id for " + stringTag + " " + stringMsg, Toaster.STATUS.WARNING);
     }
 
     /**
@@ -451,12 +451,12 @@ public class TeensyStream {
      */
     public void setStateEnum(String stringTag, STATE state) {
         if (!jsonMap.loaded()) {
-            Toaster.showToast("JSON has not been loaded, unable to set STATE ENUM");
+            Toaster.showToast("JSON has not been loaded, unable to set STATE ENUM", Toaster.STATUS.WARNING);
             return;
         }
         Integer tagID = jsonMap.getTagID(stringTag);
         if (tagID == null) {
-            Toaster.showToast("Failed to set Enum for " + stringTag);
+            Toaster.showToast("Failed to set Enum for " + stringTag, Toaster.STATUS.WARNING);
             return;
         }
         long a = Long.valueOf(tagID);
@@ -571,7 +571,7 @@ public class TeensyStream {
                     System.arraycopy(bytes, i, msg, 0, 8);
                 } catch (IndexOutOfBoundsException e) {
                     e.printStackTrace();
-                    Toaster.showToast("Warning: log file has leftover bytes");
+                    Toaster.showToast("Warning: log file has leftover bytes", Toaster.STATUS.WARNING);
                     break;
                 }
                 long[] IDs = ByteSplit.getTeensyMsg(msg);
@@ -582,7 +582,7 @@ public class TeensyStream {
                 return fnl;
             }
         }
-        Toaster.showToast("Returning string interpretation");
+        Toaster.showToast("Returning string interpretation", Toaster.STATUS.WARNING);
         return LogFileIO.getString(file);
     }
 
@@ -666,7 +666,7 @@ public class TeensyStream {
     // region File IO
 
     public void updateJsonMap() {
-        Toaster.showToast("Find log_lookup.json", true);
+        Toaster.showToast("Find log_lookup.json", true, Toaster.STATUS.INFO);
         jsonMap.openFile();
     }
 

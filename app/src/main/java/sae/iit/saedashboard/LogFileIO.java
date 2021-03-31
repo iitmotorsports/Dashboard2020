@@ -98,7 +98,7 @@ public class LogFileIO {
             e.printStackTrace();
             activeFile = null;
             activeFileStream = null;
-            Toaster.showToast("Failed to open new file for teensy logging", true);
+            Toaster.showToast("Failed to open new file for teensy logging", true, Toaster.STATUS.ERROR);
         }
     }
 
@@ -174,7 +174,7 @@ public class LogFileIO {
             dis.readFully(bytes);
         } catch (IOException e) {
             e.printStackTrace();
-            Toaster.showToast("Failed to read file bytes");
+            Toaster.showToast("Failed to read file bytes", Toaster.STATUS.ERROR);
         }
         return bytes;
     }
@@ -209,7 +209,7 @@ public class LogFileIO {
             activity.startActivity(Intent.createChooser(fileIntent, "Send mail"));
         } catch (Exception e) {
             e.printStackTrace();
-            Toaster.showToast("Failed to export file");
+            Toaster.showToast("Failed to export file", Toaster.STATUS.ERROR);
         }
     }
 }

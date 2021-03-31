@@ -48,7 +48,7 @@ public class JSONLoad {
                     e.printStackTrace();
                 }
             }
-            Toaster.showToast("Failed to load file", true);
+            Toaster.showToast("Failed to load file", true, Toaster.STATUS.ERROR);
         }
     }
 
@@ -61,7 +61,7 @@ public class JSONLoad {
             activity.startActivityForResult(Intent.createChooser(intent, "Select a file"), PICK_JSON_FILE);
         } catch (Exception e) {
             e.printStackTrace();
-            Toaster.showToast("Failed to request for file", true);
+            Toaster.showToast("Failed to request for file", true, Toaster.STATUS.ERROR);
         }
     }
 

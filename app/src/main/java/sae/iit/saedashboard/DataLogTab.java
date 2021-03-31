@@ -120,7 +120,7 @@ public class DataLogTab extends Fragment {
         mBuilder.setView(mView);
         confirm_dialog = mBuilder.create();
 
-        yes.setOnClickListener(v -> Toaster.showToast("Hold to confirm"));
+        yes.setOnClickListener(v -> Toaster.showToast("Hold to confirm", Toaster.STATUS.INFO));
         yes.setOnLongClickListener(v -> {
             confirm_run.run();
             confirm_dialog.dismiss();
@@ -133,7 +133,7 @@ public class DataLogTab extends Fragment {
 
     public void onClickShowFile() {
         if (colorThread != null && colorThread.isAlive()) {
-            Toaster.showToast("Must wait for previous query");
+            Toaster.showToast("Must wait for previous query", Toaster.STATUS.WARNING);
             return;
         }
         if (logScroller.getVisibility() != View.GONE) {
@@ -173,7 +173,7 @@ public class DataLogTab extends Fragment {
 
     public void onClickDelete() {
         if (logScroller.getVisibility() != View.GONE) {
-            Toaster.showToast("Can't delete while viewing log");
+            Toaster.showToast("Can't delete while viewing log", Toaster.STATUS.WARNING);
             return;
         }
         if (selectedFile < 0 || selectedFile >= fileList.size()) {
@@ -185,7 +185,7 @@ public class DataLogTab extends Fragment {
 
     public boolean onLongClickDelete() {
         if (logScroller.getVisibility() != View.GONE) {
-            Toaster.showToast("Can't delete while viewing log");
+            Toaster.showToast("Can't delete while viewing log", Toaster.STATUS.WARNING);
             return true;
         }
         confirm(this::deleteAll, "Delete All Files?");
@@ -200,7 +200,7 @@ public class DataLogTab extends Fragment {
                 fileLayout.removeView(p.second);
             onClickDown();
         } else {
-            Toaster.showToast("Failed to delete file");
+            Toaster.showToast("Failed to delete file", Toaster.STATUS.ERROR);
             updateFiles();
         }
     }
@@ -318,7 +318,7 @@ public class DataLogTab extends Fragment {
             });
             colorThread.start();
         } else {
-            Toaster.showToast("Canceling previous selection");
+            Toaster.showToast("Canceling previous selection", Toaster.STATUS.WARNING);
             if (colorThread.isAlive())
                 colorThread.interrupt();
             showFile(file);
@@ -327,7 +327,7 @@ public class DataLogTab extends Fragment {
 
     private void updateFiles() {
         if (logScroller != null && logScroller.getVisibility() != View.GONE) {
-            Toaster.showToast("Can't update while viewing log");
+            Toaster.showToast("Can't update while viewing log", Toaster.STATUS.WARNING);
             return;
         }
         if (fileLayout != null)

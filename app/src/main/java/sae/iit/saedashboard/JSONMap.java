@@ -100,7 +100,7 @@ public class JSONMap {
      */
     public long requestMsgID(String stringTag, String stringMsg) {
         if (!JSONLoaded) {
-            Toaster.showToast("JSON has not been loaded, unable to process request");
+            Toaster.showToast("JSON has not been loaded, unable to process request", Toaster.STATUS.WARNING);
             return -1;
         }
         Integer tagID = getTagID(stringTag);
@@ -114,7 +114,7 @@ public class JSONMap {
             //            Teensy_Data.put(msgID, new TeensyStream.msgBlock());
             return mapping.getInt(0);
         } else {
-            Toaster.showToast("Unable to match string " + stringTag + " " + stringMsg);
+            Toaster.showToast("Unable to match string " + stringTag + " " + stringMsg, Toaster.STATUS.WARNING);
         }
 
         return -1;
@@ -129,7 +129,7 @@ public class JSONMap {
                 writer = new PrintWriter(file);
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
-                Toaster.showToast("Failed to save map data", true);
+                Toaster.showToast("Failed to save map data", true, Toaster.STATUS.ERROR);
                 return;
             }
             writer.print(loadedJsonStr);
@@ -141,7 +141,7 @@ public class JSONMap {
         if (loader != null)
             loader.openFile();
         else
-            Toaster.showToast("Not initialized with activity");
+            Toaster.showToast("Not initialized with activity", Toaster.STATUS.ERROR);
     }
 
     public boolean clear() {
@@ -156,10 +156,10 @@ public class JSONMap {
                 loader.clearLoadedJsonStr();
             if (runOnSuccessfulMapChange != null)
                 runOnSuccessfulMapChange.run(null);
-            Toaster.showToast("Map data deleted");
+            Toaster.showToast("Map data deleted", Toaster.STATUS.INFO);
             status = true;
         } else {
-            Toaster.showToast("Failed to delete map data");
+            Toaster.showToast("Failed to delete map data", Toaster.STATUS.ERROR);
         }
         if (runOnMapChange != null)
             runOnMapChange.run(status);
@@ -210,13 +210,13 @@ public class JSONMap {
         String JSON_INPUT = raw;
         if (JSON_INPUT == null) {
             if (JSONLoaded) {
-                Toaster.showToast("Teensy map unchanged");
+                Toaster.showToast("Teensy map unchanged", Toaster.STATUS.INFO);
                 return true;
             }
             try {
                 JSON_INPUT = loadMapFromSystem();
             } catch (IOException e) {
-                Toaster.showToast("No Teensy map has been loaded", true);
+                Toaster.showToast("No Teensy map has been loaded", true, Toaster.STATUS.WARNING);
                 return false;
             }
         }
@@ -246,15 +246,15 @@ public class JSONMap {
 
         } catch (JSONException e) {
             e.printStackTrace();
-            Toaster.showToast("Json does not match correct format", true);
+            Toaster.showToast("Json does not match correct format", true, Toaster.STATUS.ERROR);
             return JSONLoaded;
         }
 
         Log.i(LOG_TAG, "Json array loaded");
         if (JSONLoaded)
-            Toaster.showToast("Teensy map updated");
+            Toaster.showToast("Teensy map updated", Toaster.STATUS.SUCCESS);
         else
-            Toaster.showToast("Loaded Teensy map");
+            Toaster.showToast("Loaded Teensy map", true, Toaster.STATUS.INFO);
         saveMapToSystem(raw);
         Teensy_LookUp_Tag = NEW_Teensy_LookUp_Tag;
         Teensy_LookUp_Str = NEW_Teensy_LookUp_Str;

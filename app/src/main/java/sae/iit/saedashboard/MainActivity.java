@@ -111,7 +111,7 @@ public class MainActivity extends AppCompatActivity {
         conRadioGroup = findViewById(R.id.conRadioGroup);
 
         findViewById(R.id.Clear).setOnLongClickListener(v -> {
-            Toaster.showToast("Clearing console text", false, true);
+            Toaster.showToast("Clearing console text", false, true, Toaster.STATUS.INFO);
             ConsoleHardClear();
             return false;
         });
@@ -276,7 +276,7 @@ public class MainActivity extends AppCompatActivity {
                 SerialToggle.setChecked(true);
             } else {
                 SerialToggle.setChecked(false);
-                Toaster.showToast("Failed to make a connection");
+                Toaster.showToast("Failed to make a connection", Toaster.STATUS.ERROR);
             }
         } else {
             TStream.close();
@@ -398,10 +398,10 @@ public class MainActivity extends AppCompatActivity {
         int clickedRadioButton = conRadioGroup.getCheckedRadioButtonId();
         RadioButton radioButton = findViewById(clickedRadioButton);
         if (clickedRadioButton == -1) {
-            Toaster.showToast("Failed to make selection");
+            Toaster.showToast("Failed to make selection", Toaster.STATUS.ERROR);
         }
         String mode = radioButton.getText().toString();
-        Toaster.showToast(mode + " mode", false, true);
+        Toaster.showToast(mode + " mode", false, true, Toaster.STATUS.INFO);
         TStream.setOutputMode(TeensyStream.MODE.valueOf(mode.toUpperCase()));
     }
 }
