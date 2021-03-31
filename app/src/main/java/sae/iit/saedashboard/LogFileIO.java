@@ -189,7 +189,7 @@ public class LogFileIO {
     }
 
     //CSV File Writer
-    public void export(String data) {
+    public void export(String data) { // Todo: exporting broken?
         try {
             //saving the file into device
             FileOutputStream out = activity.openFileOutput("data.csv", Context.MODE_PRIVATE);
@@ -199,10 +199,10 @@ public class LogFileIO {
             out.close();
             //exporting
             Context context = activity.getApplicationContext();
-            File fileLocation = new File(activity.getFilesDir(), "data.csv");
+            File fileLocation = new File(activity.getFilesDir(), "log.txt");
             Uri path = FileProvider.getUriForFile(context, "com.example.exportcsv.fileprovider", fileLocation);
             Intent fileIntent = new Intent(Intent.ACTION_SEND);
-            fileIntent.setType("text/csv");
+            fileIntent.setType("text/plain");
             fileIntent.putExtra(Intent.EXTRA_SUBJECT, "Data");
             fileIntent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
             fileIntent.putExtra(Intent.EXTRA_STREAM, path);
