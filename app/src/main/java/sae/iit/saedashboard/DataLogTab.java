@@ -1,7 +1,9 @@
 package sae.iit.saedashboard;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.AlertDialog;
+import android.content.Context;
 import android.graphics.Color;
 import android.os.Bundle;
 import android.text.Spannable;
@@ -21,11 +23,18 @@ import android.widget.TextView;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.work.Data;
+import androidx.work.OneTimeWorkRequest;
+import androidx.work.WorkManager;
+import androidx.work.Worker;
+import androidx.work.WorkerParameters;
 
 import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 
 public class DataLogTab extends Fragment {
     private Button showButton;
@@ -46,9 +55,27 @@ public class DataLogTab extends Fragment {
     private final ArrayList<Pair<LogFileIO.LogFile, TextView>> fileList = new ArrayList<>();
     private int selectedFile = -1;
     private TextView LogViewer;
+    private WorkManager workManager;
     private Thread colorThread;
     private ProgressBar logWait;
     private final float[] viewTextSize = {12};
+
+    public static class formatMsgWorker extends Worker {
+        public formatMsgWorker(@NonNull Context context, @NonNull WorkerParameters workerParams) {
+            super(context, workerParams);
+        }
+
+        @NonNull
+        @Override
+        public Result doWork() {
+            Toaster.showToast("Done!");
+            Spannable span = new SpannableStringBuilder();
+            Data input = getInputData();
+            @SuppressLint("RestrictedApi") Data output = new Data.Builder().put("span", span).build();
+
+            return Result.success(output);
+        }
+    }
 
     @Nullable
     @Override
@@ -86,9 +113,67 @@ public class DataLogTab extends Fragment {
                 LogViewer.setTextSize(viewTextSize[0]);
             }
         });
+
+        workManager = WorkManager.getInstance(Objects.requireNonNull(getContext()));
+
         createConfirmDialog();
         updateFiles();
         return rootView;
+    }
+
+    private final List<OneTimeWorkRequest> requests = new ArrayList<>();
+
+    private void clearRequests() {
+        workManager.cancelAllWorkByTag("colorMsgSpanWorker");
+        requests.clear();
+    }
+
+    private boolean requestsDone() {
+        for (OneTimeWorkRequest request : requests) {
+            if (!workManager.getWorkInfoById(request.getId()).isDone())
+                return false;
+        }
+        return true;
+    }
+
+    private Spannable getRequests() {
+        SpannableStringBuilder builder = new SpannableStringBuilder();
+        try {
+            for (OneTimeWorkRequest request : requests) {
+                builder.append((SpannableStringBuilder) workManager.getWorkInfoById(request.getId()).get().getOutputData().getKeyValueMap().get("span"));
+            }
+        } catch (ExecutionException | InterruptedException e) {
+            e.printStackTrace();
+            return null;
+        }
+        return builder;
+    }
+
+    private void newRequest(String chunk) {
+        Data data = new Data.Builder().putString("chunk", chunk).build();
+        final OneTimeWorkRequest workRequest = new OneTimeWorkRequest.Builder(formatMsgWorker.class).addTag("colorMsgSpanWorker").setInputData(data).build();
+//        workManager.getWorkInfoByIdLiveData(workRequest.getId()).observe(getViewLifecycleOwner(), workInfo -> {
+//            if (workInfo != null) {
+//                switch (workInfo.getState()) {
+//                    case SUCCEEDED:
+//                        Log.i("Worker", "Finished");
+//                        return;
+//                    case FAILED:
+//                        Log.i("Worker", "Failed");
+//                        return;
+//                }
+//            }
+//        });
+        requests.add(workRequest);
+    }
+
+    private void runRequests() {
+        Toaster.showToast(String.format(Locale.US, "Running %d requests", requests.size()));
+        try {
+            workManager.enqueue(requests);
+        } catch (IllegalArgumentException e) {
+            Toaster.showToast("No requests to run");
+        }
     }
 
     private void onClickExport() {
@@ -280,6 +365,7 @@ public class DataLogTab extends Fragment {
             activity.runOnUiThread(() -> logWait.setVisibility(View.VISIBLE));
             colorThread = new Thread(() -> {
                 Spannable b = TeensyStream.colorMsgString(TeensyStream.interpretLogFile(file));
+                Toaster.showToast("Done interpreting");
                 activity.runOnUiThread(() -> {
                     LogViewer.setText(b);
                     logWait.setVisibility(View.GONE);
@@ -311,7 +397,7 @@ public class DataLogTab extends Fragment {
         selectFile(Math.max(selectedFile, 0));
     }
 
-    private void updateFileLayout(){
+    private void updateFileLayout() {
         fileLayout.removeAllViewsInLayout();
         for (Pair<LogFileIO.LogFile, TextView> file : fileList) {
             fileLayout.addView(file.second);

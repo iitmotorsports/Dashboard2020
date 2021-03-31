@@ -22,6 +22,7 @@ import java.io.File;
 import java.io.StringReader;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
 import java.util.Random;
@@ -107,7 +108,7 @@ public class TeensyStream {
     }
 
 
-    public MODE getOutputMode(){
+    public MODE getOutputMode() {
         return outputMode;
     }
 
@@ -542,9 +543,18 @@ public class TeensyStream {
         return Color.LTGRAY;
     }
 
+    private static final Hashtable<String, Spannable> colorMsgMemo = new Hashtable<>();
+
     public static Spannable colorMsgString(String msg) {
         SpannableStringBuilder spannable = new SpannableStringBuilder();
-        new BufferedReader(new StringReader(msg)).lines().forEachOrdered((line) -> spannable.append(getColoredString(line + "\n", getMsgColor(line))));
+        new BufferedReader(new StringReader(msg)).lines().forEachOrdered((line) -> {
+            Spannable lineSpan = colorMsgMemo.get(line);
+            if (lineSpan == null) {
+                lineSpan = getColoredString(line + "\n", getMsgColor(line));
+                colorMsgMemo.put(line, lineSpan);
+            }
+            spannable.append(lineSpan);
+        });
         return spannable;
     }
 
@@ -606,7 +616,7 @@ public class TeensyStream {
             if (output.length() == 0)
                 return "";
             return output.substring(0, output.length() - 1);
-        } else if (outputMode == MODE.ASCII){
+        } else if (outputMode == MODE.ASCII) {
             for (int i = 0; i < raw_data.length; i += 8) {
                 byte[] data_block = new byte[8];
                 try {
