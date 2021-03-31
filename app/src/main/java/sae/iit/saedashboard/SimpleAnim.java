@@ -167,6 +167,13 @@ public class SimpleAnim {
         view.startAnimation(animation);
     }
 
+    static void shakeView(Activity activity, final View view) {
+        if (view.getAnimation() != null)
+            return;
+        Animation animation = AnimationUtils.loadAnimation(activity, R.anim.shake);
+        view.startAnimation(animation);
+    }
+
     static void animView(Activity activity, final View view, final int visibility, String direction) {
         if (view.getAnimation() != null)
             return;

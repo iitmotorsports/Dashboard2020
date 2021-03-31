@@ -1,5 +1,6 @@
 package sae.iit.saedashboard;
 
+import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
 import android.os.Build;
@@ -362,9 +363,15 @@ public class MainActivity extends AppCompatActivity {
         }
     }
 
+    @SuppressLint("ClickableViewAccessibility")
     public void onClickLock(View view) {
         LinearLayout MainUpperLayout = findViewById(R.id.MainUpperLayout);
         ViewPager2 MainPager = findViewById(R.id.MainPager);
+        MainPager.setOnTouchListener((v, event) -> {
+            SimpleAnim.shakeView(this, view);
+            v.performClick();
+            return true;
+        });
         if (FunctionSubTab.getVisibility() == View.VISIBLE || MainUpperLayout.getVisibility() == View.VISIBLE) {
             MainPager.setUserInputEnabled(false);
             SimpleAnim.animView(this, MainUpperLayout, View.INVISIBLE, "down");
