@@ -100,4 +100,9 @@
     <string name="misc">Misc</string>
     <string name="testing">Testing</string>
     <string name="car_go_vrooom">Car go Vrooom</string>
+    <string name="enable">Enable</string>
+    <string name="disable">Disable</string>
+    <string name="reset">Reset</string>
+    <string name="pin_value">Pin value</string>
+    <string name="set">set</string>
 </resources>
