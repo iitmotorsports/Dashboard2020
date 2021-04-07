@@ -67,7 +67,7 @@ public class Toaster {
                 default:
                     return;
             }
-            toast.setGravity(Gravity.BOTTOM | (rightSide ? Gravity.END : Gravity.CENTER), 0, 32);
+            toast.setGravity(Gravity.BOTTOM | (rightSide ? Gravity.END : Gravity.CENTER), rightSide ? 16 : 0, 16);
             toast.show();
         });
     }

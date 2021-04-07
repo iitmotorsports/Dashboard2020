@@ -128,7 +128,8 @@ public class TeensyStream {
         public static final byte[] SEND_CANBUS_MESSAGE = {111};
         public static final byte[] CLEAR_FAULT = {45};
         public static final byte[] TOGGLE_CANBUS_SNIFF = {127}; // TODO: implement canbus sniffer button
-
+        public static final byte[] TOGGLE_MIRROR_MODE = {90};
+        public static final byte[] ENTER_MIRROR_SET = {-1};
     }
 
     public void log(String message) {

@@ -48,6 +48,8 @@ public class MainActivity extends AppCompatActivity {
     private RadioGroup conRadioGroup;
     ToggleButton ChargingSetButton;
     ConstraintLayout ConsoleLayout;
+    DataLogTab dataTab;
+    TroubleshootTab troubleshootTab;
     boolean Testing = false;
     DateFormat df = new SimpleDateFormat("[HH:mm:ss]", Locale.getDefault());
 
@@ -120,7 +122,8 @@ public class MainActivity extends AppCompatActivity {
         ChargingSetButton = findViewById(R.id.chargeSet);
         mainTab = (MainTab) pagerAdapter.list.get(0).first;
         secondTab = (SecondaryTab) pagerAdapter.list.get(1).first;
-        DataLogTab dataTab = (DataLogTab) pagerAdapter.list.get(2).first;
+        dataTab = (DataLogTab) pagerAdapter.list.get(2).first;
+        troubleshootTab = (TroubleshootTab) pagerAdapter.list.get(3).first;
 
         // UI update timers
         Timer LPUITimer = new Timer();
@@ -174,9 +177,9 @@ public class MainActivity extends AppCompatActivity {
         consoleTimerAsync.schedule(ConsoleTask, 0, 5000);
         UITimer.schedule(UI_task, 0, 60);// TODO: How much of a delay do we really need?
         LPUITimer.schedule(LPUI_task, 0, 200);
-        setupTeensyStream();
         assert dataTab != null;
-        dataTab.setTeensyStream(TStream, this);
+        assert troubleshootTab != null;
+        setupTeensyStream();
     }
 
     private void updateTabs() { // TODO: set appropriate UI values
@@ -254,6 +257,9 @@ public class MainActivity extends AppCompatActivity {
             TStream.setCallback(msgIDStartLight, num -> runOnUiThread(() -> mainTab.setStartLight(num == 1)), TeensyStream.UPDATE.ON_VALUE_CHANGE);
             TStream.setCallback(msgIDLag, num -> runOnUiThread(() -> mainTab.setLagLight(true, num)), TeensyStream.UPDATE.ON_RECEIVE);
             TStream.setCallback(msgIDBeat, num -> runOnUiThread(() -> mainTab.setLagLight(false)), TeensyStream.UPDATE.ON_RECEIVE);
+
+            dataTab.setTeensyStream(TStream, this);
+            troubleshootTab.setStream(TStream, this);
         }
         );
         TStream.setEnableLogCallback(false);
@@ -315,15 +321,21 @@ public class MainActivity extends AppCompatActivity {
         ConsoleScroller.postDelayed(() -> ConsoleScroller.fullScroll(View.FOCUS_DOWN), 25);
     }
 
+    private void setConsole(boolean state) {
+        if (state) {
+            TStream.setEnableLogCallback(true);
+            Toaster.showToast("Live Logging Enabled", false, true);
+        } else {
+            TStream.setEnableLogCallback(false);
+            Toaster.showToast("Live Logging Disabled", false, true);
+        }
+    }
+
     public void onConsoleSwitch(View view) {
         if (((SwitchCompat) view).isChecked()) {
             SimpleAnim.animView(this, ConsoleLayout, View.VISIBLE, "fade");
-            TStream.setEnableLogCallback(true);
-            Toaster.showToast("Console Enabled", false, true);
         } else {
             SimpleAnim.animView(this, ConsoleLayout, View.INVISIBLE, "fade");
-            TStream.setEnableLogCallback(false);
-            Toaster.showToast("Console Disabled", false, true);
         }
     }
 
@@ -374,6 +386,7 @@ public class MainActivity extends AppCompatActivity {
         });
         if (FunctionSubTab.getVisibility() == View.VISIBLE || MainUpperLayout.getVisibility() == View.VISIBLE) {
             MainPager.setUserInputEnabled(false);
+            setConsole(false);
             SimpleAnim.animView(this, MainUpperLayout, View.INVISIBLE, "down");
             SimpleAnim.animView(this, FunctionSubTab, View.INVISIBLE, "left");
             if (ConsoleLayout.getVisibility() == View.VISIBLE) {
@@ -382,6 +395,7 @@ public class MainActivity extends AppCompatActivity {
             }
             ((ToggleButton) view).setChecked(true);
         } else {
+            setConsole(true);
             SimpleAnim.animView(this, MainUpperLayout, View.VISIBLE, "down");
             ((ToggleButton) view).setChecked(false);
             MainPager.setUserInputEnabled(true);
