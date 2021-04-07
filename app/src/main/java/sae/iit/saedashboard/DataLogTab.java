@@ -28,6 +28,9 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Locale;
+import java.util.Objects;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class DataLogTab extends Fragment {
     private Button showButton;
@@ -48,6 +51,7 @@ public class DataLogTab extends Fragment {
     private final ArrayList<Pair<LogFileIO.LogFile, TextView>> fileList = new ArrayList<>();
     private int selectedFile = -1;
     private TextView LogViewer;
+    private final Timer updateTimer = new Timer();
     private Thread colorThread;
     private ProgressBar logWait;
     private final float[] viewTextSize = {12};
@@ -72,7 +76,9 @@ public class DataLogTab extends Fragment {
         logWait = rootView.findViewById(R.id.logWait);
         showButton.setOnClickListener(v -> onClickShowFile());
         upButton.setOnClickListener(v -> onClickUp());
+        upButton.setOnLongClickListener(this::onLongClickUp);
         downButton.setOnClickListener(v -> onClickDown());
+        downButton.setOnLongClickListener(this::onLongClickDown);
         deleteButton.setOnClickListener(v -> onClickDelete());
         deleteButton.setOnLongClickListener(v -> onLongClickDelete());
         exportButton.setOnClickListener(v -> onClickExport());
@@ -171,6 +177,39 @@ public class DataLogTab extends Fragment {
         selectFile(selectedFile + 1);
     }
 
+    TimerTask updateLineTask;
+
+    private void setLineTask(boolean direction, Button check) {
+        if (updateLineTask != null)
+            updateLineTask.cancel();
+        updateTimer.purge();
+        if (check == null)
+            return;
+        if (logScroller.getVisibility() != View.GONE) {
+            updateLineTask = new TimerTask() {
+                @Override
+                public void run() {
+                    if (check.isPressed()) {
+                        activity.runOnUiThread(() -> logScroller.smoothScrollBy(0, (int) (LogViewer.getHeight() / 16d) * (direction ? 1 : -1)));
+                    } else {
+                        setLineTask(direction, null);
+                    }
+                }
+            };
+            updateTimer.schedule(updateLineTask, 0, 50);
+        }
+    }
+
+    public boolean onLongClickDown(View v) {
+        setLineTask(true, (Button) v);
+        return false;
+    }
+
+    public boolean onLongClickUp(View v) {
+        setLineTask(false, (Button) v);
+        return false;
+    }
+
     public void onClickDelete() {
         if (logScroller.getVisibility() != View.GONE) {
             Toaster.showToast("Can't delete while viewing log", Toaster.STATUS.WARNING);
@@ -234,7 +273,7 @@ public class DataLogTab extends Fragment {
         textView.setOnClickListener(v -> selectFile(file));
         SpannableStringBuilder sb = new SpannableStringBuilder();
         String KB = String.valueOf(file.length() / 1000);
-        int color = loggingIO.isActiveFile(file) ? getContext().getColor(R.color.colorAccent) : getContext().getColor(R.color.backgroundText);
+        int color = loggingIO.isActiveFile(file) ? Objects.requireNonNull(getContext()).getColor(R.color.colorAccent) : Objects.requireNonNull(getContext()).getColor(R.color.backgroundText);
         sb.append(TeensyStream.getColoredString(String.format(Locale.US, "%1$3s  ", pos).replace(" ", "  "), color));
         sb.append(name);
         sb.append(TeensyStream.getColoredString("  -  " + KB + " kb", color));
@@ -277,7 +316,7 @@ public class DataLogTab extends Fragment {
         if (selectedFile > -1 && selectedFile < size)
             fileList.get(selectedFile).second.setBackgroundColor(Color.TRANSPARENT);
         TextView view = fileList.get(pos).second;
-        view.setBackgroundColor(getContext().getColor(R.color.translucentBlack));
+        view.setBackgroundColor(Objects.requireNonNull(getContext()).getColor(R.color.translucentBlack));
         int finalPos = pos;
         int height = view.getHeight();
         selectedFile = pos;
