@@ -262,7 +262,6 @@ public class MainActivity extends AppCompatActivity {
             troubleshootTab.setStream(TStream, this);
         }
         );
-        TStream.setEnableLogCallback(false);
         JSONToggle.setOnLongClickListener(v -> {
             TStream.clear();
             return true;
