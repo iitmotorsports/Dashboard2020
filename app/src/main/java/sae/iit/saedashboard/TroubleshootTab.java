@@ -67,14 +67,11 @@ public class TroubleshootTab extends Fragment {
         int getColor(Long value) {
             if (set) {
                 return REDi;
-            } else if (value == null || val == null) {
+            } else if (value == null || val == null || nil) {
                 return BGi;
             } else if (value.equals(val)) {
-                if (nil)
-                    return BGi;
                 return YELLOWi;
             } else {
-                nil = false;
                 return WHITEi;
             }
         }
@@ -173,19 +170,24 @@ public class TroubleshootTab extends Fragment {
         val.append(TeensyStream.getColoredString(String.valueOf(value), pinClass.getColor(value)));
         activity.runOnUiThread(() -> finalTextView.setText(val));
         pinClass.val = value;
-        pinClass.set = false;
+//        pinClass.set = false;
     }
 
     private void onFail(int pin) {
         Pin pinClass = viewMap.get(pin);
         if (pinClass != null) {
             pinClass.nil = true;
+            if (pinClass.set) {
+                pinClass.set = false;
+            }
+            updateValue(pin, 0L);
         }
     }
 
     private void onSet(int pin, long value) {
         Pin pinClass = viewMap.get(pin);
         if (pinClass != null) {
+            pinClass.nil = false;
             pinClass.set = true;
         }
         updateValue(pin, value);
