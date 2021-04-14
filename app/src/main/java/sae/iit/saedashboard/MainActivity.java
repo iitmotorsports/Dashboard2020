@@ -411,7 +411,7 @@ public class MainActivity extends AppCompatActivity {
     public void onClickLoad(View view) {
         if (PasteAPI.checkInternetConnection(getApplicationContext())) {
             Toaster.showToast("Downloading JSON");
-            PasteAPI.getLastPaste(response -> TStream.updateJsonMap(response));
+            PasteAPI.getLastJSONPaste(response -> TStream.updateJsonMap(response));
         } else {
             TStream.updateJsonMap();
         }
