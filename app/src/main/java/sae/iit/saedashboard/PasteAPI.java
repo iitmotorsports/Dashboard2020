@@ -12,6 +12,7 @@ import org.json.JSONObject;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.OutputStream;
 import java.net.URL;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -22,8 +23,12 @@ public class PasteAPI {
 
     private static final String API_URL = "https://api.paste.ee/v1/pastes";
 
-    private static String getAPIKey() {
+    private static String getJSONAPIKey() {
         return new String(android.util.Base64.decode("dVE4NWZCOVVLanRhSnFBazlKVEExaGVVc3J2QURnZVBIejc5RXhKMlo=", android.util.Base64.DEFAULT));
+    }
+
+    private static String getLOGAPIKey() {
+        return new String(android.util.Base64.decode("dTBXUXZabUNsdVFkZWJycUlUNjZSRHJoR1paTlVXaXE3U09LTVlPUE8==", android.util.Base64.DEFAULT));
     }
 
     public interface responseCallback {
@@ -70,7 +75,39 @@ public class PasteAPI {
         }
     }
 
-    public static void getLastPaste(responseCallback responseCallback) {
+    public static void uploadPaste(byte[] data) {
+        ExecutorService executor = Executors.newSingleThreadExecutor();
+        executor.submit(() -> {
+            HttpsURLConnection listConn = null;
+            try {
+                URL url = new URL(API_URL);
+                listConn = (HttpsURLConnection) url.openConnection();
+
+                listConn.setDoInput(true);
+                listConn.setRequestMethod("POST");
+                listConn.setRequestProperty("X-Auth-Token", getLOGAPIKey());
+                listConn.setDoOutput(true);
+                OutputStream wr = listConn.getOutputStream();
+                wr.write(data);
+                wr.flush();
+                wr.close();
+
+                getResponse(listConn);
+
+                listConn.disconnect();
+
+            } catch (IOException e) {
+                Toaster.showToast("Failed to communicate with API");
+                e.printStackTrace();
+            } finally {
+                if (listConn != null)
+                    listConn.disconnect();
+            }
+        });
+    }
+
+
+    public static void getLastJSONPaste(responseCallback responseCallback) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
             HttpsURLConnection listConn = null;
@@ -81,7 +118,7 @@ public class PasteAPI {
 
                 listConn.setDoInput(true);
                 listConn.setRequestMethod("GET");
-                listConn.setRequestProperty("X-Auth-Token", getAPIKey());
+                listConn.setRequestProperty("X-Auth-Token", getJSONAPIKey());
 
                 JSONObject jObject = new JSONObject(getResponse(listConn));
                 JSONArray jData = jObject.getJSONArray("data");
@@ -97,7 +134,7 @@ public class PasteAPI {
 
                 getConn.setDoInput(true);
                 getConn.setRequestMethod("GET");
-                getConn.setRequestProperty("X-Auth-Token", getAPIKey());
+                getConn.setRequestProperty("X-Auth-Token", getJSONAPIKey());
 
                 jObject = new JSONObject(getResponse(getConn));
                 jObject = jObject.getJSONObject("paste");
