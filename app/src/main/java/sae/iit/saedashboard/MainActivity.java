@@ -292,6 +292,9 @@ public class MainActivity extends AppCompatActivity {
     public void onClickCanMsg(View view) {
         TStream.showCANDialog();
     }
+    public void onClickEcho(View view) {
+        TStream.showEchoDialog();
+    }
 
     /**
      * Clear test console

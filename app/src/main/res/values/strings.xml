@@ -62,7 +62,7 @@
     <string name="right_mc_temp">Right MC Temp</string>
     <string name="active_aero_pos">Active Aero Pos</string>
     <string name="can_msg">CanMsg</string>
-    <string name="enter_valid_canbus_values">Enter valid HEX values</string>
+    <string name="enter_valid_canbus_values">Enter valid values</string>
     <string name="_0x">0x</string>
     <string name="hex_only">HEX Only</string>
     <string name="address">Address</string>
@@ -105,4 +105,8 @@
     <string name="reset">Reset</string>
     <string name="pin_value">Pin value</string>
     <string name="set">set</string>
+    <string name="echo">Echo</string>
+    <string name="delay">Delay</string>
+    <string name="delayhint">delay</string>
+    <string name="ms">ms</string>
 </resources>

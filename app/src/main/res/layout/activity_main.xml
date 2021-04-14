@@ -134,9 +134,11 @@
                         android:id="@+id/SerialToggle"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
                         android:minWidth="0dp"
                         android:minHeight="0dp"
                         android:onClick="onSerialToggle"
+                        android:padding="10dp"
                         android:textSize="12sp" />
 
                     <ToggleButton
@@ -144,11 +146,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:checked="true"
+                        android:includeFontPadding="false"
                         android:keepScreenOn="true"
                         android:longClickable="true"
                         android:minWidth="0dp"
                         android:minHeight="0dp"
                         android:onClick="onClickLoad"
+                        android:padding="10dp"
                         android:textOff="@string/json"
                         android:textOn="@string/json"
                         android:textSize="12sp" />
@@ -158,9 +162,11 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:checked="false"
+                        android:includeFontPadding="false"
                         android:minWidth="0dp"
                         android:minHeight="0dp"
                         android:onClick="onClickCharge"
+                        android:padding="10dp"
                         android:textOff="@string/charge"
                         android:textOn="@string/charge"
                         android:textSize="12sp" />
@@ -190,11 +196,13 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:contentDescription="@string/clear_the_serial_log"
+                        android:includeFontPadding="false"
                         android:keepScreenOn="true"
                         android:longClickable="true"
                         android:minWidth="0dp"
                         android:minHeight="0dp"
                         android:onClick="onClickClear"
+                        android:padding="10dp"
                         android:text="@string/clear"
                         android:textSize="12sp" />
 
@@ -260,10 +268,24 @@
                         android:id="@+id/sendCAN"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
                         android:minWidth="0dp"
                         android:minHeight="0dp"
                         android:onClick="onClickCanMsg"
+                        android:padding="10dp"
                         android:text="@string/can_msg"
+                        android:textSize="12sp" />
+
+                    <Button
+                        android:id="@+id/echoBtn"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:includeFontPadding="false"
+                        android:minWidth="0dp"
+                        android:minHeight="0dp"
+                        android:onClick="onClickEcho"
+                        android:padding="10dp"
+                        android:text="@string/echo"
                         android:textSize="12sp" />
 
                 </LinearLayout>

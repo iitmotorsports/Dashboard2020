@@ -1,7 +1,6 @@
 package sae.iit.saedashboard;
 
 import android.app.Activity;
-import android.app.AlertDialog;
 import android.content.Intent;
 import android.graphics.Color;
 import android.text.Spannable;
@@ -10,10 +9,6 @@ import android.text.SpannableStringBuilder;
 import android.text.style.ForegroundColorSpan;
 import android.util.Log;
 import android.util.Pair;
-import android.view.View;
-import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ToggleButton;
 
 import com.felhr.usbserial.UsbSerialInterface;
 
@@ -25,9 +20,6 @@ import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
 import java.util.Map;
-import java.util.Random;
-import java.util.Timer;
-import java.util.TimerTask;
 
 public class TeensyStream {
     private final HashMap<Long, msgBlock> Teensy_Data = new HashMap<>();
@@ -35,14 +27,13 @@ public class TeensyStream {
     private final USBSerial serialConnection;
     private final LogFileIO loggingIO;
     private final JSONMap jsonMap;
-    private AlertDialog CAN_dialog;
-    private final Timer CANMsgSend = new Timer();
     private boolean enableLogCallback = true;
     private boolean enableLogFile;
     private MODE outputMode = MODE.ASCII;
     private final HashMap<Long, STATE> Teensy_State_Map = new HashMap<>();
     private long currentState = 0;
-    private final Activity activity;
+    private static CANDialog canAlert;
+    private static EchoDialog echoAlert;
     private static final String LOG_MAP_START = "---[ LOG MAP START ]---\n";
     private static final String LOG_MAP_END = "---[ LOG MAP END ]---\n";
 
@@ -130,6 +121,7 @@ public class TeensyStream {
         public static final byte[] TOGGLE_CANBUS_SNIFF = {127}; // TODO: implement canbus sniffer button
         public static final byte[] TOGGLE_MIRROR_MODE = {90};
         public static final byte[] ENTER_MIRROR_SET = {-1};
+        public static final byte[] SEND_ECHO = {84};
     }
 
     public void log(String message) {
@@ -180,7 +172,6 @@ public class TeensyStream {
     public TeensyStream(Activity activity, TeensyLogCallback logMessage, TeensyCallback deviceAttach, TeensyCallback deviceDetach, JSONMap.MapChange runOnMapChange, TeensyInitialize runOnSuccessfulMapChange) {
         Log.i(LOG_TAG, "Making teensy stream");
         loggingIO = new LogFileIO(activity);
-        this.activity = activity;
 
         jsonMap = new JSONMap(activity, rawJson -> {
             loggingIO.newLog();
@@ -218,7 +209,8 @@ public class TeensyStream {
         boolean b = jsonMap.update();
 
         new android.os.Handler().postDelayed(serialConnection::open, 2000);
-        setupCANDialog(this);
+        canAlert = new CANDialog(activity, this);
+        echoAlert = new EchoDialog(activity, this);
         if (b)
             runOnSuccessfulMapChange.run(this);
     }
@@ -236,110 +228,11 @@ public class TeensyStream {
 
     // region Messaging
 
-    private void setupCANDialog(TeensyStream stream) {
-        AlertDialog.Builder mBuilder = new AlertDialog.Builder(activity);
-        View mView = activity.getLayoutInflater().inflate(R.layout.canmsg_dialog_layout, null);
-
-        Button Send = mView.findViewById(R.id.btnSend);
-        Button Cancel = mView.findViewById(R.id.btnCancel);
-        Button Clear = mView.findViewById(R.id.btnClear);
-        Button Rand = mView.findViewById(R.id.btnRnd);
-        ToggleButton Cont = mView.findViewById(R.id.btnCont);
-
-        EditText address = mView.findViewById(R.id.editTextAddress);
-        EditText byte0 = mView.findViewById(R.id.editTextByte0);
-        EditText byte1 = mView.findViewById(R.id.editTextByte1);
-        EditText byte2 = mView.findViewById(R.id.editTextByte2);
-        EditText byte3 = mView.findViewById(R.id.editTextByte3);
-        EditText byte4 = mView.findViewById(R.id.editTextByte4);
-        EditText byte5 = mView.findViewById(R.id.editTextByte5);
-        EditText byte6 = mView.findViewById(R.id.editTextByte6);
-        EditText byte7 = mView.findViewById(R.id.editTextByte7);
-
-        mBuilder.setView(mView);
-        CAN_dialog = mBuilder.create();
-
-        Runnable sendData = () -> {
-            String addStr = "00000000".concat(address.getText().toString());
-            addStr = addStr.substring(addStr.length() - 8);
-            byte[] add = ByteSplit.hexToBytes(addStr);
-            byte[] bytes = ByteSplit.joinArray(ByteSplit.hexToBytes(byte0.getText().toString()),
-                    ByteSplit.hexToBytes(byte1.getText().toString()),
-                    ByteSplit.hexToBytes(byte2.getText().toString()),
-                    ByteSplit.hexToBytes(byte3.getText().toString()),
-                    ByteSplit.hexToBytes(byte4.getText().toString()),
-                    ByteSplit.hexToBytes(byte5.getText().toString()),
-                    ByteSplit.hexToBytes(byte6.getText().toString()),
-                    ByteSplit.hexToBytes(byte7.getText().toString()));
-
-            if (bytes.length != 8 || add.length == 0 || add.length > 4) {
-                Toaster.showToast("Message Not Sent", Toaster.STATUS.WARNING);
-                return;
-            }
-            Toaster.showToast((ByteSplit.bytesToHex(add) + " : " + ByteSplit.bytesToHex(bytes).replaceAll("(.{2})", "$1 ")), Toaster.STATUS.INFO);
-            stream.write(COMMAND.SEND_CANBUS_MESSAGE);
-            stream.write(add);
-            stream.write(bytes);
-        };
-
-        Send.setOnClickListener(view -> sendData.run());
-
-        Clear.setOnClickListener(view -> {
-            address.setText("");
-            byte0.setText("");
-            byte1.setText("");
-            byte2.setText("");
-            byte3.setText("");
-            byte4.setText("");
-            byte5.setText("");
-            byte6.setText("");
-            byte7.setText("");
-        });
-        Random rnd = new Random();
-        Rand.setOnClickListener(view -> {
-            byte[] add = new byte[4];
-            byte[] bytes = new byte[8];
-            rnd.nextBytes(add);
-            rnd.nextBytes(bytes);
-            address.setText(ByteSplit.bytesToHex(add));
-            byte0.setText(ByteSplit.bytesToHex(new byte[]{bytes[0]}));
-            byte1.setText(ByteSplit.bytesToHex(new byte[]{bytes[1]}));
-            byte2.setText(ByteSplit.bytesToHex(new byte[]{bytes[2]}));
-            byte3.setText(ByteSplit.bytesToHex(new byte[]{bytes[3]}));
-            byte4.setText(ByteSplit.bytesToHex(new byte[]{bytes[4]}));
-            byte5.setText(ByteSplit.bytesToHex(new byte[]{bytes[5]}));
-            byte6.setText(ByteSplit.bytesToHex(new byte[]{bytes[6]}));
-            byte7.setText(ByteSplit.bytesToHex(new byte[]{bytes[7]}));
-        });
-        Cancel.setOnClickListener(view -> CAN_dialog.dismiss());
-
-        final TimerTask[] CAN_Task = new TimerTask[1];
-
-        Cont.setOnClickListener(view -> {
-            if (((ToggleButton) view).isChecked()) {
-                CAN_Task[0] = new TimerTask() {
-                    @Override
-                    public void run() {
-                        sendData.run();
-                    }
-                };
-                CANMsgSend.schedule(CAN_Task[0], 0, 1100); // Not exactly a second just in case
-                Toaster.showToast("Sending message every second", Toaster.STATUS.INFO);
-            } else {
-                CAN_Task[0].cancel();
-                CANMsgSend.purge();
-                Toaster.showToast("Stopping CAN Messages", Toaster.STATUS.INFO);
-            }
-        });
-
-        mView.getViewTreeObserver().addOnGlobalLayoutListener(
-                () -> CAN_dialog.getWindow().setLayout(Math.max(address.getWidth() * 2 + (byte0.getWidth() * 8), Cont.getWidth() * 5), CAN_dialog.getWindow().getAttributes().height)
-        );
-    }
-
     public void showCANDialog() {
-        if (!CAN_dialog.isShowing())
-            CAN_dialog.show();
+        canAlert.showDialog();
+    }
+    public void showEchoDialog() {
+        echoAlert.showDialog();
     }
 
     /**
