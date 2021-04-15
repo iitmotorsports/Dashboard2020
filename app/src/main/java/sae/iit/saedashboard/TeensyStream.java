@@ -231,6 +231,7 @@ public class TeensyStream {
     public void showCANDialog() {
         canAlert.showDialog();
     }
+
     public void showEchoDialog() {
         echoAlert.showDialog();
     }
@@ -450,6 +451,38 @@ public class TeensyStream {
             spannable.append(lineSpan);
         });
         return spannable;
+    }
+
+    public static String stringifyLogFile(File file) {
+        byte[] bytes = LogFileIO.getBytes(file);
+        String jsonStr = LogFileIO.getString(file, LOG_MAP_END);
+        int logStart = jsonStr.getBytes().length;
+        StringBuilder stringFnl = new StringBuilder();
+        stringFnl.append(jsonStr);
+
+        for (int i = logStart; i < file.length(); i += 8) {
+            byte[] msg = new byte[8];
+            try {
+                System.arraycopy(bytes, i, msg, 0, 8);
+            } catch (IndexOutOfBoundsException e) {
+                e.printStackTrace();
+                Toaster.showToast("Warning: log file has leftover bytes", Toaster.STATUS.WARNING);
+                break;
+            }
+            long[] IDs = ByteSplit.getTeensyMsg(msg);
+            stringFnl.append(IDs[0]).append(" ").append(IDs[1]).append(" ").append(IDs[2]).append("\n");
+        }
+
+        String fnl = stringFnl.toString();
+        fnl = fnl.replace("\"", "\\\"");
+        fnl = fnl.replace("\n", "\\n");
+
+        if (fnl.length() != 0) {
+            return fnl;
+        }
+
+        Toaster.showToast("Returning string interpretation", Toaster.STATUS.WARNING);
+        return LogFileIO.getString(file);
     }
 
     public static String interpretLogFile(File file) {

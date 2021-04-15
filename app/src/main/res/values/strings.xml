@@ -109,4 +109,5 @@
     <string name="delay">Delay</string>
     <string name="delayhint">delay</string>
     <string name="ms">ms</string>
+    <string name="upload">Upload</string>
 </resources>

@@ -2,6 +2,7 @@ package sae.iit.saedashboard;
 
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.util.Log;
 import android.view.Gravity;
 import android.widget.Toast;
 
@@ -46,6 +47,7 @@ public class Toaster {
     }
 
     public static void showToast(String msg, boolean longLength, boolean rightSide, STATUS status) { // Improve: always reuse same Toast object
+        Log.i("Toast", msg);
         act.runOnUiThread(() -> {
             Toast toast;
             switch (status) {

@@ -79,6 +79,7 @@ public class LogFileIO {
             }
             return new LogFile[0];
         }
+
     }
 
     public LogFileIO(Activity activity) {

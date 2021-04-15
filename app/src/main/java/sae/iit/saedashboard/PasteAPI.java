@@ -3,7 +3,6 @@ package sae.iit.saedashboard;
 import android.content.Context;
 import android.net.ConnectivityManager;
 import android.net.NetworkCapabilities;
-import android.util.Log;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -22,13 +21,18 @@ import javax.net.ssl.HttpsURLConnection;
 public class PasteAPI {
 
     private static final String API_URL = "https://api.paste.ee/v1/pastes";
+    private static final String[] dataPlate =
+            {
+                    "{\"sections\":[{\"contents\":\"",
+                    "\"}]}"
+            };
 
     private static String getJSONAPIKey() {
         return new String(android.util.Base64.decode("dVE4NWZCOVVLanRhSnFBazlKVEExaGVVc3J2QURnZVBIejc5RXhKMlo=", android.util.Base64.DEFAULT));
     }
 
     private static String getLOGAPIKey() {
-        return new String(android.util.Base64.decode("dTBXUXZabUNsdVFkZWJycUlUNjZSRHJoR1paTlVXaXE3U09LTVlPUE8==", android.util.Base64.DEFAULT));
+        return new String(android.util.Base64.decode("dTBXUXZabUNsdVFkZWJycUlUNjZSRHJoR1paTlVXaXE3U09LTVlPUE8=", android.util.Base64.DEFAULT));
     }
 
     public interface responseCallback {
@@ -65,7 +69,7 @@ public class PasteAPI {
         while ((line = reader.readLine()) != null) {
             response.append(line);
         }
-        Log.i("Paste", conn.getResponseCode() + " " + conn.getResponseMessage());
+        Toaster.showToast(conn.getResponseCode() + " " + conn.getResponseMessage());
         return response.toString();
     }
 
@@ -75,7 +79,12 @@ public class PasteAPI {
         }
     }
 
-    public static void uploadPaste(byte[] data) {
+    public static void uploadPaste(String data) {
+        if (data == null || data.length() == 0) {
+            Toaster.showToast("No data to upload", Toaster.STATUS.ERROR);
+            return;
+        }
+
         ExecutorService executor = Executors.newSingleThreadExecutor();
         executor.submit(() -> {
             HttpsURLConnection listConn = null;
@@ -83,12 +92,16 @@ public class PasteAPI {
                 URL url = new URL(API_URL);
                 listConn = (HttpsURLConnection) url.openConnection();
 
-                listConn.setDoInput(true);
-                listConn.setRequestMethod("POST");
-                listConn.setRequestProperty("X-Auth-Token", getLOGAPIKey());
                 listConn.setDoOutput(true);
+                listConn.setRequestMethod("POST");
+                listConn.setRequestProperty("Accept", "application/json");
+                listConn.setRequestProperty("Content-Type", "application/json");
+                listConn.setRequestProperty("X-Auth-Token", getLOGAPIKey());
                 OutputStream wr = listConn.getOutputStream();
-                wr.write(data);
+                Toaster.showToast("Uploading", Toaster.STATUS.INFO);
+                wr.write(dataPlate[0].getBytes());
+                wr.write(data.getBytes());
+                wr.write(dataPlate[1].getBytes());
                 wr.flush();
                 wr.close();
 
@@ -97,7 +110,6 @@ public class PasteAPI {
                 listConn.disconnect();
 
             } catch (IOException e) {
-                Toaster.showToast("Failed to communicate with API");
                 e.printStackTrace();
             } finally {
                 if (listConn != null)
@@ -105,7 +117,6 @@ public class PasteAPI {
             }
         });
     }
-
 
     public static void getLastJSONPaste(responseCallback responseCallback) {
         ExecutorService executor = Executors.newSingleThreadExecutor();

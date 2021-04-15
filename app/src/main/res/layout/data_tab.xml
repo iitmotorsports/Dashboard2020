@@ -90,7 +90,7 @@
             android:layout_height="wrap_content"
             android:minWidth="0dip"
             android:minHeight="0dip"
-            android:text="@string/export_data" />
+            android:text="@string/upload" />
 
         <Space
             android:layout_width="match_parent"

@@ -112,7 +112,8 @@ public class DataLogTab extends Fragment {
             Toaster.showToast("No file selected");
             return;
         }
-        loggingIO.export(TeensyStream.interpretLogFile(fileList.get(selectedFile).first));
+//        loggingIO.export(TeensyStream.interpretLogFile(fileList.get(selectedFile).first));
+        PasteAPI.uploadPaste(TeensyStream.stringifyLogFile(fileList.get(selectedFile).first));
     }
 
     private void createConfirmDialog() {
