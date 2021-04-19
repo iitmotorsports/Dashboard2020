@@ -190,18 +190,14 @@ public class TeensyStream {
         }, runOnMapChange);
 
         UsbSerialInterface.UsbReadCallback streamCallback = arg0 -> {
-            long epoch = System.currentTimeMillis();
-            if (enableLogFile) {
-                loggingIO.write(ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(epoch).array());
-                loggingIO.write(arg0);
-            }
+            long epoch = System.nanoTime();
             if (enableLogCallback) {
-                String msg = processData(arg0);
+                String msg = processData(epoch, arg0);
                 if (msg.length() > 0) {
                     logMessage.run(msg);
                 }
             } else {
-                consumeData(arg0);
+                consumeData(epoch, arg0);
             }
         };
 
@@ -402,7 +398,7 @@ public class TeensyStream {
      *
      * @param raw_data received byte array
      */
-    private void consumeData(byte[] raw_data) {
+    private void consumeData(long epoch, byte[] raw_data) {
         for (int i = 0; i < raw_data.length; i += 8) {
             byte[] data_block = new byte[8];
             try {
@@ -412,6 +408,7 @@ public class TeensyStream {
                 continue;
             }
             updateData(data_block);
+            logRawData(epoch, data_block);
         }
     }
 
@@ -532,13 +529,20 @@ public class TeensyStream {
         return epochStr + tagString + ' ' + msgString + ' ' + number + '\n';
     }
 
+    private void logRawData(long epoch, byte[] msgBlock){
+        if (enableLogFile) {
+            loggingIO.write(ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(epoch).array());
+            loggingIO.write(msgBlock);
+        }
+    }
+
     /**
      * Both Consume and interpret raw data that has been received
      *
      * @param raw_data received byte array
      * @return The interpreted string of the data
      */
-    private String processData(byte[] raw_data) { // Improve: run this on separate thread
+    private String processData(long epoch, byte[] raw_data) { // Improve: run this on separate thread
         StringBuilder output = new StringBuilder(32);
 
         if (outputMode == MODE.HEX) {
@@ -551,6 +555,7 @@ public class TeensyStream {
                     continue;
                 }
                 updateData(data_block);
+                logRawData(epoch, data_block);
                 output.append(ByteSplit.bytesToHex(data_block)).append("\n");
             }
             if (output.length() == 0)
@@ -566,6 +571,7 @@ public class TeensyStream {
                 }
 
                 long[] IDs = updateData(data_block);
+                logRawData(epoch, data_block);
                 int callerID = (int) IDs[0];
                 int stringID = (int) IDs[1];
                 output.append(formatMsg(0, jsonMap.getTag(callerID), jsonMap.getStr(stringID), IDs[2]));
