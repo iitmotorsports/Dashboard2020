@@ -15,7 +15,11 @@ import com.felhr.usbserial.UsbSerialInterface;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.StringReader;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.text.DateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.HashMap;
 import java.util.Hashtable;
 import java.util.List;
@@ -186,12 +190,14 @@ public class TeensyStream {
         }, runOnMapChange);
 
         UsbSerialInterface.UsbReadCallback streamCallback = arg0 -> {
+            long epoch = System.currentTimeMillis();
             if (enableLogFile) {
+                loggingIO.write(ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(epoch).array());
                 loggingIO.write(arg0);
             }
             if (enableLogCallback) {
                 String msg = processData(arg0);
-                if (enableLogCallback && msg.length() > 0) {
+                if (msg.length() > 0) {
                     logMessage.run(msg);
                 }
             } else {
@@ -460,17 +466,20 @@ public class TeensyStream {
         StringBuilder stringFnl = new StringBuilder();
         stringFnl.append(jsonStr);
 
-        for (int i = logStart; i < file.length(); i += 8) {
+        for (int i = logStart; i < file.length(); i += 16) {
+            byte[] epochB = new byte[8];
             byte[] msg = new byte[8];
             try {
-                System.arraycopy(bytes, i, msg, 0, 8);
+                System.arraycopy(bytes, i, epochB, 0, 8);
+                System.arraycopy(bytes, i + 8, msg, 0, 8);
             } catch (IndexOutOfBoundsException e) {
                 e.printStackTrace();
                 Toaster.showToast("Warning: log file has leftover bytes", Toaster.STATUS.WARNING);
                 break;
             }
+            long epoch = ByteBuffer.wrap(epochB).order(ByteOrder.LITTLE_ENDIAN).getLong();
             long[] IDs = ByteSplit.getTeensyMsg(msg);
-            stringFnl.append(IDs[0]).append(" ").append(IDs[1]).append(" ").append(IDs[2]).append("\n");
+            stringFnl.append(epoch).append(" ").append(IDs[0]).append(" ").append(IDs[1]).append(" ").append(IDs[2]).append("\n");
         }
 
         String fnl = stringFnl.toString();
@@ -492,17 +501,20 @@ public class TeensyStream {
         int logStart = jsonStr.getBytes().length;
         StringBuilder stringFnl = new StringBuilder();
         if (tempMap.update(jsonStr.substring(LOG_MAP_START.length()))) {
-            for (int i = logStart; i < file.length(); i += 8) {
+            for (int i = logStart; i < file.length(); i += 16) {
+                byte[] epochB = new byte[8];
                 byte[] msg = new byte[8];
                 try {
-                    System.arraycopy(bytes, i, msg, 0, 8);
+                    System.arraycopy(bytes, i, epochB, 0, 8);
+                    System.arraycopy(bytes, i + 8, msg, 0, 8);
                 } catch (IndexOutOfBoundsException e) {
                     e.printStackTrace();
                     Toaster.showToast("Warning: log file has leftover bytes", Toaster.STATUS.WARNING);
                     break;
                 }
                 long[] IDs = ByteSplit.getTeensyMsg(msg);
-                stringFnl.append(formatMsg(tempMap.getTag((int) IDs[0]), tempMap.getStr((int) IDs[1]), IDs[2]));
+                long epoch = ByteBuffer.wrap(epochB).order(ByteOrder.LITTLE_ENDIAN).getLong();
+                stringFnl.append(formatMsg(epoch, tempMap.getTag((int) IDs[0]), tempMap.getStr((int) IDs[1]), IDs[2]));
             }
             String fnl = stringFnl.toString();
             if (fnl.length() != 0) {
@@ -513,10 +525,11 @@ public class TeensyStream {
         return LogFileIO.getString(file);
     }
 
-    private static String formatMsg(String tagString, String msgString, long number) {
+    private static String formatMsg(long epoch, String tagString, String msgString, long number) {
         if (tagString == null || msgString == null)
             return "";
-        return tagString + ' ' + msgString + ' ' + number + '\n';
+        String epochStr = epoch != 0 ? DateFormat.getTimeInstance().format(new Date(epoch)) + ' ' : "";
+        return epochStr + tagString + ' ' + msgString + ' ' + number + '\n';
     }
 
     /**
@@ -555,7 +568,7 @@ public class TeensyStream {
                 long[] IDs = updateData(data_block);
                 int callerID = (int) IDs[0];
                 int stringID = (int) IDs[1];
-                output.append(formatMsg(jsonMap.getTag(callerID), jsonMap.getStr(stringID), IDs[2]));
+                output.append(formatMsg(0, jsonMap.getTag(callerID), jsonMap.getStr(stringID), IDs[2]));
             }
             if (output.length() == 0) {
                 Log.w(LOG_TAG, "USB serial might be overwhelmed!");
