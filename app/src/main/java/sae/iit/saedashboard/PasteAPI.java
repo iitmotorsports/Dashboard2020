@@ -105,12 +105,16 @@ public class PasteAPI {
                 wr.flush();
                 wr.close();
 
-                getResponse(listConn);
+                JSONObject jObject = new JSONObject(getResponse(listConn));
+                String id = jObject.getString("id");
+
+                Toaster.showToast("ID: " + id, true, Toaster.STATUS.SUCCESS);
 
                 listConn.disconnect();
 
-            } catch (IOException e) {
+            } catch (IOException | JSONException e) {
                 e.printStackTrace();
+                Toaster.showToast("Failed to communicate with API", Toaster.STATUS.ERROR);
             } finally {
                 if (listConn != null)
                     listConn.disconnect();
@@ -155,9 +159,9 @@ public class PasteAPI {
                 responseCallback.run(content);
 
             } catch (NoPastesUploadedException e) {
-                Toaster.showToast("API showed no pastes");
+                Toaster.showToast("API showed no pastes", Toaster.STATUS.ERROR);
             } catch (IOException | JSONException e) {
-                Toaster.showToast("Failed to communicate with API");
+                Toaster.showToast("Failed to communicate with API", Toaster.STATUS.ERROR);
                 e.printStackTrace();
             } finally {
                 if (listConn != null)
