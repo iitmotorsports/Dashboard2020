@@ -110,4 +110,5 @@
     <string name="delayhint">delay</string>
     <string name="ms">ms</string>
     <string name="upload">Upload</string>
+    <string name="pack_power_watts">Pack Power (Watts)</string>
 </resources>

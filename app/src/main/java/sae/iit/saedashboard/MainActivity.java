@@ -58,6 +58,8 @@ public class MainActivity extends AppCompatActivity {
     private long msgIDMC1Voltage = -1;
     private long msgIDPowerGauge = -1;
     private long msgIDBatteryLife = -1;
+    private long msgIDBMSVolt = -1;
+    private long msgIDBMSAmp = -1;
     private long msgIDFault = -1;
     private long msgIDLag = -1;
     private long msgIDBeat = -1;
@@ -197,7 +199,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateLPTabs() {
         mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
-        mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
+//        mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
+        mainTab.setPowerDisplay(TStream.requestData(msgIDBMSVolt) * ByteSplit.toSignedShort(TStream.requestData(msgIDBMSAmp)));
         secondTab.setValues(0, 0, 0, 0, 0, 0);
     }
 
@@ -242,6 +245,8 @@ public class MainActivity extends AppCompatActivity {
             msgIDSpeedometer = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Current Motor Speed:");
             msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Current Power Value:");
             msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS State Of Charge Value:");
+            msgIDBMSVolt = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Immediate Voltage:");
+            msgIDBMSAmp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Immediate Amperage:");
             msgIDFault = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Fault State");
             msgIDLag = TStream.requestMsgID("[HeartBeat]", "[WARN]  Heartbeat is taking too long");
             msgIDBeat = TStream.requestMsgID("[HeartBeat]", "[ LOG ] Beat");
@@ -292,6 +297,7 @@ public class MainActivity extends AppCompatActivity {
     public void onClickCanMsg(View view) {
         TStream.showCANDialog();
     }
+
     public void onClickEcho(View view) {
         TStream.showEchoDialog();
     }

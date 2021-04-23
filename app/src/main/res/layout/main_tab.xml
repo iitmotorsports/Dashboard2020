@@ -174,7 +174,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingTop="5dp"
-                    android:text="@string/power_watts"
+                    android:text="@string/pack_power_watts"
                     android:textColor="@color/foregroundText"
                     android:textSize="14sp" />
 
