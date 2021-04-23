@@ -59,6 +59,26 @@ public class ByteSplit {
     }
 
     /**
+     * Converts an unsigned integer to a signed short
+     *
+     * @param unsignedVal unsigned representation of integer
+     * @return signed short
+     */
+    public static short toSignedShort(long unsignedVal) {
+        return ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(unsignedVal).getShort(0);
+    }
+
+    /**
+     * Converts an unsigned integer to a signed int
+     *
+     * @param unsignedVal unsigned representation of integer
+     * @return signed int
+     */
+    public static int toSignedInt(long unsignedVal) {
+        return ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(unsignedVal).getInt(0);
+    }
+
+    /**
      * Reads the first two bytes of a message's array, composing them into an
      * unsigned short value
      *
