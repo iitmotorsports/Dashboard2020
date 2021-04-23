@@ -16,6 +16,7 @@ import com.sccomponents.gauges.library.ScGauge;
 import com.sccomponents.gauges.library.ScNotches;
 
 import java.util.Locale;
+import java.util.Objects;
 
 public class MainTab extends Fragment {
     private TextView speedometer, batteryLife, BMSChargeValue, currentState, lagLightText;
@@ -65,7 +66,7 @@ public class MainTab extends Fragment {
         startLight = rootView.findViewById(R.id.startLight);
 
         // Colors
-        RED = ColorStateList.valueOf(getContext().getColor(R.color.red));
+        RED = ColorStateList.valueOf(Objects.requireNonNull(getContext()).getColor(R.color.red));
         YELLOW = ColorStateList.valueOf(getContext().getColor(R.color.yellow));
         GREEN = ColorStateList.valueOf(getContext().getColor(R.color.green));
         BG = ColorStateList.valueOf(getContext().getColor(R.color.backgroundText));
@@ -84,7 +85,7 @@ public class MainTab extends Fragment {
         base.setRepetitions(30);
         base.setWidths(width, width * 0.6f, width * 0.8f);
         base.setHeights(height * 0.2f, height);
-        base.setColors(getContext().getColor(R.color.backgroundText));
+        base.setColors(Objects.requireNonNull(getContext()).getColor(R.color.backgroundText));
         base = (ScNotches) powerGauge2.addFeature(ScNotches.class);
         base.setTag(ScGauge.BASE_IDENTIFIER);
         base.setPosition(ScFeature.Positions.INSIDE);
@@ -129,7 +130,7 @@ public class MainTab extends Fragment {
         base.setWidths(5);
         base.setHeights(250);
         base.snapToNotches(1f);
-        base.setColors(getContext().getColor(R.color.backgroundText));
+        base.setColors(Objects.requireNonNull(getContext()).getColor(R.color.backgroundText));
 
         // Create the progress notches.
         ScNotches progress = (ScNotches) batteryGauge.addFeature(ScNotches.class);
@@ -163,7 +164,7 @@ public class MainTab extends Fragment {
         base.setWidths(5);
         base.setHeights(250);
         base.snapToNotches(1f);
-        base.setColors(getContext().getColor(R.color.backgroundText));
+        base.setColors(Objects.requireNonNull(getContext()).getColor(R.color.backgroundText));
 
         // Create the progress notches.
         ScNotches progress = (ScNotches) BMSChargeGauge.addFeature(ScNotches.class);
@@ -268,7 +269,7 @@ public class MainTab extends Fragment {
 
     public void setPowerDisplay(long power) {
         BMSChargeValue.setText(String.valueOf(power).concat(" W"));
-        BMSChargeGauge.setHighValue(power);
+        BMSChargeGauge.setHighValue(Math.abs(power));
     }
 
     public void setSpeedometer(long speed) {
