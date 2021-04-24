@@ -24,7 +24,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Objects;
 
-public class TroubleshootTab extends Fragment {
+public class PinoutTab extends Fragment {
 
     private Mirror mirror;
     private RadioButton enableLight;

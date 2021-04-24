@@ -30,13 +30,13 @@ public class MyPagerAdapter extends FragmentStateAdapter {
             @NonNull
             @Override
             public State getCurrentState() {
-                return null;
+                return State.STARTED;
             }
         });
         list.add(new Pair<>(new MainTab(), "Drive"));
         list.add(new Pair<>(new SecondaryTab(), "Secondary"));
         list.add(new Pair<>(new DataLogTab(), "Data Logs"));
-        list.add(new Pair<>(new TroubleshootTab(), "Troubleshooting"));
+        list.add(new Pair<>(new PinoutTab(), "Pinout Tab"));
     }
 
 //    @Override
@@ -47,7 +47,10 @@ public class MyPagerAdapter extends FragmentStateAdapter {
     @NonNull
     @Override
     public Fragment createFragment(int position) {
-        return list.get(position).first;
+        Fragment get = list.get(position).first;
+        if (get == null)
+            return new MainTab();
+        return get;
     }
 
     @Override

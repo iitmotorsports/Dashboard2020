@@ -49,7 +49,7 @@ public class MainActivity extends AppCompatActivity {
     ToggleButton ChargingSetButton;
     ConstraintLayout ConsoleLayout;
     DataLogTab dataTab;
-    TroubleshootTab troubleshootTab;
+    PinoutTab pinoutTab;
     boolean Testing = false;
     DateFormat df = new SimpleDateFormat("[HH:mm:ss]", Locale.getDefault());
 
@@ -125,7 +125,7 @@ public class MainActivity extends AppCompatActivity {
         mainTab = (MainTab) pagerAdapter.list.get(0).first;
         secondTab = (SecondaryTab) pagerAdapter.list.get(1).first;
         dataTab = (DataLogTab) pagerAdapter.list.get(2).first;
-        troubleshootTab = (TroubleshootTab) pagerAdapter.list.get(3).first;
+        pinoutTab = (PinoutTab) pagerAdapter.list.get(3).first;
 
         // UI update timers
         Timer LPUITimer = new Timer();
@@ -180,7 +180,7 @@ public class MainActivity extends AppCompatActivity {
         UITimer.schedule(UI_task, 0, 60);// TODO: How much of a delay do we really need?
         LPUITimer.schedule(LPUI_task, 0, 200);
         assert dataTab != null;
-        assert troubleshootTab != null;
+        assert pinoutTab != null;
         setupTeensyStream();
     }
 
@@ -264,7 +264,7 @@ public class MainActivity extends AppCompatActivity {
             TStream.setCallback(msgIDBeat, num -> runOnUiThread(() -> mainTab.setLagLight(false)), TeensyStream.UPDATE.ON_RECEIVE);
 
             dataTab.setTeensyStream(TStream, this);
-            troubleshootTab.setStream(TStream, this);
+            pinoutTab.setStream(TStream, this);
         }
         );
         JSONToggle.setOnLongClickListener(v -> {

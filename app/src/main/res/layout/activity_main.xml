@@ -87,11 +87,11 @@
                     android:text="@string/data_logs" />
 
                 <com.google.android.material.tabs.TabItem
-                    android:id="@+id/troubleshootTab"
+                    android:id="@+id/pinoutTab"
                     android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
                     android:minHeight="0dp"
-                    android:text="@string/troubleshootTabName" />
+                    android:text="@string/pinout_debugTabname" />
             </com.google.android.material.tabs.TabLayout>
 
         </LinearLayout>
