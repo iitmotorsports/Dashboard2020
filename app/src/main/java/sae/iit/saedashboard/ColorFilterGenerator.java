@@ -6,7 +6,7 @@ import android.graphics.ColorMatrixColorFilter;
 
 public class ColorFilterGenerator {
     /**
-     * Creates a HUE ajustment ColorFilter
+     * Creates a HUE adjustment ColorFilter
      *
      * @param value degrees to shift the hue.
      * @return colorFilter
