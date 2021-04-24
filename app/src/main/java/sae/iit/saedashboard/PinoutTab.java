@@ -80,7 +80,7 @@ public class PinoutTab extends Fragment {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.troubleshoot_tab, container, false);
+        ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.pinout_tab, container, false);
         REDi = Objects.requireNonNull(getContext()).getColor(R.color.red);
         RED = ColorStateList.valueOf(REDi);
         YELLOWi = getContext().getColor(R.color.yellow);

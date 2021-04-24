@@ -45,7 +45,7 @@
                     android:foregroundGravity="center">
 
                     <TextView
-                        android:id="@+id/leftMCTempValue"
+                        android:id="@+id/Value0"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
@@ -67,7 +67,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingTop="5dp"
-                    android:text="@string/left_mc_temp"
+                    android:text="@string/bms_voltage"
                     android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 
@@ -96,7 +96,7 @@
 
 
                     <TextView
-                        android:id="@+id/leftMotorTempValue"
+                        android:id="@+id/Value3"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
@@ -118,7 +118,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingTop="5dp"
-                    android:text="@string/left_motor_temp"
+                    android:text="@string/bms_current"
                     android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 
@@ -157,7 +157,7 @@
 
 
                     <TextView
-                        android:id="@+id/rightMCTempValue"
+                        android:id="@+id/Value1"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
@@ -181,7 +181,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingTop="5dp"
-                    android:text="@string/right_mc_temp"
+                    android:text="@string/battery_temp"
                     android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 
@@ -210,12 +210,11 @@
 
 
                     <TextView
-                        android:id="@+id/rightMotorTempValue"
+                        android:id="@+id/Value4"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
-                        android:text="@string/_0"
                         android:textAlignment="textEnd"
                         android:textColor="@color/foregroundText"
                         android:textSize="50sp"
@@ -234,7 +233,6 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingTop="5dp"
-                    android:text="@string/right_motor_temp"
                     android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 
@@ -273,7 +271,7 @@
 
 
                     <TextView
-                        android:id="@+id/DCBusCurrentValue"
+                        android:id="@+id/Value2"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
@@ -295,7 +293,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingTop="5dp"
-                    android:text="@string/dc_bus_current"
+                    android:text="@string/charge_current_limit"
                     android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 
@@ -324,7 +322,7 @@
 
 
                     <TextView
-                        android:id="@+id/activeAeroPosValue"
+                        android:id="@+id/Value5"
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
@@ -346,7 +344,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingTop="5dp"
-                    android:text="@string/active_aero_pos"
+                    android:text="@string/discharge_current_limit"
                     android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 

@@ -1,7 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
     <item name="checkEngine" type="id" />
-    <item name="rightMotorTempValue" type="id" />
+    <item name="Value4" type="id" />
     <item name="rightMotorTemp" type="id" />
     <item name="leftMotorTemp" type="id" />
     <item name="rightMotorContTemp" type="id" />

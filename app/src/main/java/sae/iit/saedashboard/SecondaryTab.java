@@ -9,28 +9,29 @@ import android.widget.TextView;
 import androidx.fragment.app.Fragment;
 
 public class SecondaryTab extends Fragment {
-    private TextView rightMotorTempValue, leftMotorTempValue, rightMCTempValue, leftMCTempValue, activeAeroPosValue, DCBusCurrentValue;
+    private TextView noneval, BMSCurr, batTemp, bmsVolt, dischargeLimit, chargeLimit;
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.secondary_tab, container, false);
         //Initializing Fields
-        rightMotorTempValue = rootView.findViewById(R.id.rightMotorTempValue);
-        leftMotorTempValue = rootView.findViewById(R.id.leftMotorTempValue);
-        rightMCTempValue = rootView.findViewById(R.id.rightMCTempValue);
-        leftMCTempValue = rootView.findViewById(R.id.leftMCTempValue);
-        activeAeroPosValue = rootView.findViewById(R.id.activeAeroPosValue);
-        DCBusCurrentValue = rootView.findViewById(R.id.DCBusCurrentValue);
+        bmsVolt = rootView.findViewById(R.id.Value0);
+        batTemp = rootView.findViewById(R.id.Value1);
+        chargeLimit = rootView.findViewById(R.id.Value2);
+        BMSCurr = rootView.findViewById(R.id.Value3);
+        noneval = rootView.findViewById(R.id.Value4);
+        dischargeLimit = rootView.findViewById(R.id.Value5);
+
         return rootView;
     }
 
-    public void setValues(long leftMCTemp, long leftMotorTemp, long rightMCTemp, long rightMotorTemp, long DCBus, long activeAero) {
-        leftMCTempValue.setText(String.valueOf(leftMCTemp));
-        leftMotorTempValue.setText(String.valueOf(leftMotorTemp));
-        rightMotorTempValue.setText(String.valueOf(rightMCTemp));
-        rightMCTempValue.setText(String.valueOf(rightMotorTemp));
-        DCBusCurrentValue.setText(String.valueOf(DCBus));
-        activeAeroPosValue.setText(String.valueOf(activeAero));
+    public void setValues(long bmsVolt, long batTemp, long chargeLimit, long BMSCurr, long dischargeLimit) {
+        this.bmsVolt.setText(String.valueOf(bmsVolt));
+        this.batTemp.setText(String.valueOf(batTemp));
+        this.chargeLimit.setText(String.valueOf(chargeLimit));
+        this.BMSCurr.setText(String.valueOf(BMSCurr));
+//        this.noneval.setText(String.valueOf(noneval));
+        this.dischargeLimit.setText(String.valueOf(dischargeLimit));
     }
 
 }

@@ -35,8 +35,9 @@ public class MyPagerAdapter extends FragmentStateAdapter {
         });
         list.add(new Pair<>(new MainTab(), "Drive"));
         list.add(new Pair<>(new SecondaryTab(), "Secondary"));
-        list.add(new Pair<>(new DataLogTab(), "Data Logs"));
-        list.add(new Pair<>(new PinoutTab(), "Pinout Tab"));
+        list.add(new Pair<>(new DataLogTab(), "Logs"));
+        list.add(new Pair<>(new PinoutTab(), "Pinouts"));
+        list.add(new Pair<>(new PinoutTab(), "Troubleshooting"));
     }
 
 //    @Override

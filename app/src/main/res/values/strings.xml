@@ -80,7 +80,7 @@
     <string name="random">Random</string>
     <string name="contStr">Continuous</string>
     <string name="lag">Lag</string>
-    <string name="data_logs">Data Logs</string>
+    <string name="data_logs">Logs</string>
     <string name="up">↑</string>
     <string name="down">↓</string>
     <string name="show">Show</string>
@@ -111,5 +111,10 @@
     <string name="ms">ms</string>
     <string name="upload">Upload</string>
     <string name="pack_power_watts">Pack Power (Watts)</string>
-    <string name="pinout_debugTabname">pinout Debug</string>
+    <string name="pinout_debugTabname">pinouts</string>
+    <string name="bms_voltage">BMS Voltage</string>
+    <string name="bms_current">BMS Current</string>
+    <string name="battery_temp">Battery Temp</string>
+    <string name="charge_current_limit">Charge Current limit</string>
+    <string name="discharge_current_limit">Discharge Current limit</string>
 </resources>

@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
 //        mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
         mainTab.setPowerDisplay(TStream.requestData(msgIDBMSVolt) * TStream.requestData(msgIDBMSAmp));
-        secondTab.setValues(0, 0, 0, 0, 0, 0);
+        secondTab.setValues(TStream.requestData(msgIDBMSVolt), 0, 0, TStream.requestData(msgIDBMSAmp), 0);
     }
 
     double testVal = 1;
@@ -224,8 +224,8 @@ public class MainActivity extends AppCompatActivity {
         long val = (long) (testVal + (Math.random() * testVal) / 10);
         mainTab.setBatteryLife(val);
         mainTab.setPowerDisplay(val);
-        secondTab.setValues(val, val, val, val, val, val);
-        TStream.log("whwhahahaha\n");
+        secondTab.setValues(val, val, val, val, val);
+        TStream.log("test\n");
     }
 
     private void setupTeensyStream() {

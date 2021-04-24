@@ -30,7 +30,7 @@ public class MainTab extends Fragment {
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.main_tab, container, false);
         // Initializing Fields
         speedometer = rootView.findViewById(R.id.speedometerValue);
-        batteryLife = rootView.findViewById(R.id.rightMotorTempValue);
+        batteryLife = rootView.findViewById(R.id.Value4);
         BMSChargeValue = rootView.findViewById(R.id.BMSChargeValue);
         currentState = rootView.findViewById(R.id.currentState);
 

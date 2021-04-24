@@ -213,7 +213,7 @@
                         app:layout_constraintTop_toTopOf="parent" />
 
                     <TextView
-                        android:id="@+id/rightMotorTempValue"
+                        android:id="@+id/Value4"
                         android:layout_width="0dp"
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
