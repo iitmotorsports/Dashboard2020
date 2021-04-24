@@ -215,6 +215,7 @@
                         android:layout_height="wrap_content"
                         android:paddingLeft="15dp"
                         android:paddingRight="15dp"
+                        android:text="@string/_0"
                         android:textAlignment="textEnd"
                         android:textColor="@color/foregroundText"
                         android:textSize="50sp"
@@ -233,6 +234,7 @@
                     android:layout_height="wrap_content"
                     android:gravity="center"
                     android:paddingTop="5dp"
+                    android:text="@string/dc_bus_voltage"
                     android:textColor="@color/foregroundText"
                     android:textSize="20sp" />
 

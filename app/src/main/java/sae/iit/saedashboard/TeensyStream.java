@@ -158,6 +158,13 @@ public class TeensyStream {
         RAW
     }
 
+    public enum DATA {
+        SIGNED_BYTE,
+        SIGNED_SHORT,
+        SIGNED_INT,
+        UNSIGNED
+    }
+
     // endregion
 
     /**
@@ -245,6 +252,7 @@ public class TeensyStream {
         private TeensyLongCallback callbackFunc; // Callback functions
         private long value = 0; // Store data
         private UPDATE updateWhen = UPDATE.ON_RECEIVE;
+        private final DATA type;
 
         void setCallback(TeensyLongCallback callback) {
             this.callbackFunc = callback;
@@ -254,13 +262,29 @@ public class TeensyStream {
             this.updateWhen = when;
         }
 
+        public msgBlock(DATA type) {
+            this.type = type;
+        }
+
         void clearValue() {
             this.value = 0;
         }
 
         void update(long val) {
             long prevValue = this.value;
-            this.value = val;
+            switch (this.type) {
+                case SIGNED_BYTE:
+                    this.value = ByteSplit.toSignedByte(val);
+                    break;
+                case SIGNED_SHORT:
+                    this.value = ByteSplit.toSignedShort(val);
+                    break;
+                case SIGNED_INT:
+                    this.value = ByteSplit.toSignedInt(val);
+                    break;
+                case UNSIGNED:
+                    this.value = val;
+            }
 
             if (callbackFunc != null)
                 switch (updateWhen) {
@@ -291,17 +315,6 @@ public class TeensyStream {
      */
     public long requestData(long msgID) {
         msgBlock msg = Teensy_Data.get(msgID);
-        return msg == null ? -1 : ByteSplit.toSignedShort(msg.value);
-    }
-
-    /**
-     * Return the unsigned value of a message
-     *
-     * @param msgID Runtime specific ID of a message
-     * @return The last value the message received, default 0, -1 if not found
-     */
-    public long requestUnsignedData(long msgID) {
-        msgBlock msg = Teensy_Data.get(msgID);
         return msg == null ? -1 : msg.value;
     }
 
@@ -328,10 +341,10 @@ public class TeensyStream {
         }
     }
 
-    public long requestMsgID(String stringTag, String stringMsg) {
+    public long requestMsgID(String stringTag, String stringMsg, DATA type) {
         long msgID = jsonMap.requestMsgID(stringTag, stringMsg);
         if (msgID >= 0)
-            Teensy_Data.put(msgID, new TeensyStream.msgBlock());
+            Teensy_Data.put(msgID, new TeensyStream.msgBlock(type));
         else
             Toaster.showToast("Failed to request id for" + stringTag + " " + stringMsg, Toaster.STATUS.WARNING);
         return msgID;
@@ -343,8 +356,8 @@ public class TeensyStream {
      * @param stringTag The exact tag that the message has
      * @param stringMsg The exact string that the message has
      */
-    public void setStateIdentifier(String stringTag, String stringMsg) {
-        long msgID = requestMsgID(stringTag, stringMsg);
+    public void setStateIdentifier(String stringTag, String stringMsg, DATA type) {
+        long msgID = requestMsgID(stringTag, stringMsg, type);
         if (msgID != -1) {
             setCallback(msgID, num -> currentState = num, UPDATE.ON_VALUE_CHANGE);
         } else

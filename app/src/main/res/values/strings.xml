@@ -117,4 +117,5 @@
     <string name="battery_temp">Battery Temp</string>
     <string name="charge_current_limit">Charge Current limit</string>
     <string name="discharge_current_limit">Discharge Current limit</string>
+    <string name="dc_bus_voltage">DC Bus Voltage</string>
 </resources>

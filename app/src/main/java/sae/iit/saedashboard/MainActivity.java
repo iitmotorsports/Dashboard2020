@@ -201,7 +201,7 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
 //        mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
         mainTab.setPowerDisplay(TStream.requestData(msgIDBMSVolt) * TStream.requestData(msgIDBMSAmp));
-        secondTab.setValues(TStream.requestData(msgIDBMSVolt), 0, 0, TStream.requestData(msgIDBMSAmp), 0);
+        secondTab.setValues(TStream.requestData(msgIDBMSVolt), 0, 0, TStream.requestData(msgIDBMSAmp), 0, 0);
     }
 
     double testVal = 1;
@@ -224,7 +224,7 @@ public class MainActivity extends AppCompatActivity {
         long val = (long) (testVal + (Math.random() * testVal) / 10);
         mainTab.setBatteryLife(val);
         mainTab.setPowerDisplay(val);
-        secondTab.setValues(val, val, val, val, val);
+        secondTab.setValues(val, val, val, val, val, val);
         TStream.log("test\n");
     }
 
@@ -240,18 +240,18 @@ public class MainActivity extends AppCompatActivity {
         }, JSONToggle::setChecked, (TStream) -> {
             // Teensy value mapping
             // TODO: option to set these values afterwards, as there might not be a JSON mapping to start
-            msgIDMC0Voltage = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC0 Voltage:");
-            msgIDMC1Voltage = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC1 Voltage:");
-            msgIDSpeedometer = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Current Motor Speed:");
-            msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Current Power Value:");
-            msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS State Of Charge Value:");
-            msgIDBMSVolt = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Immediate Voltage:");
-            msgIDBMSAmp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Pack Average Current:");
-            msgIDFault = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Fault State");
-            msgIDLag = TStream.requestMsgID("[HeartBeat]", "[WARN]  Heartbeat is taking too long");
-            msgIDBeat = TStream.requestMsgID("[HeartBeat]", "[ LOG ] Beat");
-            msgIDStartLight = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Start Light");
-            TStream.setStateIdentifier("[Front Teensy]", "[ LOG ] Current State");
+            msgIDMC0Voltage = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC0 Voltage:", TeensyStream.DATA.UNSIGNED);
+            msgIDMC1Voltage = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC1 Voltage:", TeensyStream.DATA.UNSIGNED);
+            msgIDSpeedometer = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Current Motor Speed:", TeensyStream.DATA.UNSIGNED);
+            msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Current Power Value:", TeensyStream.DATA.UNSIGNED);
+            msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS State Of Charge Value:", TeensyStream.DATA.UNSIGNED);
+            msgIDBMSVolt = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Immediate Voltage:", TeensyStream.DATA.UNSIGNED);
+            msgIDBMSAmp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Pack Average Current:", TeensyStream.DATA.UNSIGNED);
+            msgIDFault = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Fault State", TeensyStream.DATA.UNSIGNED);
+            msgIDLag = TStream.requestMsgID("[HeartBeat]", "[WARN]  Heartbeat is taking too long", TeensyStream.DATA.UNSIGNED);
+            msgIDBeat = TStream.requestMsgID("[HeartBeat]", "[ LOG ] Beat", TeensyStream.DATA.UNSIGNED);
+            msgIDStartLight = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Start Light", TeensyStream.DATA.UNSIGNED);
+            TStream.setStateIdentifier("[Front Teensy]", "[ LOG ] Current State", TeensyStream.DATA.UNSIGNED);
             TStream.setStateEnum("[Teensy Initialize]", TeensyStream.STATE.Probably_Initializing);
             TStream.setStateEnum("[PreCharge State]", TeensyStream.STATE.Precharge);
             TStream.setStateEnum("[Idle State]", TeensyStream.STATE.Idle);
