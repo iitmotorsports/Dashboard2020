@@ -29,7 +29,7 @@ public class TroubleshootTab extends Fragment {
             }
         };
         Timer rgbTimer = new Timer();
-        rgbTimer.scheduleAtFixedRate(rgb, 0, 5);
+        rgbTimer.scheduleAtFixedRate(rgb, 1000, 10);
         return rootView;
     }
 
