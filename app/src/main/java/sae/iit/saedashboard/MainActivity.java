@@ -200,7 +200,7 @@ public class MainActivity extends AppCompatActivity {
     private void updateLPTabs() {
         mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
 //        mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
-        mainTab.setPowerDisplay(TStream.requestData(msgIDBMSVolt) * ByteSplit.toSignedShort(TStream.requestData(msgIDBMSAmp)));
+        mainTab.setPowerDisplay(TStream.requestData(msgIDBMSVolt) * TStream.requestData(msgIDBMSAmp));
         secondTab.setValues(0, 0, 0, 0, 0, 0);
     }
 

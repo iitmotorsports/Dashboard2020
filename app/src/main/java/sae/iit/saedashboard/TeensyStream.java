@@ -291,6 +291,17 @@ public class TeensyStream {
      */
     public long requestData(long msgID) {
         msgBlock msg = Teensy_Data.get(msgID);
+        return msg == null ? -1 : ByteSplit.toSignedShort(msg.value);
+    }
+
+    /**
+     * Return the unsigned value of a message
+     *
+     * @param msgID Runtime specific ID of a message
+     * @return The last value the message received, default 0, -1 if not found
+     */
+    public long requestUnsignedData(long msgID) {
+        msgBlock msg = Teensy_Data.get(msgID);
         return msg == null ? -1 : msg.value;
     }
 
@@ -529,7 +540,7 @@ public class TeensyStream {
         return epochStr + tagString + ' ' + msgString + ' ' + number + '\n';
     }
 
-    private void logRawData(long epoch, byte[] msgBlock){
+    private void logRawData(long epoch, byte[] msgBlock) {
         if (enableLogFile) {
             loggingIO.write(ByteBuffer.allocate(8).order(ByteOrder.LITTLE_ENDIAN).putLong(epoch).array());
             loggingIO.write(msgBlock);
