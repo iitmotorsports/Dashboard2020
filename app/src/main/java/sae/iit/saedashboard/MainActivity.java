@@ -246,7 +246,7 @@ public class MainActivity extends AppCompatActivity {
             msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Current Power Value:");
             msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS State Of Charge Value:");
             msgIDBMSVolt = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Immediate Voltage:");
-            msgIDBMSAmp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Immediate Amperage:");
+            msgIDBMSAmp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Pack Average Current:");
             msgIDFault = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Fault State");
             msgIDLag = TStream.requestMsgID("[HeartBeat]", "[WARN]  Heartbeat is taking too long");
             msgIDBeat = TStream.requestMsgID("[HeartBeat]", "[ LOG ] Beat");
