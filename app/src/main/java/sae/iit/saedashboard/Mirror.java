@@ -103,10 +103,10 @@ public class Mirror {
         this.onUpdate = onUpdate;
         this.onPinSet = onPinSet;
 
-        long enabledID = stream.requestMsgID("[Mirror]", "[ LOG ] Mirror Mode Enabled");
-        long disabledID = stream.requestMsgID("[Mirror]", "[ LOG ] Mirror Mode Disabled");
-        long requestID = stream.requestMsgID("[Mirror]", "[ LOG ] Requested pin");
-        long noPinID = stream.requestMsgID("[Pins]", "[DEBUG] No pin defined");
+        long enabledID = stream.requestMsgID("[Mirror]", "[ LOG ] Mirror Mode Enabled", TeensyStream.DATA.UNSIGNED);
+        long disabledID = stream.requestMsgID("[Mirror]", "[ LOG ] Mirror Mode Disabled", TeensyStream.DATA.UNSIGNED);
+        long requestID = stream.requestMsgID("[Mirror]", "[ LOG ] Requested pin", TeensyStream.DATA.UNSIGNED);
+        long noPinID = stream.requestMsgID("[Pins]", "[DEBUG] No pin defined", TeensyStream.DATA.UNSIGNED);
         stream.setCallback(disabledID, num -> end(), TeensyStream.UPDATE.ON_RECEIVE);
         stream.setCallback(enabledID, num -> start(), TeensyStream.UPDATE.ON_RECEIVE);
         stream.setCallback(requestID, this::receiveValue, TeensyStream.UPDATE.ON_RECEIVE);
