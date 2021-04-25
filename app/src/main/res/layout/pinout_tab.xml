@@ -28,7 +28,7 @@
         android:layout_marginBottom="16dp"
         android:background="@color/translucentBlack"
         app:layout_constraintBottom_toBottomOf="parent"
-        app:layout_constraintEnd_toStartOf="@+id/linearLayout"
+        app:layout_constraintEnd_toStartOf="@+id/SideLayout"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent">
@@ -41,9 +41,10 @@
     </HorizontalScrollView>
 
     <LinearLayout
-        android:id="@+id/linearLayout"
+        android:id="@+id/SideLayout"
         android:layout_width="wrap_content"
         android:layout_height="match_parent"
+        android:layout_marginEnd="8dp"
         android:gravity="center"
         android:orientation="vertical"
         app:layout_constraintEnd_toEndOf="parent">
@@ -52,6 +53,8 @@
             android:id="@+id/toggleBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
             android:textOff="@string/enable"
             android:textOn="@string/disable" />
 
@@ -60,6 +63,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:checked="true"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
             android:textOff="@string/update"
             android:textOn="@string/update" />
 
@@ -67,6 +72,8 @@
             android:id="@+id/clearBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
             android:text="@string/reset"
             android:visibility="gone"
             tools:visibility="visible" />
@@ -76,18 +83,21 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:hint="@string/pin_value"
+            android:importantForAutofill="no"
             android:inputType="numberSigned"
             android:lines="1"
+            android:minWidth="0dp"
             android:minEms="0"
             android:textColorHint="@color/backgroundText"
-            android:textSize="14sp"
-            android:importantForAutofill="no" />
+            android:textSize="14sp" />
 
         <Button
             android:id="@+id/setBtn"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:enabled="false"
+            android:minWidth="0dp"
+            android:minHeight="0dp"
             android:text="@string/set" />
 
     </LinearLayout>

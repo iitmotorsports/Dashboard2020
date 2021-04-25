@@ -15,7 +15,7 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 
-public class SecondaryTab extends Fragment {
+public class SecondaryTab extends Fragment implements SideControlSize {
     private final String[] SET_VALUES = {
             "MC0 DC BUS Volt",
             "MC0 DC BUS Curr",
@@ -72,4 +72,8 @@ public class SecondaryTab extends Fragment {
         }
     }
 
+    @Override
+    public int getPanelSize() {
+        return 0;
+    }
 }

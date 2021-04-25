@@ -12,7 +12,7 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class TroubleshootTab extends Fragment {
+public class TroubleshootTab extends Fragment implements SideControlSize {
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
@@ -34,4 +34,8 @@ public class TroubleshootTab extends Fragment {
         return rootView;
     }
 
+    @Override
+    public int getPanelSize() {
+        return 0;
+    }
 }

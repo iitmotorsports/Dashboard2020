@@ -24,7 +24,7 @@ import java.util.Hashtable;
 import java.util.Locale;
 import java.util.Objects;
 
-public class PinoutTab extends Fragment {
+public class PinoutTab extends Fragment implements SideControlSize {
 
     private Mirror mirror;
     private RadioButton enableLight;
@@ -40,8 +40,13 @@ public class PinoutTab extends Fragment {
     private int setValue = 0;
     private Pin curr;
     private EditText valText;
-    LinearLayout currentColumn;
+    LinearLayout currentColumn, SideLayout;
     private TeensyStream stream;
+
+    @Override
+    public int getPanelSize() {
+        return SideLayout.getWidth() + 20;
+    }
 
     private class Pin {
         public int pin;
@@ -100,6 +105,7 @@ public class PinoutTab extends Fragment {
         valText = rootView.findViewById(R.id.valText);
         ToggleButton updateBtn = rootView.findViewById(R.id.updateBtn);
         enableLight = rootView.findViewById(R.id.enableLight);
+        SideLayout = rootView.findViewById(R.id.SideLayout);
 
         valText.setOnEditorActionListener((v, actionId, event) -> {
             try {

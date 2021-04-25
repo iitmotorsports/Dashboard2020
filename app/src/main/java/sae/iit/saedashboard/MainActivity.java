@@ -1,5 +1,6 @@
 package sae.iit.saedashboard;
 
+import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -7,8 +8,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.View;
+import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AccelerateDecelerateInterpolator;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Interpolator;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -114,7 +119,7 @@ public class MainActivity extends AppCompatActivity {
 
         MainPager.setKeepScreenOn(true);
         MainPager.setAdapter(pagerAdapter);
-        MainPager.setOffscreenPageLimit(3);
+        MainPager.setOffscreenPageLimit(4);
 
         new TabLayoutMediator(tabLayout, MainPager, (tab, position) -> tab.setText(pagerAdapter.list.get(position).second)).attach();
         FunctionSubTab = findViewById(R.id.FunctionSubTab);
@@ -124,6 +129,37 @@ public class MainActivity extends AppCompatActivity {
         ConsoleLayout = findViewById(R.id.ConsoleLayout);
         ConsoleSwitch = findViewById(R.id.ConsoleSwitch);
         conRadioGroup = findViewById(R.id.conRadioGroup);
+        final int[] conLayWidth = {-1};
+        MainPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
+            @Override
+            public void onPageSelected(int position) {
+                super.onPageSelected(position);
+                SideControlSize tab = (SideControlSize) pagerAdapter.list.get(position).first;
+                if (conLayWidth[0] != -1 && tab != null) {
+                    int newWidth = conLayWidth[0] - tab.getPanelSize();
+                    if (ConsoleLayout.getWidth() != newWidth) {
+                        if (ConsoleLayout.getVisibility() == View.VISIBLE) {
+                            ResizeWidthAnimation anim = new ResizeWidthAnimation(ConsoleLayout, newWidth);
+                            anim.setInterpolator(new AccelerateDecelerateInterpolator());
+                            anim.setDuration(200);
+                            ConsoleLayout.startAnimation(anim);
+                        } else {
+                            ConsoleLayout.getLayoutParams().width = newWidth;
+                            ConsoleLayout.requestLayout();
+                        }
+                    }
+
+                }
+            }
+        });
+
+        ConsoleLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+            @Override
+            public void onGlobalLayout() {
+                ConsoleLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                conLayWidth[0] = ConsoleLayout.getWidth();
+            }
+        });
 
         findViewById(R.id.Clear).setOnLongClickListener(v -> {
             Toaster.showToast("Clearing console text", false, true, Toaster.STATUS.INFO);
@@ -247,6 +283,7 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setPowerDisplay(val);
         secondTab.setValues(new long[]{val, val, val, val, val, val, val, val, val, val});
         TStream.log("test\n");
+        ConsoleLog("test");
     }
 
     private void setupTeensyStream() {

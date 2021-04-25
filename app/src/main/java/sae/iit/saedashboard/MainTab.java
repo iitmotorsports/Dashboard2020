@@ -18,7 +18,7 @@ import com.sccomponents.gauges.library.ScNotches;
 import java.util.Locale;
 import java.util.Objects;
 
-public class MainTab extends Fragment {
+public class MainTab extends Fragment implements SideControlSize{
     private TextView speedometer, batteryLife, BMSChargeValue, currentState, lagLightText;
     private RadioButton FaultLight, waitingLight, chargingLight, lagLight, startLight;
     private ColorStateList BG, RED, YELLOW, GREEN, WHITE;
@@ -284,5 +284,10 @@ public class MainTab extends Fragment {
     private static int convertBatteryLife(long battery) {
         //Assumes battery is voltage and max is 302.4V min is 216V
         return (int) ((float) ((battery - 216) / 86.4 * 100.0));
+    }
+
+    @Override
+    public int getPanelSize() {
+        return 0;
     }
 }

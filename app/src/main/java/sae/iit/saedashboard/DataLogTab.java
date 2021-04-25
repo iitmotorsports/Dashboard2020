@@ -32,7 +32,7 @@ import java.util.Objects;
 import java.util.Timer;
 import java.util.TimerTask;
 
-public class DataLogTab extends Fragment {
+public class DataLogTab extends Fragment implements SideControlSize {
     private Button showButton;
     private Button upButton;
     private Button downButton;
@@ -42,7 +42,7 @@ public class DataLogTab extends Fragment {
     private Button minBtn;
     private Button plsBtn;
     private ScrollView fileListScroller, logScroller;
-    private LinearLayout fileLayout;
+    private LinearLayout fileLayout, SidePanelLayout;
     private Runnable confirm_run;
     private AlertDialog confirm_dialog;
     private TextView confirm_text;
@@ -71,6 +71,7 @@ public class DataLogTab extends Fragment {
         deleteButton = rootView.findViewById(R.id.deleteButton);
         exportButton = rootView.findViewById(R.id.exportButton);
         updateButton = rootView.findViewById(R.id.updateButton);
+        SidePanelLayout = rootView.findViewById(R.id.SidePanelLayout);
         minBtn = rootView.findViewById(R.id.minBtn);
         plsBtn = rootView.findViewById(R.id.plsBtn);
         logWait = rootView.findViewById(R.id.logWait);
@@ -392,5 +393,10 @@ public class DataLogTab extends Fragment {
     public void setTeensyStream(TeensyStream stream, Activity activity) {
         this.loggingIO = stream.getLoggingIO();
         this.activity = activity;
+    }
+
+    @Override
+    public int getPanelSize() {
+        return SidePanelLayout.getWidth() + 16;
     }
 }
