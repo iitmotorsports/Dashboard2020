@@ -57,6 +57,16 @@ public class MainActivity extends AppCompatActivity {
     private long msgIDMC0Voltage = -1;
     private long msgIDMC1Voltage = -1;
     private long msgIDPowerGauge = -1;
+    private long msgIDMC1Current = -1;
+    private long msgIDMC0Current = -1;
+    private long msgIDMC1BoardTemp = -1;
+    private long msgIDMC0BoardTemp = -1;
+    private long msgIDMC1MotorTemp = -1;
+    private long msgIDMC0MotorTemp = -1;
+    private long msgIDBMSHighTemp = -1;
+    private long msgIDBMSLowTemp = -1;
+    private long msgIDBMSDischLim = -1;
+    private long msgIDBMSChrgLim = -1;
     private long msgIDBatteryLife = -1;
     private long msgIDBMSVolt = -1;
     private long msgIDBMSAmp = -1;
@@ -201,7 +211,18 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
 //        mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
         mainTab.setPowerDisplay(TStream.requestData(msgIDBMSVolt) * TStream.requestData(msgIDBMSAmp));
-        secondTab.setValues(TStream.requestData(msgIDBMSVolt), 0, 0, TStream.requestData(msgIDBMSAmp), 0, 0);
+        secondTab.setValues(new long[]{
+                TStream.requestData(msgIDMC0Voltage),
+                TStream.requestData(msgIDMC0Current),
+                TStream.requestData(msgIDMC1Voltage),
+                TStream.requestData(msgIDMC1Current),
+                TStream.requestData(msgIDBMSVolt),
+                TStream.requestData(msgIDBMSAmp),
+                TStream.requestData(msgIDBMSHighTemp),
+                TStream.requestData(msgIDBMSLowTemp),
+                TStream.requestData(msgIDBMSDischLim),
+                TStream.requestData(msgIDBMSChrgLim),
+        });
     }
 
     double testVal = 1;
@@ -224,7 +245,7 @@ public class MainActivity extends AppCompatActivity {
         long val = (long) (testVal + (Math.random() * testVal) / 10);
         mainTab.setBatteryLife(val);
         mainTab.setPowerDisplay(val);
-        secondTab.setValues(val, val, val, val, val, val);
+        secondTab.setValues(new long[]{val, val, val, val, val, val, val, val, val, val});
         TStream.log("test\n");
     }
 
@@ -240,13 +261,23 @@ public class MainActivity extends AppCompatActivity {
         }, JSONToggle::setChecked, (TStream) -> {
             // Teensy value mapping
             // TODO: option to set these values afterwards, as there might not be a JSON mapping to start
-            msgIDMC0Voltage = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC0 Voltage:", TeensyStream.DATA.UNSIGNED);
-            msgIDMC1Voltage = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC1 Voltage:", TeensyStream.DATA.UNSIGNED);
-            msgIDSpeedometer = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Current Motor Speed:", TeensyStream.DATA.UNSIGNED);
-            msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Current Power Value:", TeensyStream.DATA.UNSIGNED);
-            msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS State Of Charge Value:", TeensyStream.DATA.UNSIGNED);
-            msgIDBMSVolt = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Immediate Voltage:", TeensyStream.DATA.UNSIGNED);
-            msgIDBMSAmp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Pack Average Current:", TeensyStream.DATA.UNSIGNED);
+            msgIDMC0Voltage = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC0 DC BUS Voltage:", TeensyStream.DATA.SIGNED_SHORT);
+            msgIDMC1Voltage = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC1 DC BUS Voltage:", TeensyStream.DATA.SIGNED_SHORT);
+            msgIDMC1Current = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC1 DC BUS Current:", TeensyStream.DATA.SIGNED_SHORT);
+            msgIDMC0Current = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC0 DC BUS Current:", TeensyStream.DATA.SIGNED_SHORT);
+            msgIDMC1BoardTemp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC1 Board Temp:", TeensyStream.DATA.SIGNED_SHORT);
+            msgIDMC0BoardTemp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC0 Board Temp:", TeensyStream.DATA.SIGNED_SHORT);
+            msgIDMC1MotorTemp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC1 Motor Temp:", TeensyStream.DATA.SIGNED_SHORT);
+            msgIDMC0MotorTemp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC0 Motor Temp:", TeensyStream.DATA.SIGNED_SHORT);
+            msgIDSpeedometer = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Current Motor Speed:", TeensyStream.DATA.SIGNED_INT);
+            msgIDPowerGauge = TStream.requestMsgID("[Front Teensy]", "[ LOG ] MC Current Power:", TeensyStream.DATA.UNSIGNED);
+            msgIDBatteryLife = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS State Of Charge:", TeensyStream.DATA.SIGNED_BYTE);
+            msgIDBMSVolt = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Immediate Voltage:", TeensyStream.DATA.SIGNED_SHORT);
+            msgIDBMSAmp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Pack Average Current:", TeensyStream.DATA.SIGNED_SHORT);
+            msgIDBMSHighTemp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Pack Highest Temp:", TeensyStream.DATA.UNSIGNED);
+            msgIDBMSLowTemp = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Pack Lowest Temp:", TeensyStream.DATA.UNSIGNED);
+            msgIDBMSDischLim = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Discharge current limit:", TeensyStream.DATA.SIGNED_SHORT);
+            msgIDBMSChrgLim = TStream.requestMsgID("[Front Teensy]", "[ LOG ] BMS Charge current limit:", TeensyStream.DATA.SIGNED_SHORT);
             msgIDFault = TStream.requestMsgID("[Front Teensy]", "[ LOG ] Fault State", TeensyStream.DATA.UNSIGNED);
             msgIDLag = TStream.requestMsgID("[HeartBeat]", "[WARN]  Heartbeat is taking too long", TeensyStream.DATA.UNSIGNED);
             msgIDBeat = TStream.requestMsgID("[HeartBeat]", "[ LOG ] Beat", TeensyStream.DATA.UNSIGNED);
