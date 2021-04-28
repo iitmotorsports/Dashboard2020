@@ -330,7 +330,11 @@ public class MainActivity extends AppCompatActivity {
     private void setupTeensyStream() {
         ToggleButton JSONToggle = findViewById(R.id.Load);
 
-        TStream = new TeensyStream(this, this::ConsoleLog, rawData -> nearbyStream.sendPayload(rawData), () -> SerialToggle.setChecked(true), () -> {
+        TStream = new TeensyStream(this, this::ConsoleLog, rawData -> nearbyStream.sendPayload(rawData), () -> {
+            SerialToggle.setChecked(true);
+            if (nearbyStream.isConnected())
+                nearbyStream.enableBroadcast();
+        }, () -> {
             SerialToggle.setChecked(false);
             runOnUiThread(() -> {
                 mainTab.setLagLight(false);

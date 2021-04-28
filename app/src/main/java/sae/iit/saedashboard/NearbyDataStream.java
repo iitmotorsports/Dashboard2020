@@ -34,6 +34,7 @@ public class NearbyDataStream {
     private final Activity activity;
     private boolean broadcast = false;
     private boolean sendData = false;
+    private boolean connected = false;
     private AlertDialog acceptDialog;
     private TextView authText, connName;
     private String currentEndpointId, pendingEndpointId = "";
@@ -119,11 +120,12 @@ public class NearbyDataStream {
             switch (result.getStatus().getStatusCode()) {
                 case ConnectionsStatusCodes.STATUS_OK:
                     Toaster.showToast("Data stream connected", Toaster.STATUS.SUCCESS);
+                    connected = true;
                     client.stopAdvertising();
                     client.stopDiscovery();
                     if (broadcast)
                         sendData = true;
-                    break;
+                    return;
                 case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                     Toaster.showToast("Data stream connection rejected", Toaster.STATUS.ERROR);
                     acceptDialog.dismiss();
@@ -134,7 +136,7 @@ public class NearbyDataStream {
                 default:
                     Toaster.showToast("Data stream unknown error", Toaster.STATUS.ERROR);
             }
-
+            connected = false;
         }
 
         @Override
@@ -186,10 +188,21 @@ public class NearbyDataStream {
         }
     }
 
+    public void enableBroadcast() {
+        if (connected) {
+            broadcast = true;
+            sendData = true;
+        }
+    }
+
     public void broadcast() {
         broadcast = true;
         startAdvertising();
         startDiscovery();
+    }
+
+    public boolean isConnected() {
+        return connected;
     }
 
     public void receive() {
@@ -197,6 +210,7 @@ public class NearbyDataStream {
             Toaster.showToast("No Receiver set", Toaster.STATUS.ERROR);
             return;
         }
+        broadcast = false;
         startAdvertising();
         startDiscovery();
     }
@@ -204,6 +218,7 @@ public class NearbyDataStream {
     public void stop() {
         broadcast = false;
         sendData = false;
+        connected = false;
         client.stopAllEndpoints();
         client.stopAdvertising();
         client.stopDiscovery();
