@@ -32,6 +32,7 @@ public class TeensyStream {
     private final LogFileIO loggingIO;
     private final JSONMap jsonMap;
     private boolean enableLogCallback = true;
+    private boolean enableDataMirror = false;
     private boolean enableLogFile;
     private MODE outputMode = MODE.ASCII;
     private final HashMap<Long, STATE> Teensy_State_Map = new HashMap<>();
@@ -40,6 +41,7 @@ public class TeensyStream {
     private static EchoDialog echoAlert;
     private static final String LOG_MAP_START = "---[ LOG MAP START ]---\n";
     private static final String LOG_MAP_END = "---[ LOG MAP END ]---\n";
+    private static UsbSerialInterface.UsbReadCallback streamCallback;
 
     // region Interfaces
 
@@ -61,6 +63,13 @@ public class TeensyStream {
      */
     public interface TeensyLogCallback {
         void run(String msg);
+    }
+
+    /**
+     * Callback class which accepts raw data that is received
+     */
+    public interface TeensyRawCallback {
+        void run(byte[] rawData);
     }
 
     /**
@@ -89,6 +98,13 @@ public class TeensyStream {
     }
 
     /**
+     * @param enableDataMirror Set whether the raw callback should be called at all
+     */
+    public void setEnableDataMirror(boolean enableDataMirror) {
+        this.enableDataMirror = enableDataMirror;
+    }
+
+    /**
      * @return Whether received data is being logged to a file
      */
     public boolean isEnableLogFile() {
@@ -102,6 +118,15 @@ public class TeensyStream {
         this.enableLogFile = enableLogFile;
     }
 
+
+    /**
+     * Manually receive raw data
+     *
+     * @param bytes raw data bytes
+     */
+    public void receiveRawData(byte[] bytes) {
+        streamCallback.onReceivedData(bytes);
+    }
 
     public MODE getOutputMode() {
         return outputMode;
@@ -180,7 +205,7 @@ public class TeensyStream {
      * @param deviceDetach   The callback to be called when a device is detached
      * @param runOnMapChange The callback to be called when a new JSON map has been updated
      */
-    public TeensyStream(Activity activity, TeensyLogCallback logMessage, TeensyCallback deviceAttach, TeensyCallback deviceDetach, JSONMap.MapChange runOnMapChange, TeensyInitialize runOnSuccessfulMapChange) {
+    public TeensyStream(Activity activity, TeensyLogCallback logMessage, TeensyRawCallback rawCallback, TeensyCallback deviceAttach, TeensyCallback deviceDetach, JSONMap.MapChange runOnMapChange, TeensyInitialize runOnSuccessfulMapChange) {
         Log.i(LOG_TAG, "Making teensy stream");
         loggingIO = new LogFileIO(activity);
 
@@ -196,7 +221,7 @@ public class TeensyStream {
             runOnSuccessfulMapChange.run(this);
         }, runOnMapChange);
 
-        UsbSerialInterface.UsbReadCallback streamCallback = arg0 -> {
+        streamCallback = arg0 -> {
             long epoch = System.nanoTime();
             if (enableLogCallback) {
                 String msg = processData(epoch, arg0);
@@ -205,6 +230,9 @@ public class TeensyStream {
                 }
             } else {
                 consumeData(epoch, arg0);
+            }
+            if (enableDataMirror) {
+                rawCallback.run(arg0);
             }
         };
 

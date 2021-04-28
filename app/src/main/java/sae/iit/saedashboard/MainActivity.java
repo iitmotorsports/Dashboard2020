@@ -1,9 +1,11 @@
 package sae.iit.saedashboard;
 
+import android.Manifest;
 import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
+import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
 import android.util.Log;
@@ -21,16 +23,30 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
+import androidx.core.app.ActivityCompat;
+import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
+import com.google.android.gms.nearby.Nearby;
+import com.google.android.gms.nearby.connection.AdvertisingOptions;
+import com.google.android.gms.nearby.connection.ConnectionInfo;
+import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
+import com.google.android.gms.nearby.connection.ConnectionResolution;
+import com.google.android.gms.nearby.connection.ConnectionsClient;
+import com.google.android.gms.nearby.connection.Strategy;
+import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
+import org.jetbrains.annotations.NotNull;
+
 import java.io.BufferedReader;
 import java.io.StringReader;
+import java.sql.Connection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -41,6 +57,7 @@ import java.util.stream.Collectors;
 
 public class MainActivity extends AppCompatActivity {
     private final String LOG_ID = "Main Activity";
+    private final int FINE_LOCATION_CODE = 1245;
     private final int MAX_LINES = 10000;
     private ToggleButton SerialToggle;
     private LinearLayout FunctionSubTab;
@@ -49,8 +66,9 @@ public class MainActivity extends AppCompatActivity {
     private TeensyStream TStream;
     private MainTab mainTab;
     private SecondaryTab secondTab;
-    private SwitchCompat ConsoleSwitch;
+    private SwitchCompat ConsoleSwitch, StreamSwitch;
     private RadioGroup conRadioGroup;
+    private NearbyDataStream nearbyStream;
     ToggleButton ChargingSetButton;
     ConstraintLayout ConsoleLayout;
     DataLogTab dataTab;
@@ -128,6 +146,7 @@ public class MainActivity extends AppCompatActivity {
         ConsoleScroller = findViewById(R.id.SerialScroller);
         ConsoleLayout = findViewById(R.id.ConsoleLayout);
         ConsoleSwitch = findViewById(R.id.ConsoleSwitch);
+        StreamSwitch = findViewById(R.id.StreamSwitch);
         conRadioGroup = findViewById(R.id.conRadioGroup);
         final int[] conLayWidth = {-1};
         MainPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
@@ -227,8 +246,42 @@ public class MainActivity extends AppCompatActivity {
         LPUITimer.schedule(LPUI_task, 0, 200);
         assert dataTab != null;
         assert pinoutTab != null;
+        nearbyStream = new NearbyDataStream(this);
         setupTeensyStream();
+        nearbyStream.setReceiver(rawData -> TStream.receiveRawData(rawData));
     }
+
+    private void streamTeensyData() {
+        if (TStream.isConnected()) {
+            TStream.setEnableDataMirror(true);
+            nearbyStream.broadcast();
+        } else {
+            nearbyStream.receive();
+        }
+    }
+
+    private void requestFineLocation() {
+        if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED) {
+            ActivityCompat.requestPermissions(MainActivity.this, new String[]{Manifest.permission.ACCESS_FINE_LOCATION}, FINE_LOCATION_CODE);
+        } else {
+            streamTeensyData();
+        }
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, String @NotNull [] permissions, int @NotNull [] grantResults) {
+        if (requestCode == FINE_LOCATION_CODE) {
+            if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+                if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                    Toaster.showToast("Permission Granted", Toaster.STATUS.SUCCESS);
+                    streamTeensyData();
+                }
+            } else {
+                Toaster.showToast("Permission Denied", Toaster.STATUS.ERROR);
+            }
+        }
+    }
+
 
     private void updateTabs() { // TODO: set appropriate UI values
         long speed = TStream.requestData(msgIDSpeedometer);
@@ -238,7 +291,9 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setFaultLight(TStream.requestData(msgIDFault) > 0);
         mainTab.setWaitingLight(TStream.getState() == TeensyStream.STATE.Idle);
         mainTab.setChargingLight(TStream.getState() == TeensyStream.STATE.Charging);
-        mainTab.setCurrentState(TStream.isConnected() ? TStream.getState().name().replace('_', ' ') : "");
+        String state = TStream.getState().name();
+        if (state != null)
+            mainTab.setCurrentState(state.replace('_', ' '));
         ChargingSetButton.setChecked(TStream.getState() == TeensyStream.STATE.Charging);
 
     }
@@ -289,7 +344,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupTeensyStream() {
         ToggleButton JSONToggle = findViewById(R.id.Load);
 
-        TStream = new TeensyStream(this, this::ConsoleLog, () -> SerialToggle.setChecked(true), () -> {
+        TStream = new TeensyStream(this, this::ConsoleLog, rawData -> nearbyStream.queue(rawData), () -> SerialToggle.setChecked(true), () -> {
             SerialToggle.setChecked(false);
             runOnUiThread(() -> {
                 mainTab.setLagLight(false);
@@ -368,6 +423,15 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickEcho(View view) {
         TStream.showEchoDialog();
+    }
+
+    public void onSwitchStream(View view) {
+        if (StreamSwitch.isChecked()) {
+            requestFineLocation();
+        } else {
+            TStream.setEnableDataMirror(false);
+            nearbyStream.stop();
+        }
     }
 
     /**

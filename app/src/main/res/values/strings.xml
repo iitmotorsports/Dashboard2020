@@ -119,4 +119,5 @@
     <string name="discharge_current_limit">Discharge Current limit</string>
     <string name="dc_bus_voltage">DC Bus Voltage</string>
     <string name="textTemp">Text</string>
+    <string name="stream_data">Stream Data</string>
 </resources>

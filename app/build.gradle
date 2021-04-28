@@ -43,5 +43,6 @@ dependencies {
 //    implementation 'com.github.Paroca72:sc-gauges:3.5.4'
     //implementation project(':library-release')
     implementation files('libs/usbserial.jar')
+    implementation 'com.google.android.gms:play-services-nearby:17.0.0'
 }
 
