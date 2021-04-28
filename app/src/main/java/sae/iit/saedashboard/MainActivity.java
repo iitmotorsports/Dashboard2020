@@ -13,6 +13,7 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -56,6 +57,7 @@ public class MainActivity extends AppCompatActivity {
     private SwitchCompat ConsoleSwitch, StreamSwitch;
     private RadioGroup conRadioGroup;
     private NearbyDataStream nearbyStream;
+    private ImageView connStatus;
     ToggleButton ChargingSetButton;
     ConstraintLayout ConsoleLayout;
     DataLogTab dataTab;
@@ -135,6 +137,7 @@ public class MainActivity extends AppCompatActivity {
         ConsoleSwitch = findViewById(R.id.ConsoleSwitch);
         StreamSwitch = findViewById(R.id.StreamSwitch);
         conRadioGroup = findViewById(R.id.conRadioGroup);
+        connStatus = findViewById(R.id.connStatus);
         final int[] conLayWidth = {-1};
         MainPager.registerOnPageChangeCallback(new ViewPager2.OnPageChangeCallback() {
             @Override
@@ -233,9 +236,39 @@ public class MainActivity extends AppCompatActivity {
         LPUITimer.schedule(LPUI_task, 0, 200);
         assert dataTab != null;
         assert pinoutTab != null;
-        nearbyStream = new NearbyDataStream(this);
+        nearbyStream = new NearbyDataStream(this, (connected, broadcasting, situation) -> runOnUiThread(() -> {
+            StreamSwitch.setChecked(connected);
+            setConnStatus(broadcasting, situation);
+        }));
         setupTeensyStream();
         nearbyStream.setReceiver(rawData -> TStream.receiveRawData(rawData));
+    }
+
+    public void setConnStatus(boolean broadcasting, NearbyDataStream.STATUS situation) {
+        if (broadcasting)
+            connStatus.setImageResource(android.R.drawable.stat_sys_upload);
+        else
+            connStatus.setImageResource(android.R.drawable.stat_sys_download);
+
+        switch (situation) {
+            case WAITING:
+            case SEARCHING:
+                connStatus.setImageTintList(getColorStateList(R.color.blue));
+                return;
+            case CONNECTED:
+                connStatus.setImageTintList(getColorStateList(R.color.green));
+                return;
+            case CONNECTING:
+                connStatus.setImageTintList(getColorStateList(R.color.yellow));
+                return;
+            case REJECTED:
+            case ERROR:
+                connStatus.setImageTintList(getColorStateList(R.color.colorAccent));
+                return;
+            case IDLE:
+            case DISCONNECTED:
+                connStatus.setImageTintList(getColorStateList(R.color.backgroundText));
+        }
     }
 
     private void streamTeensyData() {
@@ -258,7 +291,8 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onRequestPermissionsResult(int requestCode, String @NotNull [] permissions, int @NotNull [] grantResults) {
+    public void onRequestPermissionsResult(int requestCode, String @NotNull [] permissions,
+                                           int @NotNull [] grantResults) {
         if (requestCode == FINE_LOCATION_CODE) {
             if (grantResults.length > 0 && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                 if (ContextCompat.checkSelfPermission(MainActivity.this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {

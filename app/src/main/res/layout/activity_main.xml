@@ -8,6 +8,18 @@
     android:clickable="false"
     tools:context=".MainActivity">
 
+    <ImageView
+        android:id="@+id/connStatus"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:alpha="0.5"
+        android:contentDescription="@string/connection_status"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toStartOf="@+id/lockButton"
+        app:layout_constraintTop_toTopOf="@+id/lockButton"
+        app:srcCompat="@android:drawable/stat_sys_upload"
+        app:tint="@color/backgroundText" />
+
     <ToggleButton
         android:id="@+id/lockButton"
         android:layout_width="40dp"
@@ -120,8 +132,7 @@
             android:layout_width="match_parent"
             android:layout_height="match_parent"
             android:keepScreenOn="true"
-            android:visibility="invisible"
-            tools:visibility="visible">
+            android:visibility="invisible">
 
             <ScrollView
                 android:layout_width="wrap_content"

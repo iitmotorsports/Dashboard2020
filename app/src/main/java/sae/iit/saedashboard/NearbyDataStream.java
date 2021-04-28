@@ -32,19 +32,36 @@ public class NearbyDataStream {
     private static final String SERVICE_ID = "RAW_DATA_STREAM";
     private final LinkedBlockingQueue<byte[]> buffer = new LinkedBlockingQueue<>();
     private final Activity activity;
+    private final ConnectionChange connectionChangeCallback;
     private boolean broadcast = false;
     private boolean sendData = false;
     private boolean connected = false;
     private AlertDialog acceptDialog;
     private TextView authText, connName;
     private String currentEndpointId, pendingEndpointId = "";
+    private STATUS currentStatus = STATUS.IDLE;
     private DataReceiver dr;
     private final ConnectionsClient client;
     private final AdvertisingOptions advertisingOptions = new AdvertisingOptions.Builder().setStrategy(Strategy.P2P_POINT_TO_POINT).build();
     private final DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder().setStrategy(Strategy.P2P_POINT_TO_POINT).build();
 
+    public enum STATUS {
+        IDLE,
+        SEARCHING,
+        WAITING,
+        ERROR,
+        REJECTED,
+        CONNECTING,
+        CONNECTED,
+        DISCONNECTED
+    }
+
     public interface DataReceiver {
         void run(byte[] rawData);
+    }
+
+    public interface ConnectionChange {
+        void run(boolean connected, boolean broadcasting, STATUS situation);
     }
 
     PayloadCallback payloadCallback = new PayloadCallback() {
@@ -102,6 +119,11 @@ public class NearbyDataStream {
 
     }
 
+    private void changeStatus(STATUS status) {
+        currentStatus = status;
+        connectionChangeCallback.run(connected, broadcast, currentStatus);
+    }
+
     ConnectionLifecycleCallback connectionLifecycleCallback = new ConnectionLifecycleCallback() {
         @Override
         public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo info) {
@@ -113,6 +135,7 @@ public class NearbyDataStream {
                 connName.setText(endName);
                 acceptDialog.show();
             });
+            changeStatus(STATUS.WAITING);
         }
 
         @Override
@@ -125,24 +148,31 @@ public class NearbyDataStream {
                     client.stopDiscovery();
                     if (broadcast)
                         sendData = true;
+                    changeStatus(STATUS.CONNECTED);
                     return;
                 case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                     Toaster.showToast("Data stream connection rejected", Toaster.STATUS.ERROR);
+                    connected = false;
+                    changeStatus(STATUS.REJECTED);
                     acceptDialog.dismiss();
                     break;
                 case ConnectionsStatusCodes.STATUS_ERROR:
+                    connected = false;
+                    changeStatus(STATUS.ERROR);
                     Toaster.showToast("Data stream connection dropped", Toaster.STATUS.ERROR);
                     break;
                 default:
+                    connected = false;
+                    changeStatus(STATUS.ERROR);
                     Toaster.showToast("Data stream unknown error", Toaster.STATUS.ERROR);
             }
-            connected = false;
         }
 
         @Override
         public void onDisconnected(@NonNull String s) {
             sendData = false;
             Toaster.showToast("Data stream disconnected", Toaster.STATUS.WARNING);
+            changeStatus(STATUS.DISCONNECTED);
         }
     };
 
@@ -150,11 +180,13 @@ public class NearbyDataStream {
         @Override
         public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
             Toaster.showToast("Found Endpoint", Toaster.STATUS.INFO);
+            changeStatus(STATUS.CONNECTING);
             client.requestConnection(broadcast ? BROADCASTER_USERNAME : RECEIVER_USERNAME, endpointId, connectionLifecycleCallback);
         }
 
         @Override
         public void onEndpointLost(@NonNull String s) {
+            changeStatus(STATUS.IDLE);
             Toaster.showToast("Lost Endpoint", Toaster.STATUS.INFO);
         }
     };
@@ -171,10 +203,10 @@ public class NearbyDataStream {
                 .addOnFailureListener((Exception e) -> Toaster.showToast("Failed to start search for a broadcaster", true, Toaster.STATUS.ERROR));
     }
 
-
-    public NearbyDataStream(Activity activity) {
+    public NearbyDataStream(Activity activity, ConnectionChange callback) {
         client = Nearby.getConnectionsClient(activity.getApplicationContext());
         this.activity = activity;
+        this.connectionChangeCallback = callback;
         createAcceptDialog();
     }
 
@@ -192,6 +224,7 @@ public class NearbyDataStream {
         if (connected) {
             broadcast = true;
             sendData = true;
+            changeStatus(STATUS.CONNECTED);
         }
     }
 
@@ -203,13 +236,23 @@ public class NearbyDataStream {
         if (connected) {
             broadcast = false;
             sendData = false;
+            changeStatus(STATUS.CONNECTED);
         }
     }
 
     public void broadcast() {
         broadcast = true;
+        changeStatus(STATUS.SEARCHING);
         startDiscovery();
         startAdvertising();
+    }
+
+    public STATUS status() {
+        return currentStatus;
+    }
+
+    public boolean isBroadcasting() {
+        return broadcast;
     }
 
     public boolean isConnected() {
@@ -222,6 +265,7 @@ public class NearbyDataStream {
             return;
         }
         broadcast = false;
+        changeStatus(STATUS.SEARCHING);
         startAdvertising();
         startDiscovery();
     }
@@ -233,5 +277,6 @@ public class NearbyDataStream {
         client.stopAllEndpoints();
         client.stopAdvertising();
         client.stopDiscovery();
+        changeStatus(STATUS.IDLE);
     }
 }
