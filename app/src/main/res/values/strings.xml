@@ -5,7 +5,7 @@
     <string name="tab_text_2">Tab 2</string>
     <string name="mainTabName">Main</string>
     <string name="secondaryTabName">Secondary</string>
-    <string name="troubleshootTabName">Troubleshooting</string>
+    <string name="troubleshootTabName">Troubleshoot</string>
     <string name="amsID">amsDisplay</string>
     <string name="imdID">imdDisplay</string>
     <string name="lvbID">lvbDisplay</string>

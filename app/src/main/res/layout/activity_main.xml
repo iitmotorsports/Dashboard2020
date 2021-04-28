@@ -62,6 +62,12 @@
                 android:layout_height="wrap_content"
                 android:minWidth="5dp"
                 android:minHeight="5dp"
+                app:tabIndicatorAnimationDuration="150"
+                app:tabIndicatorAnimationMode="elastic"
+                app:tabIndicatorHeight="5dp"
+                app:tabMinWidth="5dp"
+                app:tabMode="auto"
+                app:tabRippleColor="@color/backgroundText"
                 app:tabSelectedTextColor="@color/foregroundText"
                 app:tabTextAppearance="@style/MineCustomTabText"
                 app:tabTextColor="@color/backgroundText">
