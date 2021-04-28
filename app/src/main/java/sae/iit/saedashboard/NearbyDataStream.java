@@ -2,8 +2,9 @@ package sae.iit.saedashboard;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.content.DialogInterface;
-import android.util.Log;
+import android.view.View;
+import android.widget.Button;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 
@@ -22,21 +23,21 @@ import com.google.android.gms.nearby.connection.PayloadCallback;
 import com.google.android.gms.nearby.connection.PayloadTransferUpdate;
 import com.google.android.gms.nearby.connection.Strategy;
 
-import java.util.Arrays;
-import java.util.concurrent.Executor;
 import java.util.concurrent.LinkedBlockingQueue;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 public class NearbyDataStream {
-    private static final String USERNAME = "IIT_SAE";
+    private static final String BROADCASTER_USERNAME = "IIT SAE Broadcaster";
+    private static final String RECEIVER_USERNAME = "IIT SAE Receiver";
     private static final String SERVICE_ID = "RAW_DATA_STREAM";
-    private static final String ENDPOINT_ID = "SAE RAW DATA STREAM";
     private final LinkedBlockingQueue<byte[]> buffer = new LinkedBlockingQueue<>();
     private final Activity activity;
     private boolean broadcast = false;
     private boolean sendData = false;
-    private String currentEndpointId = "";
+    private AlertDialog acceptDialog;
+    private TextView authText, connName;
+    private String currentEndpointId, pendingEndpointId = "";
     private DataReceiver dr;
-    private final Streamer stream;
     private final ConnectionsClient client;
     private final AdvertisingOptions advertisingOptions = new AdvertisingOptions.Builder().setStrategy(Strategy.P2P_POINT_TO_POINT).build();
     private final DiscoveryOptions discoveryOptions = new DiscoveryOptions.Builder().setStrategy(Strategy.P2P_POINT_TO_POINT).build();
@@ -67,18 +68,50 @@ public class NearbyDataStream {
         client.rejectConnection(endpointId);
     }
 
+    private void createAcceptDialog() {
+        AlertDialog.Builder mBuilder = new AlertDialog.Builder(activity);
+        View mView = activity.getLayoutInflater().inflate(R.layout.nearby_accept_layout, null);
+
+        Button acceptBtn = mView.findViewById(R.id.acceptBtn);
+        Button rejectBtn = mView.findViewById(R.id.rejectBtn);
+        authText = mView.findViewById(R.id.authText);
+        connName = mView.findViewById(R.id.connName);
+
+        mBuilder.setView(mView);
+        acceptDialog = mBuilder.create();
+
+        AtomicBoolean accepted = new AtomicBoolean(false);
+
+        acceptBtn.setOnClickListener(v -> {
+            accepted.set(true);
+            acceptConnection(pendingEndpointId);
+            acceptDialog.dismiss();
+        });
+
+        rejectBtn.setOnClickListener(v -> {
+            rejectConnection(pendingEndpointId);
+            acceptDialog.dismiss();
+        });
+
+        acceptDialog.setOnDismissListener(dialog -> {
+            if (!accepted.get())
+                rejectConnection(pendingEndpointId);
+            accepted.set(false);
+        });
+
+    }
+
     ConnectionLifecycleCallback connectionLifecycleCallback = new ConnectionLifecycleCallback() {
         @Override
         public void onConnectionInitiated(@NonNull String endpointId, @NonNull ConnectionInfo info) {
-//            acceptConnection(endpointId);
-            Toaster.showToast("Accept Connection", Toaster.STATUS.INFO);
-            AlertDialog builder = new AlertDialog.Builder(activity).setIcon(android.R.drawable.ic_dialog_alert)
-                    .setPositiveButton("Accept", (DialogInterface dialog, int which) -> acceptConnection(endpointId))
-                    .setNegativeButton(android.R.string.cancel, (DialogInterface dialog, int which) -> rejectConnection(endpointId))
-                    .setTitle("Accept connection to " + info.getEndpointName())
-                    .setMessage("Confirm the code matches on both devices: " + info.getAuthenticationToken()).create();
-            builder.dismiss();
-            builder.show();
+            pendingEndpointId = endpointId;
+            String authTok = info.getAuthenticationToken();
+            String endName = info.getEndpointName();
+            activity.runOnUiThread(() -> {
+                authText.setText(authTok);
+                connName.setText(endName);
+                acceptDialog.show();
+            });
         }
 
         @Override
@@ -90,13 +123,13 @@ public class NearbyDataStream {
                     client.stopDiscovery();
                     if (broadcast)
                         sendData = true;
-//                        stream.execute(null);
                     break;
                 case ConnectionsStatusCodes.STATUS_CONNECTION_REJECTED:
                     Toaster.showToast("Data stream connection rejected", Toaster.STATUS.ERROR);
+                    acceptDialog.dismiss();
                     break;
                 case ConnectionsStatusCodes.STATUS_ERROR:
-                    Toaster.showToast("Data stream connection broke", Toaster.STATUS.ERROR);
+                    Toaster.showToast("Data stream connection dropped", Toaster.STATUS.ERROR);
                     break;
                 default:
                     Toaster.showToast("Data stream unknown error", Toaster.STATUS.ERROR);
@@ -115,7 +148,7 @@ public class NearbyDataStream {
         @Override
         public void onEndpointFound(@NonNull String endpointId, @NonNull DiscoveredEndpointInfo discoveredEndpointInfo) {
             Toaster.showToast("Found Endpoint", Toaster.STATUS.INFO);
-            client.requestConnection(broadcast ? "Broadcaster" : "Receiver", endpointId, connectionLifecycleCallback);
+            client.requestConnection(broadcast ? BROADCASTER_USERNAME : RECEIVER_USERNAME, endpointId, connectionLifecycleCallback);
         }
 
         @Override
@@ -124,19 +157,8 @@ public class NearbyDataStream {
         }
     };
 
-    private class Streamer implements Executor {
-        @Override
-        public void execute(Runnable command) {
-            while (broadcast) {
-                byte[] newData = buffer.poll();
-                if (newData != null)
-                    client.sendPayload(currentEndpointId, Payload.fromBytes(newData));
-            }
-        }
-    }
-
     private void startAdvertising() {
-        client.startAdvertising(USERNAME, SERVICE_ID, connectionLifecycleCallback, advertisingOptions)
+        client.startAdvertising(broadcast ? BROADCASTER_USERNAME : RECEIVER_USERNAME, SERVICE_ID, connectionLifecycleCallback, advertisingOptions)
                 .addOnSuccessListener((Void unused) -> Toaster.showToast("Searching for receiver", Toaster.STATUS.INFO))
                 .addOnFailureListener((Exception e) -> Toaster.showToast("Failed to start search for a receiver", true, Toaster.STATUS.ERROR));
     }
@@ -151,17 +173,15 @@ public class NearbyDataStream {
     public NearbyDataStream(Activity activity) {
         client = Nearby.getConnectionsClient(activity.getApplicationContext());
         this.activity = activity;
-        stream = new Streamer();
+        createAcceptDialog();
     }
 
     public void setReceiver(DataReceiver dataReceiver) {
         dr = dataReceiver;
     }
 
-    public void queue(byte[] data) {
-//        buffer.add(data);
+    public void sendPayload(byte[] data) {
         if (sendData) {
-//            Log.i("Stream", currentEndpointId + Arrays.toString(data));
             client.sendPayload(currentEndpointId, Payload.fromBytes(data));
         }
     }
@@ -185,7 +205,6 @@ public class NearbyDataStream {
         broadcast = false;
         sendData = false;
         client.stopAllEndpoints();
-//        client.disconnectFromEndpoint(ENDPOINT_ID);
         client.stopAdvertising();
         client.stopDiscovery();
     }

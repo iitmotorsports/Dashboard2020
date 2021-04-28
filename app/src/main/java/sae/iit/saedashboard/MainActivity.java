@@ -1,7 +1,6 @@
 package sae.iit.saedashboard;
 
 import android.Manifest;
-import android.animation.PropertyValuesHolder;
 import android.annotation.SuppressLint;
 import android.content.Intent;
 import android.content.pm.ActivityInfo;
@@ -14,8 +13,6 @@ import android.view.ViewTreeObserver;
 import android.view.Window;
 import android.view.WindowManager;
 import android.view.animation.AccelerateDecelerateInterpolator;
-import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Interpolator;
 import android.widget.LinearLayout;
 import android.widget.RadioButton;
 import android.widget.RadioGroup;
@@ -23,7 +20,6 @@ import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
@@ -31,14 +27,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
-import com.google.android.gms.nearby.Nearby;
-import com.google.android.gms.nearby.connection.AdvertisingOptions;
-import com.google.android.gms.nearby.connection.ConnectionInfo;
-import com.google.android.gms.nearby.connection.ConnectionLifecycleCallback;
-import com.google.android.gms.nearby.connection.ConnectionResolution;
-import com.google.android.gms.nearby.connection.ConnectionsClient;
-import com.google.android.gms.nearby.connection.Strategy;
-import com.google.android.gms.tasks.Task;
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
 
@@ -46,7 +34,6 @@ import org.jetbrains.annotations.NotNull;
 
 import java.io.BufferedReader;
 import java.io.StringReader;
-import java.sql.Connection;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -292,8 +279,7 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setWaitingLight(TStream.getState() == TeensyStream.STATE.Idle);
         mainTab.setChargingLight(TStream.getState() == TeensyStream.STATE.Charging);
         String state = TStream.getState().name();
-        if (state != null)
-            mainTab.setCurrentState(state.replace('_', ' '));
+        mainTab.setCurrentState(state.replace('_', ' '));
         ChargingSetButton.setChecked(TStream.getState() == TeensyStream.STATE.Charging);
 
     }
@@ -344,7 +330,7 @@ public class MainActivity extends AppCompatActivity {
     private void setupTeensyStream() {
         ToggleButton JSONToggle = findViewById(R.id.Load);
 
-        TStream = new TeensyStream(this, this::ConsoleLog, rawData -> nearbyStream.queue(rawData), () -> SerialToggle.setChecked(true), () -> {
+        TStream = new TeensyStream(this, this::ConsoleLog, rawData -> nearbyStream.sendPayload(rawData), () -> SerialToggle.setChecked(true), () -> {
             SerialToggle.setChecked(false);
             runOnUiThread(() -> {
                 mainTab.setLagLight(false);
