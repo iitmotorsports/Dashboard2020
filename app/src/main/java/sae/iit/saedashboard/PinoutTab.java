@@ -123,7 +123,7 @@ public class PinoutTab extends Fragment implements SideControlSize {
             }
         });
         toggleBtn.setOnClickListener(v -> {
-            toggleBtn.setChecked(false);
+            getActivity().runOnUiThread(() -> toggleBtn.setChecked(false));
             mirror.toggle();
         });
         clearBtn.setOnClickListener(v -> {
@@ -144,12 +144,13 @@ public class PinoutTab extends Fragment implements SideControlSize {
 
     private void onEnable() {
         enableLight.setButtonTintList(GREEN);
-        toggleBtn.setChecked(true);
+        getActivity().runOnUiThread(() -> toggleBtn.setChecked(true));
+
     }
 
     private void onDisable() {
         enableLight.setButtonTintList(BG);
-        toggleBtn.setChecked(false);
+        getActivity().runOnUiThread(() -> toggleBtn.setChecked(false));
     }
 
     private void addView(TextView view) {
