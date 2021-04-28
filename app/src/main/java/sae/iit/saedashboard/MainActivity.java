@@ -241,9 +241,11 @@ public class MainActivity extends AppCompatActivity {
     private void streamTeensyData() {
         if (TStream.isConnected()) {
             TStream.setEnableDataMirror(true);
-            nearbyStream.broadcast();
+            if (!nearbyStream.isConnected())
+                nearbyStream.broadcast();
         } else {
-            nearbyStream.receive();
+            if (!nearbyStream.isConnected())
+                nearbyStream.receive();
         }
     }
 
@@ -331,12 +333,18 @@ public class MainActivity extends AppCompatActivity {
         ToggleButton JSONToggle = findViewById(R.id.Load);
 
         TStream = new TeensyStream(this, this::ConsoleLog, rawData -> nearbyStream.sendPayload(rawData), () -> {
-            SerialToggle.setChecked(true);
-            if (nearbyStream.isConnected())
+            runOnUiThread(() -> SerialToggle.setChecked(true));
+            if (nearbyStream.isConnected()) {
                 nearbyStream.enableBroadcast();
+                TStream.setEnableDataMirror(true);
+            }
         }, () -> {
-            SerialToggle.setChecked(false);
+            if (nearbyStream.isConnected()) {
+                TStream.setEnableDataMirror(false);
+                nearbyStream.enableReceive();
+            }
             runOnUiThread(() -> {
+                SerialToggle.setChecked(false);
                 mainTab.setLagLight(false);
                 mainTab.setStartLight(false);
             });

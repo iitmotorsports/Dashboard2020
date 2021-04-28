@@ -195,10 +195,21 @@ public class NearbyDataStream {
         }
     }
 
+    public void enableReceive() {
+        if (dr == null) {
+            Toaster.showToast("No Receiver set", Toaster.STATUS.ERROR);
+            return;
+        }
+        if (connected) {
+            broadcast = false;
+            sendData = false;
+        }
+    }
+
     public void broadcast() {
         broadcast = true;
-        startAdvertising();
         startDiscovery();
+        startAdvertising();
     }
 
     public boolean isConnected() {
