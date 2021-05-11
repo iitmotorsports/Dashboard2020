@@ -52,6 +52,7 @@
             android:layout_height="wrap_content"
             android:gravity="center"
             android:includeFontPadding="true"
-            android:minEms="3" />
+            android:minEms="3"
+            android:padding="3dp" />
     </LinearLayout>
 </androidx.constraintlayout.widget.ConstraintLayout>
