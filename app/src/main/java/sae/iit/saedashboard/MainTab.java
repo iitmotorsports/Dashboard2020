@@ -1,5 +1,6 @@
 package sae.iit.saedashboard;
 
+import android.content.Context;
 import android.content.res.ColorStateList;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
@@ -18,11 +19,12 @@ import com.sccomponents.gauges.library.ScNotches;
 import java.util.Locale;
 import java.util.Objects;
 
-public class MainTab extends Fragment implements SideControlSize{
-    private TextView speedometer, batteryLife, BMSChargeValue, currentState, lagLightText;
+public class MainTab extends Fragment implements SideControlSize {
+    private TextView speedometer, currentState, lagLightText;
     private RadioButton FaultLight, waitingLight, chargingLight, lagLight, startLight;
     private ColorStateList BG, RED, YELLOW, GREEN, WHITE;
-    private LinearGauge powerGauge, powerGauge2, batteryGauge, BMSChargeGauge;
+    private LinearGauge powerGauge, powerGauge2;
+    private BasicBarGauge batteryGauge, BMSChargeGauge;
 
     // Creates a view that is compatible with ViewPager
     @Override
@@ -30,11 +32,8 @@ public class MainTab extends Fragment implements SideControlSize{
         ViewGroup rootView = (ViewGroup) inflater.inflate(R.layout.main_tab, container, false);
         // Initializing Fields
         speedometer = rootView.findViewById(R.id.speedometerValue);
-        batteryLife = rootView.findViewById(R.id.Value4);
-        BMSChargeValue = rootView.findViewById(R.id.BMSChargeValue);
         currentState = rootView.findViewById(R.id.currentState);
 
-        // checkEngine = rootView.findViewById(R.id.checkEngine);
         // Power Gauges
         powerGauge = rootView.findViewById(R.id.powerGauge);
         powerGauge2 = rootView.findViewById(R.id.powerGauge2);
@@ -45,17 +44,32 @@ public class MainTab extends Fragment implements SideControlSize{
         powerGauge2.setLayoutParams(powerGauge2.getLayoutParams());
         setPowerGauges(display.widthPixels / (50f * display.scaledDensity), display.heightPixels / (3f * display.scaledDensity));
 
-        batteryLife.setTextSize(display.heightPixels / (10f * display.scaledDensity));
-        BMSChargeValue.setTextSize(display.heightPixels / (10f * display.scaledDensity));
         speedometer.setTextSize(display.heightPixels / (2.5f * display.scaledDensity));
 
+        Context context = getContext();
+        assert context != null;
+
         // Battery
-        batteryGauge = rootView.findViewById(R.id.rightMotorTempGauge);
-        setBatteryGauge(rootView);
+        batteryGauge = rootView.findViewById(R.id.batteryGauge);
+        batteryGauge.setSubText("Battery Charge");
+        batteryGauge.setColors(
+                context.getColor(R.color.red),
+                context.getColor(R.color.red),
+                context.getColor(R.color.yellow),
+                context.getColor(R.color.yellow),
+                context.getColor(R.color.green),
+                context.getColor(R.color.green),
+                context.getColor(R.color.green)
+        );
 
         // BMS
         BMSChargeGauge = rootView.findViewById(R.id.BMSChargeGauge);
-        setBMSChargeGauge();
+        BMSChargeGauge.setSubText("Pack Power (Watts)");
+        BMSChargeGauge.setColors(
+                context.getColor(R.color.foregroundText),
+                context.getColor(R.color.blue)
+        );
+        BMSChargeGauge.flip();
 
         // Lights
         FaultLight = rootView.findViewById(R.id.FaultLight);
@@ -66,11 +80,11 @@ public class MainTab extends Fragment implements SideControlSize{
         startLight = rootView.findViewById(R.id.startLight);
 
         // Colors
-        RED = ColorStateList.valueOf(Objects.requireNonNull(getContext()).getColor(R.color.red));
-        YELLOW = ColorStateList.valueOf(getContext().getColor(R.color.yellow));
-        GREEN = ColorStateList.valueOf(getContext().getColor(R.color.green));
-        BG = ColorStateList.valueOf(getContext().getColor(R.color.backgroundText));
-        WHITE = ColorStateList.valueOf(getContext().getColor(R.color.foregroundText));
+        RED = ColorStateList.valueOf(context.getColor(R.color.red));
+        YELLOW = ColorStateList.valueOf(context.getColor(R.color.yellow));
+        GREEN = ColorStateList.valueOf(context.getColor(R.color.green));
+        BG = ColorStateList.valueOf(context.getColor(R.color.backgroundText));
+        WHITE = ColorStateList.valueOf(context.getColor(R.color.foregroundText));
         return rootView;
     }
 
@@ -115,67 +129,6 @@ public class MainTab extends Fragment implements SideControlSize{
         // Set the value
         powerGauge.setHighValue(0, 0, 100);
         powerGauge2.setHighValue(0, 0, 100);
-    }
-
-    private void setBatteryGauge(ViewGroup rootView) {
-        // Clear all default features from the gauge
-        batteryGauge.removeAllFeatures();
-        batteryGauge.setAlpha(0.8f);
-
-        // Create the base notches.
-        ScNotches base = (ScNotches) batteryGauge.addFeature(ScNotches.class);
-        base.setTag(ScGauge.BASE_IDENTIFIER);
-        base.setPosition(ScFeature.Positions.MIDDLE);
-        base.setRepetitions(100);
-        base.setWidths(5);
-        base.setHeights(250);
-        base.snapToNotches(1f);
-        base.setColors(Objects.requireNonNull(getContext()).getColor(R.color.backgroundText));
-
-        // Create the progress notches.
-        ScNotches progress = (ScNotches) batteryGauge.addFeature(ScNotches.class);
-        progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
-        progress.setColors(
-                getContext().getColor(R.color.red),
-                getContext().getColor(R.color.red),
-                getContext().getColor(R.color.yellow),
-                getContext().getColor(R.color.yellow),
-                getContext().getColor(R.color.green),
-                getContext().getColor(R.color.green),
-                getContext().getColor(R.color.green),
-                getContext().getColor(R.color.green)
-
-        );
-
-        // Set the value
-        batteryGauge.setHighValue(0, 0, 100); // TODO: set proper battery range
-    }
-
-    private void setBMSChargeGauge() {
-        // Clear all default features from the gauge
-        BMSChargeGauge.removeAllFeatures();
-        BMSChargeGauge.setAlpha(0.8f);
-
-        // Create the base notches.
-        ScNotches base = (ScNotches) BMSChargeGauge.addFeature(ScNotches.class);
-        base.setTag(ScGauge.BASE_IDENTIFIER);
-        base.setPosition(ScFeature.Positions.MIDDLE);
-        base.setRepetitions(100);
-        base.setWidths(5);
-        base.setHeights(250);
-        base.snapToNotches(1f);
-        base.setColors(Objects.requireNonNull(getContext()).getColor(R.color.backgroundText));
-
-        // Create the progress notches.
-        ScNotches progress = (ScNotches) BMSChargeGauge.addFeature(ScNotches.class);
-        progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
-        progress.setColors(
-                getContext().getColor(R.color.foregroundText),
-                getContext().getColor(R.color.blue)
-        );
-
-        // Set the value
-        BMSChargeGauge.setHighValue(0, 0, 100); // TODO: set proper BMS Charge range
     }
 
     // Updates field info
@@ -234,7 +187,7 @@ public class MainTab extends Fragment implements SideControlSize{
             if (time == 0)
                 lagLightText.setText("");
             else
-                lagLightText.setText(String.format(Locale.US,"%dms", time));
+                lagLightText.setText(String.format(Locale.US, "%dms", time));
         } else {
 //            lagLight.setChecked(false);
             lagLight.setTextColor(BG);
@@ -260,16 +213,13 @@ public class MainTab extends Fragment implements SideControlSize{
     }
 
     public void setBatteryLife(long battery) {
-//        double batVal = convertBatteryLife(battery) / 302.4;
-//        batteryLife.setText(String.valueOf((int) batVal).concat("%"));
-        batteryLife.setText(String.valueOf(battery).concat("%"));
-        batteryGauge.setHighValue((float) battery);
-
+        batteryGauge.setText(String.valueOf(battery).concat("%"));
+        batteryGauge.setPercentage(battery);
     }
 
     public void setPowerDisplay(long power) {
-        BMSChargeValue.setText(String.valueOf(power).concat(" W"));
-        BMSChargeGauge.setHighValue(Math.abs(power));
+        BMSChargeGauge.setText(String.valueOf(power).concat(" W"));
+        BMSChargeGauge.setPercentage(Math.abs(power));
     }
 
     public void setSpeedometer(long speed) {
