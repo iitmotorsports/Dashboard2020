@@ -100,6 +100,8 @@ public class MainActivity extends AppCompatActivity {
         if (hasFocus) hideSystemUI();
     }
 
+    private static int setConsoleWidth = 0;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
@@ -145,38 +147,42 @@ public class MainActivity extends AppCompatActivity {
                 super.onPageSelected(position);
                 SideControlSize tab = (SideControlSize) pagerAdapter.list.get(position).first;
                 if (conLayWidth[0] != -1 && tab != null) {
-                    int newWidth = conLayWidth[0] - tab.getPanelSize();
-                    if (ConsoleLayout.getWidth() != newWidth) {
-                        if (ConsoleLayout.getVisibility() == View.VISIBLE) {
-                            ResizeWidthAnimation anim = new ResizeWidthAnimation(ConsoleLayout, newWidth);
-                            anim.setInterpolator(new AccelerateDecelerateInterpolator());
-                            anim.setDuration(200);
-                            ConsoleLayout.startAnimation(anim);
-                        } else {
-                            ConsoleLayout.getLayoutParams().width = newWidth;
-                            ConsoleLayout.requestLayout();
-                        }
+                    setConsoleWidth = conLayWidth[0] - tab.getPanelSize();
+                    if (ConsoleLayout.getVisibility() == View.VISIBLE && ConsoleLayout.getWidth() != setConsoleWidth) {
+                        ResizeWidthAnimation anim = new ResizeWidthAnimation(ConsoleLayout, setConsoleWidth);
+                        anim.setInterpolator(new AccelerateDecelerateInterpolator());
+                        anim.setDuration(200);
+                        ConsoleLayout.startAnimation(anim);
                     }
-
                 }
             }
         });
 
-        ConsoleLayout.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-            @Override
-            public void onGlobalLayout() {
-                ConsoleLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                conLayWidth[0] = ConsoleLayout.getWidth();
-            }
-        });
+        ConsoleLayout.getViewTreeObserver().
 
-        findViewById(R.id.Clear).setOnLongClickListener(v -> {
-            Toaster.showToast("Clearing console text", false, true, Toaster.STATUS.INFO);
-            ConsoleHardClear();
-            return false;
-        });
+                addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                    @Override
+                    public void onGlobalLayout() {
+                        ConsoleLayout.getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                        conLayWidth[0] = ConsoleLayout.getWidth();
+                        setConsoleWidth = conLayWidth[0];
+                    }
+                });
 
-        ChargingSetButton = findViewById(R.id.chargeSet);
+        findViewById(R.id.Clear).
+
+                setOnLongClickListener(v ->
+
+                {
+                    Toaster.showToast("Clearing console text", false, true, Toaster.STATUS.INFO);
+                    ConsoleHardClear();
+                    return false;
+                });
+
+        ChargingSetButton =
+
+                findViewById(R.id.chargeSet);
+
         mainTab = (MainTab) pagerAdapter.list.get(0).first;
         secondTab = (SecondaryTab) pagerAdapter.list.get(1).first;
         dataTab = (DataLogTab) pagerAdapter.list.get(2).first;
@@ -236,10 +242,17 @@ public class MainActivity extends AppCompatActivity {
         LPUITimer.schedule(LPUI_task, 0, 200);
         assert dataTab != null;
         assert pinoutTab != null;
-        nearbyStream = new NearbyDataStream(this, (connected, broadcasting, situation) -> runOnUiThread(() -> {
-            StreamSwitch.setChecked(connected);
-            setConnStatus(broadcasting, situation);
-        }));
+        nearbyStream = new
+
+                NearbyDataStream(this, (connected, broadcasting, situation) ->
+
+                runOnUiThread(() ->
+
+                {
+                    StreamSwitch.setChecked(connected);
+                    setConnStatus(broadcasting, situation);
+                }));
+
         setupTeensyStream();
         nearbyStream.setReceiver(rawData -> TStream.receiveRawData(rawData));
     }
@@ -505,6 +518,10 @@ public class MainActivity extends AppCompatActivity {
 
     public void onConsoleSwitch(View view) {
         if (((SwitchCompat) view).isChecked()) {
+            if (ConsoleLayout.getWidth() != setConsoleWidth) {
+                ConsoleLayout.getLayoutParams().width = setConsoleWidth;
+                ConsoleLayout.requestLayout();
+            }
             SimpleAnim.animView(this, ConsoleLayout, View.VISIBLE, "fade");
         } else {
             SimpleAnim.animView(this, ConsoleLayout, View.INVISIBLE, "fade");
