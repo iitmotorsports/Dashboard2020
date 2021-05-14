@@ -26,24 +26,6 @@ public class LinearGauge extends ScGauge {
         super(context, attrs, defStyleAttr);
     }
 
-    public void initialize(float value, float startRange, float endRange, @FloatRange(from = 0.0, to = 1.0) float alpha, int repetitions, float width, float height, int BGColor, int... colors) {
-        this.removeAllFeatures();
-        this.setAlpha(alpha);
-
-        ScNotches base = (ScNotches) this.addFeature(ScNotches.class);
-        base.setTag(ScGauge.BASE_IDENTIFIER);
-        base.setPosition(ScFeature.Positions.MIDDLE);
-        base.setRepetitions(repetitions);
-        base.setWidths(width);
-        base.setHeights(height);
-        base.snapToNotches(1f);
-        base.setColors(BGColor);
-        ScNotches progress = (ScNotches) this.addFeature(ScNotches.class);
-        progress.setTag(ScGauge.PROGRESS_IDENTIFIER);
-        progress.setColors(colors);
-        this.setHighValue(value, startRange, endRange);
-    }
-
     private float DV(float x) {
         return (float) Math.max((0.5 - (Math.pow(x, 2)) / 8), 0.01f);
     }
@@ -56,28 +38,9 @@ public class LinearGauge extends ScGauge {
     }
 
     @Override
-    protected void onSizeChanged(int xNew, int yNew, int xOld, int yOld) {
-        try {
-            ScNotches base = (ScNotches) this.findFeature(ScGauge.BASE_IDENTIFIER);
-            if (base.getHeights().length == 1) {
-                base.setHeights(yNew * 2);
-                ScNotches progress = (ScNotches) this.findFeature(ScGauge.PROGRESS_IDENTIFIER);
-                progress.setHeights(yNew * 2);
-            }
-            super.onSizeChanged(xNew, yNew, xOld, yOld);
-        } catch (ClassCastException e) {
-            e.printStackTrace();
-        }
-    }
-
-    @Override
     protected Path createPath(int width, int height) {
-        // the new path and the area
         Path path = new Path();
-
         path.lineTo(100, 0);
-
-        // Return the path
         return path;
     }
 

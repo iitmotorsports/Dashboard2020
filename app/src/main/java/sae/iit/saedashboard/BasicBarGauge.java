@@ -110,11 +110,11 @@ public class BasicBarGauge extends RelativeLayout {
         MarginLayoutParams params = (MarginLayoutParams) colorBar.getLayoutParams();
         float newVal = (int) (maxWidth - (maxWidth * percentage));
         oldVal += (newVal - oldVal) * DV(percentage);
-        if (flipped)
-            params.rightMargin = (int) oldVal;
-        else
-            params.leftMargin = (int) oldVal;
         if (newVal != oldVal) {
+            if (flipped)
+                params.rightMargin = (int) oldVal;
+            else
+                params.leftMargin = (int) oldVal;
             colorBar.requestLayout();
             if (colorPhase)
                 setColor(getColor(percentage, true));
