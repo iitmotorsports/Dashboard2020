@@ -229,7 +229,7 @@
                         android:includeFontPadding="false"
                         android:minWidth="0dp"
                         android:minHeight="0dp"
-                        android:onClick="onClickCharge"
+                        android:onClick="onClickReverse"
                         android:padding="10dp"
                         android:textOff="@string/reverse"
                         android:textOn="@string/reverse"
