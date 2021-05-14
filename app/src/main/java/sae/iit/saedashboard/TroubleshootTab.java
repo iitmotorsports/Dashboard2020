@@ -1,5 +1,6 @@
 package sae.iit.saedashboard;
 
+import android.app.Activity;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -26,7 +27,9 @@ public class TroubleshootTab extends Fragment implements SideControlSize {
                 rgb += 0.1;
                 if (rgb > 180)
                     rgb = -180;
-                Objects.requireNonNull(getActivity()).runOnUiThread(() -> image.setColorFilter(ColorFilterGenerator.adjustHue(rgb)));
+                Activity activity = getActivity();
+                if (activity != null)
+                    activity.runOnUiThread(() -> image.setColorFilter(ColorFilterGenerator.adjustHue(rgb)));
             }
         };
         Timer rgbTimer = new Timer();
