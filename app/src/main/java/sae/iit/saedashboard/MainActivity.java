@@ -334,8 +334,8 @@ public class MainActivity extends AppCompatActivity {
 
     private void updateLPTabs() {
         mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
-//        mainTab.setPowerDisplay(TStream.requestData(msgIDPowerGauge));
-        mainTab.setPowerDisplay(TStream.requestData(msgIDBMSVolt) * TStream.requestData(msgIDBMSAmp));
+        long avgMCVolt = (TStream.requestData(msgIDMC0Voltage) + TStream.requestData(msgIDMC1Voltage)) / 2;
+        mainTab.setPowerDisplay(avgMCVolt * TStream.requestData(msgIDBMSDischLim), TStream.requestData(msgIDBMSVolt) * TStream.requestData(msgIDBMSAmp));
         secondTab.setValues(new long[]{
                 TStream.requestData(msgIDMC0Voltage),
                 TStream.requestData(msgIDMC0Current),
@@ -369,7 +369,8 @@ public class MainActivity extends AppCompatActivity {
     private void updateLPTestTabs() {
         long val = (long) (testVal + (Math.random() * testVal) / 10);
         mainTab.setBatteryLife(val);
-        mainTab.setPowerDisplay(val);
+//        mainTab.setPowerDisplay(val / 8, (long) testVal % val / 4);
+        mainTab.setPowerDisplay(val % 400, 350);
         secondTab.setValues(new long[]{val, val, val, val, val, val, val, val, val, val});
         TStream.log("test\n");
         ConsoleLog("test");

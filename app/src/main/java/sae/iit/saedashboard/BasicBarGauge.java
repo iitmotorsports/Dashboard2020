@@ -13,7 +13,7 @@ import androidx.annotation.Nullable;
 
 public class BasicBarGauge extends RelativeLayout {
 
-    private final TextView subText, mainText, colorBar;
+    private final TextView subText, mainText, colorBar, extraText;
     private int maxWidth = 0;
     private int[] colors;
     private float oldVal = 0;
@@ -33,6 +33,7 @@ public class BasicBarGauge extends RelativeLayout {
         View headerView = LayoutInflater.from(context).inflate(R.layout.basic_bar_layout, this, true);
         subText = findViewById(R.id.subText);
         mainText = findViewById(R.id.mainText);
+        extraText = findViewById(R.id.extraText);
         colorBar = findViewById(R.id.colorBar);
         colorBar.getViewTreeObserver().addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
             @Override
@@ -45,6 +46,10 @@ public class BasicBarGauge extends RelativeLayout {
 
     public void setText(String text) {
         mainText.setText(text);
+    }
+
+    public void setExtraText(String text) {
+        extraText.setText(text);
     }
 
     public void setSubText(String text) {

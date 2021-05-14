@@ -62,12 +62,21 @@ public class MainTab extends Fragment implements SideControlSize {
                 context.getColor(R.color.green)
         );
 
+        // android make pack power, circular power gauge
+        // one line is pack: how much we are currently pulling, one is how much we can pull from batteries: current value on the app
+        // How much we want, how much it can deliver
+        // dial can go negative
+        // (calculated from DCL from BMS * current MCs avg voltage)
+
         // BMS
         BMSChargeGauge = rootView.findViewById(R.id.BMSChargeGauge);
         BMSChargeGauge.setSubText("Pack Power (Watts)");
         BMSChargeGauge.setColors(
                 context.getColor(R.color.foregroundText),
-                context.getColor(R.color.blue)
+                context.getColor(R.color.foregroundText),
+                context.getColor(R.color.blue),
+                context.getColor(R.color.blue),
+                context.getColor(R.color.red)
         );
         BMSChargeGauge.flip();
 
@@ -217,9 +226,12 @@ public class MainTab extends Fragment implements SideControlSize {
         batteryGauge.setPercentage(battery);
     }
 
-    public void setPowerDisplay(long power) {
-        BMSChargeGauge.setText(String.valueOf(power).concat(" W"));
-        BMSChargeGauge.setPercentage(Math.abs(power));
+    public void setPowerDisplay(long usage, long limit) {
+        BMSChargeGauge.setText(String.valueOf(usage).concat("W"));
+        BMSChargeGauge.setExtraText("L: ".concat(String.valueOf(limit).concat("W")));
+        if (limit == 0)
+            limit = 1;
+        BMSChargeGauge.setPercentage(Math.abs(((float) usage) / limit) * 100);
     }
 
     public void setSpeedometer(long speed) {

@@ -44,6 +44,17 @@
                 android:textColor="@color/background"
                 android:textSize="45sp" />
 
+            <TextView
+                android:id="@+id/extraText"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_alignStart="@id/mainText"
+                android:layout_alignBottom="@id/mainText"
+                android:includeFontPadding="false"
+                android:padding="2dp"
+                android:textColor="@color/background"
+                android:textSize="8sp" />
+
         </RelativeLayout>
 
         <TextView
