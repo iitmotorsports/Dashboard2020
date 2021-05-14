@@ -58,7 +58,7 @@ public class MainActivity extends AppCompatActivity {
     private RadioGroup conRadioGroup;
     private NearbyDataStream nearbyStream;
     private ImageView connStatus;
-    ToggleButton ChargingSetButton;
+    ToggleButton ChargingSetButton, reverseSet;
     ConstraintLayout ConsoleLayout;
     DataLogTab dataTab;
     PinoutTab pinoutTab;
@@ -179,9 +179,8 @@ public class MainActivity extends AppCompatActivity {
                     return false;
                 });
 
-        ChargingSetButton =
-
-                findViewById(R.id.chargeSet);
+        ChargingSetButton = findViewById(R.id.chargeSet);
+        reverseSet = findViewById(R.id.reverseSet);
 
         mainTab = (MainTab) pagerAdapter.list.get(0).first;
         secondTab = (SecondaryTab) pagerAdapter.list.get(1).first;
@@ -330,7 +329,7 @@ public class MainActivity extends AppCompatActivity {
         String state = TStream.getState().name();
         mainTab.setCurrentState(state.replace('_', ' '));
         ChargingSetButton.setChecked(TStream.getState() == TeensyStream.STATE.Charging);
-
+//        reverseSet.setChecked(TStream.requestData(msgIDFault) = 0); // TODO: receive reverse enabled signal
     }
 
     private void updateLPTabs() {
@@ -536,6 +535,11 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickFault(View view) {
         TStream.write(TeensyStream.COMMAND.CLEAR_FAULT);
+    }
+
+    public void onClickReverse(View view) {
+        TStream.write(TeensyStream.COMMAND.TOGGLE_REVERSE);
+        reverseSet.setChecked(false);
     }
 
     public void onClickCharge(View view) {

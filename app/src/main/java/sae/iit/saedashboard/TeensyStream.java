@@ -151,6 +151,7 @@ public class TeensyStream {
         public static final byte[] TOGGLE_MIRROR_MODE = {90};
         public static final byte[] ENTER_MIRROR_SET = {-1};
         public static final byte[] SEND_ECHO = {84};
+        public static final byte[] TOGGLE_REVERSE = {25};
     }
 
     public void log(String message) {
