@@ -11,7 +11,7 @@ import java.io.InputStreamReader;
 import java.util.Objects;
 
 public class JSONLoad {
-    private static final int PICK_JSON_FILE = 2;
+    public static final int PICK_JSON_FILE = 22;
     private String loadedJsonStr;
     private final Activity activity;
 

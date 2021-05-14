@@ -96,7 +96,7 @@ public class ByteSplit {
      * @return The unsigned short value as an int
      */
     public static int getUnsignedShort(byte[] data) {
-        return (ByteBuffer.wrap(data).getShort() & 0xffff);
+        return (ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getShort() & 0xffff);
     }
 
     /**
@@ -108,7 +108,7 @@ public class ByteSplit {
      * @return The unsigned short value as an int
      */
     public static int getUnsignedShort(byte[] data, int position) {
-        return (ByteBuffer.wrap(data).getShort(position) & 0xffff);
+        return (ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getShort(position) & 0xffff);
     }
 
     /**
@@ -119,7 +119,7 @@ public class ByteSplit {
      * @return The unsigned int value as a long
      */
     public static long getUnsignedInt(byte[] data) {
-        return ((long) ByteBuffer.wrap(data).getInt() & 0xffffffffL);
+        return ((long) ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getInt() & 0xffffffffL);
     }
 
     /**
@@ -131,7 +131,7 @@ public class ByteSplit {
      * @return The unsigned short value at the buffer's current position as a long
      */
     public static long getUnsignedInt(byte[] data, int position) {
-        return ((long) ByteBuffer.wrap(data).getInt(position) & 0xffffffffL);
+        return ((long) ByteBuffer.wrap(data).order(ByteOrder.LITTLE_ENDIAN).getInt(position) & 0xffffffffL);
     }
 
     /**

@@ -31,6 +31,7 @@ public class TeensyStream {
     private final USBSerial serialConnection;
     private final LogFileIO loggingIO;
     private final JSONMap jsonMap;
+    private final JSONQR jsonQR;
     private boolean enableLogCallback = true;
     private boolean enableDataMirror = false;
     private boolean enableLogFile;
@@ -221,6 +222,8 @@ public class TeensyStream {
             }
             runOnSuccessfulMapChange.run(this);
         }, runOnMapChange);
+
+        jsonQR = new JSONQR(activity);
 
         streamCallback = arg0 -> {
             long epoch = System.nanoTime();
@@ -664,13 +667,19 @@ public class TeensyStream {
 
     // region File IO
 
+    public void updateQRJson() {
+        jsonQR.initiate();
+    }
+
     public void updateJsonMap() {
         Toaster.showToast("Find log_lookup.json", true, Toaster.STATUS.INFO);
         jsonMap.openFile();
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        jsonMap.onActivityResult(requestCode, resultCode, resultData);
+        if (requestCode == JSONLoad.PICK_JSON_FILE)
+            jsonMap.onActivityResult(requestCode, resultCode, resultData);
+        jsonQR.onActivityResult(requestCode, resultCode, resultData);
     }
 
     public void updateJsonMap(String rawJSON) {

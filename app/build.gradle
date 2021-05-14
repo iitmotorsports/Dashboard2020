@@ -23,9 +23,6 @@ android {
         targetCompatibility = 1.8
     }
 }
-repositories {
-    jcenter()
-}
 
 dependencies {
     implementation fileTree(include: ['*.jar'], dir: 'libs')
@@ -36,6 +33,8 @@ dependencies {
     implementation 'com.google.code.gson:gson:2.8.6'
     implementation 'org.jetbrains:annotations:15.0'
     implementation project(path: ':sc-gauges')
+    implementation 'com.journeyapps:zxing-android-embedded:4.0.2@aar'
+    implementation 'com.google.zxing:core:3.4.1'
     testImplementation 'junit:junit:4.13.2'
     androidTestImplementation 'androidx.test:runner:1.3.0'
     androidTestImplementation 'androidx.test.espresso:espresso-core:3.3.0'

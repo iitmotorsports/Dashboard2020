@@ -30,6 +30,8 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
+import com.google.zxing.integration.android.IntentIntegrator;
+import com.google.zxing.integration.android.IntentResult;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -37,7 +39,10 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
+import java.util.Arrays;
+import java.util.Collections;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -256,6 +261,12 @@ public class MainActivity extends AppCompatActivity {
         nearbyStream.setReceiver(rawData -> TStream.receiveRawData(rawData));
     }
 
+    @Override
+    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        super.onActivityResult(requestCode, resultCode, resultData);
+        TStream.onActivityResult(requestCode, resultCode, resultData);
+    }
+
     public void setConnStatus(boolean broadcasting, NearbyDataStream.STATUS situation) {
         if (broadcasting)
             connStatus.setImageResource(android.R.drawable.stat_sys_upload);
@@ -442,12 +453,6 @@ public class MainActivity extends AppCompatActivity {
         Log.i(LOG_ID, "Teensy stream created");
     }
 
-    @Override
-    public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
-        super.onActivityResult(requestCode, resultCode, resultData);
-        TStream.onActivityResult(requestCode, resultCode, resultData);
-    }
-
     public void onSerialToggle(View view) {
         if (SerialToggle.isChecked()) {
             if (TStream.open()) {
@@ -604,7 +609,8 @@ public class MainActivity extends AppCompatActivity {
             Toaster.showToast("Downloading JSON");
             PasteAPI.getLastJSONPaste(response -> TStream.updateJsonMap(response));
         } else {
-            TStream.updateJsonMap();
+            TStream.updateQRJson();
+//            TStream.updateJsonMap();
         }
     }
 
