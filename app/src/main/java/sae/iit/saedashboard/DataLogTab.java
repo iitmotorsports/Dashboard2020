@@ -268,13 +268,13 @@ public class DataLogTab extends Fragment implements SideControlSize {
 
     private TextView listFile(LogFileIO.LogFile file, int pos) {
         String name = file.getFormattedName();
-        TextView textView = new TextView(getContext());
+        TextView textView = new TextView(activity);
         textView.setPadding(10, 10, 10, 10);
         textView.setTextSize(TypedValue.COMPLEX_UNIT_SP, 20f);
         textView.setOnClickListener(v -> selectFile(file));
         SpannableStringBuilder sb = new SpannableStringBuilder();
         String KB = String.valueOf(file.length() / 1000);
-        int color = loggingIO.isActiveFile(file) ? Objects.requireNonNull(getContext()).getColor(R.color.colorAccent) : Objects.requireNonNull(getContext()).getColor(R.color.backgroundText);
+        int color = loggingIO.isActiveFile(file) ? activity.getColor(R.color.colorAccent) : activity.getColor(R.color.backgroundText);
         sb.append(TeensyStream.getColoredString(String.format(Locale.US, "%1$3s  ", pos).replace(" ", "  "), color));
         sb.append(name);
         sb.append(TeensyStream.getColoredString("  -  " + KB + " kb", color));
@@ -317,7 +317,7 @@ public class DataLogTab extends Fragment implements SideControlSize {
         if (selectedFile > -1 && selectedFile < size)
             fileList.get(selectedFile).second.setBackgroundColor(Color.TRANSPARENT);
         TextView view = fileList.get(pos).second;
-        view.setBackgroundColor(Objects.requireNonNull(getContext()).getColor(R.color.translucentBlack));
+        view.setBackgroundColor(activity.getColor(R.color.translucentBlack));
         int finalPos = pos;
         int height = view.getHeight();
         selectedFile = pos;
