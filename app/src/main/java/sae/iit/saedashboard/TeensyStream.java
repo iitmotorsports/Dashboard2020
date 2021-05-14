@@ -668,7 +668,7 @@ public class TeensyStream {
     // region File IO
 
     public void updateQRJson() {
-        jsonQR.initiate();
+        jsonQR.initiate(this::updateJsonMap);
     }
 
     public void updateJsonMap() {

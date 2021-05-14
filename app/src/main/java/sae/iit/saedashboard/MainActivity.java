@@ -30,8 +30,6 @@ import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
 import com.google.android.material.tabs.TabLayoutMediator;
-import com.google.zxing.integration.android.IntentIntegrator;
-import com.google.zxing.integration.android.IntentResult;
 
 import org.jetbrains.annotations.NotNull;
 
@@ -39,10 +37,7 @@ import java.io.BufferedReader;
 import java.io.StringReader;
 import java.text.DateFormat;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Collections;
 import java.util.Date;
-import java.util.HashMap;
 import java.util.Locale;
 import java.util.Timer;
 import java.util.TimerTask;
@@ -191,6 +186,10 @@ public class MainActivity extends AppCompatActivity {
         secondTab = (SecondaryTab) pagerAdapter.list.get(1).first;
         dataTab = (DataLogTab) pagerAdapter.list.get(2).first;
         pinoutTab = (PinoutTab) pagerAdapter.list.get(3).first;
+        assert dataTab != null;
+        assert pinoutTab != null;
+        dataTab.setActivity(this);
+        pinoutTab.setActivity(this);
 
         // UI update timers
         Timer LPUITimer = new Timer();
@@ -244,15 +243,9 @@ public class MainActivity extends AppCompatActivity {
         consoleTimerAsync.schedule(ConsoleTask, 0, 5000);
         UITimer.schedule(UI_task, 0, 50);// TODO: How much of a delay do we really need?
         LPUITimer.schedule(LPUI_task, 0, 200);
-        assert dataTab != null;
-        assert pinoutTab != null;
         nearbyStream = new
-
                 NearbyDataStream(this, (connected, broadcasting, situation) ->
-
-                runOnUiThread(() ->
-
-                {
+                runOnUiThread(() -> {
                     StreamSwitch.setChecked(connected);
                     setConnStatus(broadcasting, situation);
                 }));
@@ -440,9 +433,9 @@ public class MainActivity extends AppCompatActivity {
             TStream.setCallback(msgIDStartLight, num -> runOnUiThread(() -> mainTab.setStartLight(num == 1)), TeensyStream.UPDATE.ON_VALUE_CHANGE);
             TStream.setCallback(msgIDLag, num -> runOnUiThread(() -> mainTab.setLagLight(true, num)), TeensyStream.UPDATE.ON_RECEIVE);
             TStream.setCallback(msgIDBeat, num -> runOnUiThread(() -> mainTab.setLagLight(false)), TeensyStream.UPDATE.ON_RECEIVE);
-
-            dataTab.setTeensyStream(TStream, this);
-            pinoutTab.setStream(TStream, this);
+            dataTab.setTeensyStream(TStream);
+            dataTab.updateFiles();
+            pinoutTab.setTeensyStream(TStream);
         }
         );
         JSONToggle.setOnLongClickListener(v -> {

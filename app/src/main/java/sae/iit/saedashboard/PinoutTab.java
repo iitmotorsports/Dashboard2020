@@ -123,7 +123,7 @@ public class PinoutTab extends Fragment implements SideControlSize {
             }
         });
         toggleBtn.setOnClickListener(v -> {
-            getActivity().runOnUiThread(() -> toggleBtn.setChecked(false));
+            activity.runOnUiThread(() -> toggleBtn.setChecked(false));
             mirror.toggle();
         });
         clearBtn.setOnClickListener(v -> {
@@ -131,7 +131,7 @@ public class PinoutTab extends Fragment implements SideControlSize {
             currentColumn = null;
             activity.runOnUiThread(() -> pinLayout.removeAllViewsInLayout());
             viewMap.clear();
-            setStream(stream, activity);
+            setTeensyStream(stream);
         });
         updateBtn.setOnClickListener(v -> mirror.enableUpdate(updateBtn.isChecked()));
 
@@ -144,13 +144,13 @@ public class PinoutTab extends Fragment implements SideControlSize {
 
     private void onEnable() {
         enableLight.setButtonTintList(GREEN);
-        getActivity().runOnUiThread(() -> toggleBtn.setChecked(true));
+        activity.runOnUiThread(() -> toggleBtn.setChecked(true));
 
     }
 
     private void onDisable() {
         enableLight.setButtonTintList(BG);
-        getActivity().runOnUiThread(() -> toggleBtn.setChecked(false));
+        activity.runOnUiThread(() -> toggleBtn.setChecked(false));
     }
 
     private void addView(TextView view) {
@@ -200,9 +200,12 @@ public class PinoutTab extends Fragment implements SideControlSize {
         updateValue(pin, value);
     }
 
-    public void setStream(TeensyStream stream, Activity activity) {
-        this.stream = stream;
+    public void setActivity(Activity activity) {
         this.activity = activity;
+    }
+
+    public void setTeensyStream(TeensyStream stream) {
+        this.stream = stream;
         if (this.mirror != null)
             this.mirror.disable();
         this.mirror = new Mirror(stream, this::onEnable, this::onDisable, this::updateValue, this::onFail, this::onSet);

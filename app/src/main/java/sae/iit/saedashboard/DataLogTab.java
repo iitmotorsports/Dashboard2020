@@ -104,7 +104,6 @@ public class DataLogTab extends Fragment implements SideControlSize {
         });
 
         createConfirmDialog();
-        updateFiles();
         return rootView;
     }
 
@@ -366,7 +365,7 @@ public class DataLogTab extends Fragment implements SideControlSize {
         }
     }
 
-    private void updateFiles() {
+    public void updateFiles() {
         if (logScroller != null && logScroller.getVisibility() != View.GONE) {
             Toaster.showToast("Can't update while viewing log", Toaster.STATUS.WARNING);
             return;
@@ -390,8 +389,11 @@ public class DataLogTab extends Fragment implements SideControlSize {
         }
     }
 
-    public void setTeensyStream(TeensyStream stream, Activity activity) {
+    public void setTeensyStream(TeensyStream stream) {
         this.loggingIO = stream.getLoggingIO();
+    }
+
+    public void setActivity(Activity activity){
         this.activity = activity;
     }
 
