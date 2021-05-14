@@ -608,7 +608,7 @@ public class MainActivity extends AppCompatActivity {
         if (PasteAPI.checkInternetConnection(getApplicationContext())) {
             Toaster.showToast("Downloading JSON");
             PasteAPI.getLastJSONPaste(response -> TStream.updateJsonMap(response));
-        } else {
+        } else { // TODO: Selection of QR or search for file
             TStream.updateQRJson();
 //            TStream.updateJsonMap();
         }
