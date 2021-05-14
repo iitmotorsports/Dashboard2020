@@ -208,10 +208,8 @@ public class MainTab extends Fragment implements SideControlSize {
 
     public void setStartLight(boolean state) {
         if (state) {
-//            startLight.setChecked(true);
             startLight.setButtonTintList(GREEN);
         } else {
-//            startLight.setChecked(false);
             startLight.setButtonTintList(BG);
         }
     }

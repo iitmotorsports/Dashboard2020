@@ -369,7 +369,6 @@ public class MainActivity extends AppCompatActivity {
     private void updateLPTestTabs() {
         long val = (long) (testVal + (Math.random() * testVal) / 10);
         mainTab.setBatteryLife(val);
-//        mainTab.setPowerDisplay(val / 8, (long) testVal % val / 4);
         mainTab.setPowerDisplay(val % 400, 350);
         secondTab.setValues(new long[]{val, val, val, val, val, val, val, val, val, val});
         TStream.log("test\n");
