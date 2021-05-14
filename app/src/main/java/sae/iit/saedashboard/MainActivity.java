@@ -237,7 +237,7 @@ public class MainActivity extends AppCompatActivity {
 
         // Timer values
         consoleTimerAsync.schedule(ConsoleTask, 0, 5000);
-        UITimer.schedule(UI_task, 0, 60);// TODO: How much of a delay do we really need?
+        UITimer.schedule(UI_task, 0, 50);// TODO: How much of a delay do we really need?
         LPUITimer.schedule(LPUI_task, 0, 200);
         assert dataTab != null;
         assert pinoutTab != null;
@@ -328,14 +328,14 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setChargingLight(TStream.getState() == TeensyStream.STATE.Charging);
         String state = TStream.getState().name();
         mainTab.setCurrentState(state.replace('_', ' '));
+        mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
+        long avgMCVolt = (TStream.requestData(msgIDMC0Voltage) + TStream.requestData(msgIDMC1Voltage)) / 2;
+        mainTab.setPowerDisplay(avgMCVolt * TStream.requestData(msgIDBMSDischLim), TStream.requestData(msgIDBMSVolt) * TStream.requestData(msgIDBMSAmp));
         ChargingSetButton.setChecked(TStream.getState() == TeensyStream.STATE.Charging);
 //        reverseSet.setChecked(TStream.requestData(msgIDFault) = 0); // TODO: receive reverse enabled signal
     }
 
     private void updateLPTabs() {
-        mainTab.setBatteryLife(TStream.requestData(msgIDBatteryLife));
-        long avgMCVolt = (TStream.requestData(msgIDMC0Voltage) + TStream.requestData(msgIDMC1Voltage)) / 2;
-        mainTab.setPowerDisplay(avgMCVolt * TStream.requestData(msgIDBMSDischLim), TStream.requestData(msgIDBMSVolt) * TStream.requestData(msgIDBMSAmp));
         secondTab.setValues(new long[]{
                 TStream.requestData(msgIDMC0Voltage),
                 TStream.requestData(msgIDMC0Current),
@@ -364,12 +364,12 @@ public class MainActivity extends AppCompatActivity {
         mainTab.setWaitingLight(val > 100);
         mainTab.setChargingLight(val > 150);
         mainTab.setCurrentState(TStream.getState().name().replace('_', ' '));
+        mainTab.setBatteryLife(val);
+        mainTab.setPowerDisplay(val % 400, 350);
     }
 
     private void updateLPTestTabs() {
         long val = (long) (testVal + (Math.random() * testVal) / 10);
-        mainTab.setBatteryLife(val);
-        mainTab.setPowerDisplay(val % 400, 350);
         secondTab.setValues(new long[]{val, val, val, val, val, val, val, val, val, val});
         TStream.log("test\n");
         ConsoleLog("test");
