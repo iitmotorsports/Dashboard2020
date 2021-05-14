@@ -48,6 +48,11 @@ public class JSONQR {
     static final int REQUEST_VIDEO_CAPTURE = 123;
     Reader reader = new QRCodeReader();
 
+    private QRCallback callback;
+
+    public interface QRCallback {
+        void run(String jsonData);
+    }
 
     public JSONQR(Activity MainActivity) {
         this.MainActivity = MainActivity;
@@ -56,10 +61,13 @@ public class JSONQR {
         scanIntegrator.setBeepEnabled(false);
     }
 
-    public void initiate() {
+    public void initiate(QRCallback callback) {
+        this.callback = callback;
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            clear();
             scanIntegrator.initiateScan(Collections.singletonList(IntentIntegrator.QR_CODE));
         } else {
+            clear();
             recordQRGif();
         }
     }
@@ -103,14 +111,14 @@ public class JSONQR {
         return "";
     }
 
-    public void recordQRGif() {
+    private void recordQRGif() {
         Intent takeVideoIntent = new Intent(MediaStore.ACTION_VIDEO_CAPTURE);
         if (takeVideoIntent.resolveActivity(MainActivity.getPackageManager()) != null) {
             MainActivity.startActivityForResult(takeVideoIntent, REQUEST_VIDEO_CAPTURE);
         }
     }
 
-    public void clear() {
+    private void clear() {
         qrByteMap.clear();
         expected = -1;
     }
@@ -141,7 +149,7 @@ public class JSONQR {
         return last == expected;
     }
 
-    public byte[] decodeQRImage(Bitmap bMap) {
+    private byte[] decodeQRImage(Bitmap bMap) {
         byte[] decoded = null;
         reader.reset();
 
@@ -174,7 +182,8 @@ public class JSONQR {
                 break;
             }
         }
-        Log.i("JSONQR", getData());
+        if (callback != null)
+            callback.run(getData());
     }
 
     private void processIntentResult(IntentResult scanningResult) {
@@ -193,7 +202,8 @@ public class JSONQR {
         Toaster.showToast(dataMap.toString(), false, true, Toaster.STATUS.INFO);
         if (!ingestQRResult(content))
             scanIntegrator.initiateScan(Collections.singletonList(IntentIntegrator.QR_CODE));
-
+        else if (callback != null)
+            callback.run(getData());
     }
 
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
