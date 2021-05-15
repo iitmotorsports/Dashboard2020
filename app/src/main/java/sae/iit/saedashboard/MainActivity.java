@@ -439,7 +439,7 @@ public class MainActivity extends AppCompatActivity {
         }
         );
         JSONToggle.setOnLongClickListener(v -> {
-            TStream.clear();
+            TStream.showJSONDialog();
             return true;
         });
 
@@ -599,7 +599,6 @@ public class MainActivity extends AppCompatActivity {
 
     public void onClickLoad(View view) {
         if (PasteAPI.checkInternetConnection(getApplicationContext())) {
-            Toaster.showToast("Downloading JSON");
             PasteAPI.getLastJSONPaste(response -> TStream.updateJsonMap(response));
         } else { // TODO: Selection of QR or search for file
             TStream.updateQRJson();

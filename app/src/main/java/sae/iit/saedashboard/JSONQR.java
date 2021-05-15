@@ -221,7 +221,7 @@ public class JSONQR {
     }
 
     private void processIntentResult(IntentResult scanningResult) {
-        if (scanningResult == null) {
+        if (scanningResult == null || scanningResult.getRawBytes() == null) {
             Toaster.showToast("JSON QR Cancelled", Toaster.STATUS.WARNING);
             return;
         }

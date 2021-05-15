@@ -40,6 +40,7 @@ public class TeensyStream {
     private long currentState = 0;
     private static CANDialog canAlert;
     private static EchoDialog echoAlert;
+    private static JSONDialog jsonAlert;
     private static final String LOG_MAP_START = "---[ LOG MAP START ]---\n";
     private static final String LOG_MAP_END = "---[ LOG MAP END ]---\n";
     private static UsbSerialInterface.UsbReadCallback streamCallback;
@@ -252,6 +253,7 @@ public class TeensyStream {
         new android.os.Handler().postDelayed(serialConnection::open, 2000);
         canAlert = new CANDialog(activity, this);
         echoAlert = new EchoDialog(activity, this);
+        jsonAlert = new JSONDialog(activity, this);
         if (b)
             runOnSuccessfulMapChange.run(this);
     }
@@ -271,6 +273,10 @@ public class TeensyStream {
 
     public void showCANDialog() {
         canAlert.showDialog();
+    }
+
+    public void showJSONDialog() {
+        jsonAlert.showDialog();
     }
 
     public void showEchoDialog() {

@@ -127,4 +127,8 @@
     <string name="reject">Reject</string>
     <string name="connection_status">Connection Status</string>
     <string name="reverse">Reverse</string>
+    <string name="download">Download</string>
+    <string name="scan_qr_gif">Scan QR gif</string>
+    <string name="update_json_map">Update JSON Map</string>
+    <string name="find_json_file">find JSON file</string>
 </resources>

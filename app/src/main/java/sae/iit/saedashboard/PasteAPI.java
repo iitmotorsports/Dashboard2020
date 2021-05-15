@@ -124,6 +124,7 @@ public class PasteAPI {
 
     public static void getLastJSONPaste(responseCallback responseCallback) {
         ExecutorService executor = Executors.newSingleThreadExecutor();
+        Toaster.showToast("Downloading JSON");
         executor.submit(() -> {
             HttpsURLConnection listConn = null;
             HttpsURLConnection getConn = null;
