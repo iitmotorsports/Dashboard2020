@@ -247,6 +247,8 @@ public class JSONMap {
         } catch (JSONException e) {
             e.printStackTrace();
             Toaster.showToast("Json does not match correct format", true, Toaster.STATUS.ERROR);
+            if (raw != null)
+                Log.i(LOG_TAG, raw);
             return JSONLoaded;
         }
 
