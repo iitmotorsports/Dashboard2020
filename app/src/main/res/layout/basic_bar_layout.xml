@@ -35,14 +35,14 @@
                 android:id="@+id/mainText"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:includeFontPadding="false"
-                android:minEms="3"
+                android:includeFontPadding="true"
+                android:minEms="4"
                 android:paddingStart="15dp"
                 android:paddingEnd="15dp"
                 android:shadowColor="@color/colorAccent"
                 android:textAlignment="textEnd"
                 android:textColor="@color/background"
-                android:textSize="45sp" />
+                android:textSize="60sp" />
 
             <TextView
                 android:id="@+id/extraText"
@@ -53,7 +53,7 @@
                 android:includeFontPadding="false"
                 android:padding="2dp"
                 android:textColor="@color/background"
-                android:textSize="8sp" />
+                android:textSize="16sp" />
 
         </RelativeLayout>
 
