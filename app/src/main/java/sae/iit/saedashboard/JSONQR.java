@@ -1,5 +1,6 @@
 package sae.iit.saedashboard;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
 import android.content.res.AssetFileDescriptor;
@@ -25,6 +26,7 @@ import com.google.zxing.integration.android.IntentIntegrator;
 import com.google.zxing.integration.android.IntentResult;
 import com.google.zxing.qrcode.QRCodeReader;
 
+import java.nio.BufferUnderflowException;
 import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -63,13 +65,13 @@ public class JSONQR {
 
     public void initiate(QRCallback callback) {
         this.callback = callback;
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            clear();
-            scanIntegrator.initiateScan(Collections.singletonList(IntentIntegrator.QR_CODE));
-        } else {
-            clear();
-            recordQRGif();
-        }
+//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+//            clear();
+//            scanIntegrator.initiateScan(Collections.singletonList(IntentIntegrator.QR_CODE));
+//        } else {
+        clear();
+        recordQRGif();
+//        }
     }
 
     static byte[] joinArray(Collection<byte[]> arrays) {
@@ -90,21 +92,22 @@ public class JSONQR {
     }
 
     public String getData() {
-        List<byte[]> data = new ArrayList<>();
-        for (Map.Entry<Byte, byte[]> e : qrByteMap.entrySet()) {
-            data.add(e.getValue());
-        }
-        byte[] rawBytes = joinArray(data);
-        int size = (int) ByteSplit.getUnsignedInt(rawBytes);
-        byte[] rawData = Arrays.copyOfRange(rawBytes, 4, rawBytes.length);
         try {
+            List<byte[]> data = new ArrayList<>();
+            for (Map.Entry<Byte, byte[]> e : qrByteMap.entrySet()) {
+                data.add(e.getValue());
+            }
+            byte[] rawBytes = joinArray(data);
+            int size = (int) ByteSplit.getUnsignedInt(rawBytes);
+            byte[] rawData = Arrays.copyOfRange(rawBytes, 4, rawBytes.length);
+
             Inflater decompressor = new Inflater();
             decompressor.setInput(rawData);
             byte[] result = new byte[size + 1];
             int resultLength = decompressor.inflate(result);
             decompressor.end();
             return new String(result, 0, resultLength, StandardCharsets.UTF_8);
-        } catch (DataFormatException e) {
+        } catch (DataFormatException | BufferUnderflowException e) {
             e.printStackTrace();
             Toaster.showToast("Failed to decode QR data", Toaster.STATUS.ERROR);
         }
@@ -166,27 +169,58 @@ public class JSONQR {
         return decoded;
     }
 
+//    private static Bitmap scaleBitMap(Bitmap realImage, float maxImageSize, boolean filter) {
+//        float ratio = Math.min(
+//                (float) maxImageSize / realImage.getWidth(),
+//                (float) maxImageSize / realImage.getHeight());
+//        int width = Math.round((float) ratio * realImage.getWidth());
+//        int height = Math.round((float) ratio * realImage.getHeight());
+//
+//        return Bitmap.createScaledBitmap(realImage, width, height, filter);
+//    }
+
     private void processVideo(Uri videoUri) {
-        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-            Toaster.showToast("QR Gif only supported on Android 9+");
-            return;
-        }
         MediaMetadataRetriever mediaMetadata = new MediaMetadataRetriever();
         mediaMetadata.setDataSource(MainActivity.getApplicationContext(), videoUri);
 
         Bitmap frame;
-        for (int currentFrame = 0; currentFrame < Integer.parseInt(mediaMetadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)); currentFrame++) {
-            frame = mediaMetadata.getFrameAtIndex(currentFrame);
-            byte[] decoded = decodeQRImage(frame);
-            if (ingestQRResult(decoded)) {
-                break;
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            long duration = Long.parseLong(mediaMetadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_DURATION)); // ms
+            double frameRate = 30.0;
+            String frameR = mediaMetadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_CAPTURE_FRAMERATE);
+            if (frameR != null)
+                frameRate = Double.parseDouble(frameR);
+            long totalFrames = (long) (frameRate * duration / 1000);
+            for (int currentFrame = 0; currentFrame < totalFrames; currentFrame++) {
+                double micro = (((double) currentFrame / totalFrames) * (duration * 1000));
+                frame = mediaMetadata.getFrameAtTime((long) micro, MediaMetadataRetriever.OPTION_CLOSEST);
+                if (frame != null) {
+//                    frame = scaleBitMap(frame, 500, true);
+                    byte[] decoded = decodeQRImage(frame);
+                    if (ingestQRResult(decoded)) {
+                        break;
+                    }
+                }
+            }
+        } else {
+            for (int currentFrame = 0; currentFrame < Integer.parseInt(mediaMetadata.extractMetadata(MediaMetadataRetriever.METADATA_KEY_VIDEO_FRAME_COUNT)); currentFrame++) {
+                frame = mediaMetadata.getFrameAtIndex(currentFrame);
+                byte[] decoded = decodeQRImage(frame);
+                if (ingestQRResult(decoded)) {
+                    break;
+                }
             }
         }
+
         if (callback != null)
             callback.run(getData());
     }
 
     private void processIntentResult(IntentResult scanningResult) {
+        if (scanningResult == null) {
+            Toaster.showToast("JSON QR Cancelled", Toaster.STATUS.WARNING);
+            return;
+        }
         byte[] content = scanningResult.getContents().getBytes(StandardCharsets.ISO_8859_1);
 
         Set<Byte> keys = qrByteMap.keySet();
