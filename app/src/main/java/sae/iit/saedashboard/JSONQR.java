@@ -65,13 +65,13 @@ public class JSONQR {
 
     public void initiate(QRCallback callback) {
         this.callback = callback;
-//        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
-//            clear();
-//            scanIntegrator.initiateScan(Collections.singletonList(IntentIntegrator.QR_CODE));
-//        } else {
-        clear();
-        recordQRGif();
-//        }
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.P) {
+            clear();
+            scanIntegrator.initiateScan(Collections.singletonList(IntentIntegrator.QR_CODE));
+        } else {
+            clear();
+            recordQRGif();
+        }
     }
 
     static byte[] joinArray(Collection<byte[]> arrays) {
