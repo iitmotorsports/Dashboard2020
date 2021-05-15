@@ -126,10 +126,14 @@ public class JSONQR {
         expected = -1;
     }
 
+    private byte currentByte = -1;
+
     private boolean ingestQRResult(byte[] ISO_8859_1_Bytes) {
+        currentByte = -1;
         if (ISO_8859_1_Bytes == null)
             return false;
         byte[] bytes = android.util.Base64.decode(ISO_8859_1_Bytes, android.util.Base64.DEFAULT);
+        currentByte = bytes[1];
         byte[] raw_bytes = Arrays.copyOfRange(bytes, 2, bytes.length);
 
         expected = bytes[0];
@@ -227,7 +231,9 @@ public class JSONQR {
         StringBuilder dataMap = new StringBuilder();
         dataMap.append("Data:");
         for (byte i = 0; i <= expected; i++) {
-            if (keys.contains(i))
+            if (i == currentByte)
+                dataMap.append('█');
+            else if (keys.contains(i))
                 dataMap.append('■');
             else
                 dataMap.append(" ").append(i).append(" ");
