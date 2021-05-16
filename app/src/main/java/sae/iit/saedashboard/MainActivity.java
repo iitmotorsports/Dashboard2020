@@ -110,10 +110,11 @@ public class MainActivity extends AppCompatActivity {
 
     private static int setConsoleWidth = 0;
 
-
     @Override
-    protected void onCreate(Bundle savedInstanceState) {
+    protected void onCreate(Bundle savedInstanceState) { // FIXME: onCreate called twice sometimes?
         startActivity(new Intent(this, SplashActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED));
+
+        // FIXME: main activity is shown before splash sometimes?
 
         super.onCreate(savedInstanceState);
 
@@ -129,6 +130,8 @@ public class MainActivity extends AppCompatActivity {
         hideSystemUI();
 
         Toaster.setContext(this);
+
+        // TODO: move all data creation into an async
 
         ViewPager2 MainPager = findViewById(R.id.MainPager);
         MyPagerAdapter pagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
