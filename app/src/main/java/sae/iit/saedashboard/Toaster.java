@@ -13,6 +13,8 @@ public class Toaster {
 
     static Activity act;
 
+    private static boolean enable = true;
+
     public enum STATUS {
         NORMAL,
         INFO,
@@ -48,6 +50,8 @@ public class Toaster {
 
     public static void showToast(String msg, boolean longLength, boolean rightSide, STATUS status) { // Improve: always reuse same Toast object
         Log.i("Toast", msg);
+        if (!enable)
+            return;
         act.runOnUiThread(() -> {
             Toast toast;
             switch (status) {
@@ -72,6 +76,10 @@ public class Toaster {
             toast.setGravity(Gravity.BOTTOM | (rightSide ? Gravity.END : Gravity.CENTER), rightSide ? 16 : 0, 16);
             toast.show();
         });
+    }
+
+    public static void setEnabled(boolean enable) {
+        Toaster.enable = enable;
     }
 
 }
