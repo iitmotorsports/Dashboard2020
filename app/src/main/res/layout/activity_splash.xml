@@ -9,8 +9,14 @@
 
     <VideoView
         android:id="@+id/videoView"
-        android:layout_width="wrap_content"
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_gravity="center_vertical"
         tools:visibility="invisible" />
+
+<!--    <TextView-->
+<!--        android:id="@+id/colorBlock"-->
+<!--        android:layout_width="match_parent"-->
+<!--        android:layout_height="match_parent"-->
+<!--        android:background="#B92832" />-->
 </RelativeLayout>
