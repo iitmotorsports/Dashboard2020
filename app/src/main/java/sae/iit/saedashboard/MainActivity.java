@@ -7,6 +7,10 @@ import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.os.Build;
 import android.os.Bundle;
+import android.transition.Explode;
+import android.transition.Fade;
+import android.transition.Slide;
+import android.transition.Transition;
 import android.util.Log;
 import android.view.View;
 import android.view.ViewTreeObserver;
@@ -26,6 +30,7 @@ import androidx.appcompat.widget.SwitchCompat;
 import androidx.constraintlayout.widget.ConstraintLayout;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.core.view.ViewCompat;
 import androidx.viewpager2.widget.ViewPager2;
 
 import com.google.android.material.tabs.TabLayout;
@@ -105,23 +110,24 @@ public class MainActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
 
+        super.onCreate(savedInstanceState);
+
         // Make it fancy on newer devices
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         }
 
-        super.onCreate(savedInstanceState);
-
+        requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_main);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
         hideSystemUI();
 
+
+
         Toaster.setContext(this);
 
-        //Setting up ViewPager, Adapter, and TabLayout
-//        CustomSwipeViewPager MainPager = findViewById(R.id.MainPager);
         ViewPager2 MainPager = findViewById(R.id.MainPager);
         MyPagerAdapter pagerAdapter = new MyPagerAdapter(getSupportFragmentManager());
         TabLayout tabLayout = findViewById(R.id.tabLayout);
@@ -157,9 +163,7 @@ public class MainActivity extends AppCompatActivity {
                 }
             }
         });
-
         ConsoleLayout.getViewTreeObserver().
-
                 addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
                     @Override
                     public void onGlobalLayout() {
@@ -186,6 +190,7 @@ public class MainActivity extends AppCompatActivity {
         secondTab = (SecondaryTab) pagerAdapter.list.get(1).first;
         dataTab = (DataLogTab) pagerAdapter.list.get(2).first;
         pinoutTab = (PinoutTab) pagerAdapter.list.get(3).first;
+
         assert dataTab != null;
         assert pinoutTab != null;
         dataTab.setActivity(this);
