@@ -102,8 +102,6 @@ public class DataLogTab extends Fragment implements SideControlSize {
                 showLine();
             }
         });
-
-        createConfirmDialog();
         return rootView;
     }
 
@@ -258,6 +256,9 @@ public class DataLogTab extends Fragment implements SideControlSize {
 
     private void confirm(Runnable run, String confirmText) {
         confirm_run = run;
+        if (confirmText == null) {
+            createConfirmDialog();
+        }
         if (!confirm_dialog.isShowing()) {
             activity.runOnUiThread(() -> {
                 confirm_text.setText(confirmText);
@@ -393,7 +394,7 @@ public class DataLogTab extends Fragment implements SideControlSize {
         this.loggingIO = stream.getLoggingIO();
     }
 
-    public void setActivity(Activity activity){
+    public void setActivity(Activity activity) {
         this.activity = activity;
     }
 

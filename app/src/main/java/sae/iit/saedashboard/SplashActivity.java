@@ -1,5 +1,6 @@
 package sae.iit.saedashboard;
 
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.ActivityOptions;
 import android.content.Intent;
@@ -18,16 +19,17 @@ import android.view.MotionEvent;
 import android.view.View;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.animation.AccelerateInterpolator;
 import android.widget.TextView;
 import android.widget.VideoView;
 
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.app.ActivityOptionsCompat;
+import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 
-public class SplashActivity extends Activity {
+public class SplashActivity extends AppCompatActivity {
     VideoView videoView;
-//    TextView colorBlock;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -38,18 +40,12 @@ public class SplashActivity extends Activity {
             getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         }
 
-        requestWindowFeature(Window.FEATURE_ACTIVITY_TRANSITIONS);
-        Fade f = new Fade();
-        getWindow().setEnterTransition(f);
-        getWindow().setExitTransition(f);
-
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
         setContentView(R.layout.activity_splash);
         setRequestedOrientation(ActivityInfo.SCREEN_ORIENTATION_LANDSCAPE);
 
         videoView = findViewById(R.id.videoView);
-//        colorBlock = findViewById(R.id.colorBlock);
 
         View decorView = getWindow().getDecorView();
         int uiOptions = View.SYSTEM_UI_FLAG_FULLSCREEN | View.SYSTEM_UI_FLAG_HIDE_NAVIGATION | View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY;
@@ -58,9 +54,11 @@ public class SplashActivity extends Activity {
         Uri video = Uri.parse("android.resource://" + getPackageName() + "/" + R.raw.startup);
         videoView.setVideoURI(video);
         videoView.setOnCompletionListener(mp -> startNextActivity());
-        videoView.start();
-//        videoView.postDelayed(() -> colorBlock.setVisibility(View.GONE), 500);
-//        videoView.postDelayed(() -> colorBlock.setVisibility(View.VISIBLE), 1650);
+        videoView.seekTo(10);
+        videoView.postDelayed(() -> {
+            videoView.setAlpha(1);
+            videoView.start();
+        }, 500);
     }
 
     @Override
@@ -73,7 +71,6 @@ public class SplashActivity extends Activity {
     private void startNextActivity() {
         if (isFinishing())
             return;
-        startActivity(new Intent(this, MainActivity.class), ActivityOptions.makeSceneTransitionAnimation(this).toBundle());
-//        finish();
+        finishAfterTransition();
     }
 }
