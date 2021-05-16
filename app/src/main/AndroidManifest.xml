@@ -27,6 +27,7 @@
 
         <activity
             android:name="sae.iit.saedashboard.SplashActivity"
+            android:noHistory="true"
             android:screenOrientation="landscape">
             <intent-filter>
                 <action android:name="android.hardware.usb.action.USB_DEVICE_ATTACHED" />
