@@ -72,5 +72,6 @@ public class SplashActivity extends AppCompatActivity {
         if (isFinishing())
             return;
         finishAfterTransition();
+        Toaster.setEnabled(true);
     }
 }

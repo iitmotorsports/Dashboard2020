@@ -255,6 +255,7 @@ public class MainActivity extends AppCompatActivity {
                     setConnStatus(broadcasting, situation);
                 }));
 
+        Toaster.setEnabled(false);
         setupTeensyStream();
         nearbyStream.setReceiver(rawData -> TStream.receiveRawData(rawData));
 
