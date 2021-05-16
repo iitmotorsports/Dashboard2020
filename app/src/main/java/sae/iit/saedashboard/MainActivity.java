@@ -113,6 +113,8 @@ public class MainActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        startActivity(new Intent(this, SplashActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED));
+
         super.onCreate(savedInstanceState);
 
         // Make it fancy on newer devices
@@ -257,9 +259,8 @@ public class MainActivity extends AppCompatActivity {
 
         Toaster.setEnabled(false);
         setupTeensyStream();
+        Toaster.setEnabled(true);
         nearbyStream.setReceiver(rawData -> TStream.receiveRawData(rawData));
-
-        startActivity(new Intent(this, SplashActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK | Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_RESET_TASK_IF_NEEDED));
     }
 
     @Override
