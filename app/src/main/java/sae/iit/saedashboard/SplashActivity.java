@@ -31,6 +31,8 @@ import androidx.interpolator.view.animation.LinearOutSlowInInterpolator;
 public class SplashActivity extends AppCompatActivity {
     VideoView videoView;
 
+    public static final int SPLASH_FINISH = 456;
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
 
@@ -71,6 +73,7 @@ public class SplashActivity extends AppCompatActivity {
     private void startNextActivity() {
         if (isFinishing())
             return;
+        setResult(RESULT_OK);
         finishAfterTransition();
     }
 }

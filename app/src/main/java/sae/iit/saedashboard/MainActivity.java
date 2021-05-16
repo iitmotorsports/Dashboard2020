@@ -115,12 +115,12 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        startActivityForResult(new Intent(this, SplashActivity.class), SplashActivity.SPLASH_FINISH);
+
         // Make it fancy on newer devices
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.P) {
             getWindow().getAttributes().layoutInDisplayCutoutMode = WindowManager.LayoutParams.LAYOUT_IN_DISPLAY_CUTOUT_MODE_SHORT_EDGES;
         }
-
-        startActivity(new Intent(this, SplashActivity.class));
 
         requestWindowFeature(Window.FEATURE_NO_TITLE);
         getWindow().addFlags(WindowManager.LayoutParams.FLAG_FULLSCREEN);
@@ -257,12 +257,15 @@ public class MainActivity extends AppCompatActivity {
                     setConnStatus(broadcasting, situation);
                 }));
 
-        setupTeensyStream();
         nearbyStream.setReceiver(rawData -> TStream.receiveRawData(rawData));
     }
 
     @Override
     public void onActivityResult(int requestCode, int resultCode, Intent resultData) {
+        if (requestCode == SplashActivity.SPLASH_FINISH){
+            setupTeensyStream();
+            return;
+        }
         super.onActivityResult(requestCode, resultCode, resultData);
         TStream.onActivityResult(requestCode, resultCode, resultData);
     }
